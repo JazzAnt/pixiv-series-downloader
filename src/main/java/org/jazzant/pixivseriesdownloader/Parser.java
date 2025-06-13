@@ -11,11 +11,15 @@ import java.util.List;
 
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
+    private final WebDriver driver;
+    //set by setters
     private int implicitWaitTime;
-    private WebDriver driver;
     private String seriesLink;
+    private String chapterNameFormat;
+    //set by getSeriesDetailsFromSeriesPage()
     private String seriesTitle;
     private String artist;
+    //set by getCurrentChapterDetails()
     private String currentChapterLink;
     private String currentChapterTitle;
     private String currentChapterPixivID;
@@ -28,6 +32,7 @@ public class Parser {
     public Parser(){
         driver = new ChromeDriver();
         setImplicitWaitTime(15);
+        chapterNameFormat = "";
     }
 
     /**
@@ -48,6 +53,14 @@ public class Parser {
         driver.get(this.seriesLink);
         currentChapterLink = "seriesPage";
         isLatestChapter = false;
+    }
+
+    /**
+     * Sets the formatting of the chapter
+     * @param chapterNameFormat
+     */
+    public void setChapterNameFormat(String chapterNameFormat){
+        this.chapterNameFormat = chapterNameFormat;
     }
 
     /**
@@ -140,21 +153,17 @@ public class Parser {
 
     /**
      * Generates the chapter name for the file download, by default formatted as something like (Chapter123-title) but
-     * can be given a formatter to make a custom filename.
+     * can be given a formatter to make a custom filename. The formatter must contain either the chapter title, number,
+     * id, or upload date or else it will use the default format (because if it doesn't contain at least one of the
+     * aforementioned parameters, it might end up using the same name for every chapter).
      * @return formatted filename
      */
     public String generateFileName(){
-        return "Chapter" + currentChapterNumber + "_" + currentChapterTitle;
-    }
-
-    /**
-     * Generates the chapter name for the file download, by default formatted as something like (Chapter123-title) but
-     * can be given a formatter to make a custom filename.
-     * @param chapterNameFormat TODO add instructions here
-     * @return formatted filename
-     */
-    public String generateFileName(String chapterNameFormat){
-       return chapterNameFormat
+        if(chapterNameFormat.contains("{chapter_title}")
+        || chapterNameFormat.contains("{chapter_number}")
+        || chapterNameFormat.contains("{chapter_id}")
+        || chapterNameFormat.contains("{upload_date}"))
+            return chapterNameFormat
                .replace("{chapter_title}", currentChapterTitle)
                .replace("{chapter_number}", currentChapterNumber+"")
                .replace("{chapter_id}", currentChapterPixivID)
@@ -162,5 +171,7 @@ public class Parser {
                .replace("{page_amount}", currentChapterPageAmount+"")
                .replace("{artist}", artist)
                .replace("{series_title}", seriesTitle);
+
+        return "Chapter" + currentChapterNumber + "_" + currentChapterTitle;
     }
 }
