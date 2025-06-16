@@ -35,6 +35,16 @@ public class Parser {
         chapterImageLinks = new ArrayList<>();
     }
 
+    public ArrayList<String> getChapterImageLinks(){
+        return chapterImageLinks;
+    }
+    public String getSeriesArtist(){
+        return seriesArtist;
+    }
+    public String getSeriesTitle(){
+        return seriesTitle;
+    }
+
     /**
      * Modifies the amount of wait time the driver will wait for the JS elements to appear before failing (Default is 15 seconds)
      * @param implicitWaitTime the amount of wait time in seconds
@@ -51,7 +61,7 @@ public class Parser {
     public void setSeries(String seriesLink){
         driver.get(seriesLink);
         this.seriesLink = seriesLink;
-        currentLink = seriesLink;
+        currentLink = this.seriesLink;
     }
 
     /**
@@ -68,7 +78,7 @@ public class Parser {
      * @return true if the series exists, false if it's not.
      */
     public boolean seriesExists(){
-        return driver.findElements(By.className("eBICek")).isEmpty();
+        return !driver.findElement(By.tagName("h1")).getText().equals("Page not found");
     }
 
     /**
@@ -84,16 +94,30 @@ public class Parser {
      */
     private void parseSeriesTitle(){
         if(currentLink.equals(seriesLink))
-            seriesTitle = driver.findElement(By.className("eoyqMs")).getText();
-        else
-            seriesTitle = driver.findElement(By.className("bwGruY")).getText().split("#")[0];
+            seriesTitle = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[1]"))
+                    .getText();
+        else {
+            String[] tempArray = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                    .getText().split("#");
+            tempArray[tempArray.length - 1] = "";
+            seriesTitle = String.join("", tempArray).trim();
+        }
     }
 
     /**
      * Parses the series artist name and sets its variable.
      */
     private void parseSeriesArtist(){
-        seriesArtist = driver.findElement(By.className("kjDedB")).findElement(By.tagName("div")).getText();
+        if(currentLink.equals(seriesLink))
+            seriesArtist = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/aside/section[1]/h2/div/div/div/a/div"))
+                    .getText();
+        else
+            seriesArtist = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[2]/div/div/div[1]/h2/div/div/a/div"))
+                    .getText();
     }
 
     /**
@@ -101,9 +125,13 @@ public class Parser {
      */
     public void goToNextChapter(){
         if(currentLink.equals(seriesLink))
-            currentLink = PIXIV_URL + driver.findElement(By.className("gQCZLY")).getDomAttribute("href");
+            currentLink = PIXIV_URL + driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[3]/div/a"))
+                    .getDomAttribute("href");
         else
-            currentLink = PIXIV_URL + driver.findElement(By.className("gtm-series-next-work-button-in-illust-detail")).getDomAttribute("href");
+            currentLink = PIXIV_URL + driver
+                    .findElement(By.className("gtm-series-next-work-button-in-illust-detail"))
+                    .getDomAttribute("href");
         driver.get(currentLink);
     }
 
@@ -124,7 +152,7 @@ public class Parser {
      * Parses the current chapter title and sets its variable.
      */
     private void parseChapterTitle(){
-        chapterTitle = driver.findElement(By.className("dMvYWS")).getText();
+        chapterTitle = driver.findElement(By.tagName("h1")).getText();
     }
 
     /**
@@ -139,29 +167,36 @@ public class Parser {
      * Parses the current chapter upload date and sets it's variable
      */
     private void parseChapterUploadDate(){
-        chapterUploadDate = driver.findElement(By.tagName("time")).getDomAttribute("datetime").split("T")[0];
+        chapterUploadDate = driver.findElement(By.tagName("time"))
+                .getDomAttribute("datetime").split("T")[0];
     }
 
     /**
      * Parses the current chapter number and sets it's variable
      */
     private void parseChapterNumber(){
-        String temp = driver.findElement(By.className("bwGruY")).getText();
-        chapterNumber = temp.charAt(temp.length()-1) - '0';
+        String[] tempArray = driver
+                .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                .getText().split("#");
+        chapterNumber = Integer.parseInt(tempArray[tempArray.length - 1]);
     }
 
     /**
      * Parses the current chapter page count and sets it's variable
      */
     private void parseChapterPageCount(){
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         List<WebElement> tempList = driver.findElements(By.className("gtm-manga-viewer-open-preview"));
-        if(!tempList.isEmpty()){
-            String temp = tempList.get(0).findElement(By.tagName("span")).getText();
-            chapterPageAmount = temp.charAt(temp.length()-1) - '0';
-        }
-        else
+        if(tempList.isEmpty()){ //this code is done because the page counter doesn't appear on single-page chapters
             chapterPageAmount = 1;
+        }
+        else{
+            String[] tempArray = tempList.getFirst()
+                    .findElement(By.tagName("div"))
+                    .findElement(By.tagName("span"))
+                    .getText().split("/");
+            chapterPageAmount = Integer.parseInt(tempArray[tempArray.length - 1]);
+        }
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWaitTime));
     }
 
@@ -171,13 +206,13 @@ public class Parser {
     private void parseImageLinks(){
         chapterImageLinks.clear();
         //Get the image link and split it in two
-        String temp = driver.findElement(By.className("feuJAv")).getDomAttribute("src");
-        String[] tempArray = temp.split("0_master1200");
-        //Fill the image links list, using the above image link and inserting the page number in between each
-        //because that's how pixiv links are formatted
+        String temp = driver
+                .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/div/img"))
+                .getDomAttribute("src");
         for(int page = 0; page< chapterPageAmount; page++){
-            temp = tempArray[0] + page + tempArray[1];
-            chapterImageLinks.add(temp);
+            chapterImageLinks.add(temp
+                    .replace("0_master1200", page+"")
+                    .replace("master", "original"));
         }
     }
 
@@ -189,7 +224,7 @@ public class Parser {
         if(currentLink.equals(seriesLink)) return false;
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         boolean isLatestChapter = driver.findElements(By.className("gtm-series-next-work-button-in-illust-detail")).isEmpty();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWaitTime));
         return isLatestChapter;
     }
 
