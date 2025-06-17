@@ -13,7 +13,10 @@ import java.util.List;
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
     private final WebDriver driver;
+    private boolean isLoggedIn;
     //set by setters
+    private String pixivUsername;
+    private String pixivPassword;
     private int implicitWaitTime;
     private String seriesLink;
     private String chapterNameFormat;
@@ -33,15 +36,45 @@ public class Parser {
         FirefoxOptions options = new FirefoxOptions();
 //        options.addArguments("--headless=new");
         options.addArguments("--width=400");
-        options.addArguments("--height=400");
+        options.addArguments("--height=450");
         driver = new FirefoxDriver(options);
-        setImplicitWaitTime(15);
+        setImplicitWaitTime(10);
+        isLoggedIn = false;
         chapterNameFormat = "";
+        pixivUsername = "";
+        pixivPassword = "";
         chapterImageLinks = new ArrayList<>();
     }
 
     public void close(){
         driver.close();
+    }
+
+    public void setPixivUsername(String pixivUsername){this.pixivUsername = pixivUsername;}
+    public void setPixivPassword(String pixivPassword){this.pixivPassword = pixivPassword;}
+
+    public void loginPixiv() throws InterruptedException {
+        driver.get("https://accounts.pixiv.net/login");
+        if(!pixivUsername.isBlank()) {
+            WebElement login = driver.findElements(By.tagName("fieldset")).get(0).findElement(By.tagName("input"));
+            login.sendKeys(pixivUsername);
+        }
+        if(!pixivPassword.isBlank()) {
+            WebElement passwordInput = driver.findElements(By.tagName("fieldset")).get(1).findElement(By.tagName("input"));
+            passwordInput.sendKeys(pixivPassword);
+        }
+        if(!pixivUsername.isBlank() && !pixivPassword.isBlank()) {
+            WebElement loginButton = driver.findElement(By.id("app-mount-point")).findElements(By.tagName("button")).get(5);
+            loginButton.click();
+
+            if (driver.findElements(By.className("zone-name-title")).isEmpty()){
+                System.out.println("login fail");
+            }
+            else {
+                isLoggedIn = true;
+               System.out.println("logged in");
+            }
+        }
     }
 
     public ArrayList<String> getChapterImageLinks(){
@@ -55,7 +88,7 @@ public class Parser {
     }
 
     /**
-     * Modifies the amount of wait time the driver will wait for the JS elements to appear before failing (Default is 15 seconds)
+     * Modifies the amount of wait time the driver will wait for the JS elements to load before failing (Default is 10 seconds)
      * @param implicitWaitTime the amount of wait time in seconds
      */
     public void setImplicitWaitTime(int implicitWaitTime){
