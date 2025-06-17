@@ -1,7 +1,8 @@
 module org.jazzant.pixivseriesdownloader {
     requires javafx.controls;
     requires javafx.fxml;
-    requires org.seleniumhq.selenium.chrome_driver;
+    requires org.seleniumhq.selenium.support;
+    requires org.seleniumhq.selenium.firefox_driver;
 
 
     opens org.jazzant.pixivseriesdownloader to javafx.fxml;

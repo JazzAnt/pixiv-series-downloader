@@ -3,7 +3,8 @@ package org.jazzant.pixivseriesdownloader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -29,10 +30,18 @@ public class Parser {
     private ArrayList<String> chapterImageLinks;
 
     public Parser(){
-        driver = new ChromeDriver();
+        FirefoxOptions options = new FirefoxOptions();
+//        options.addArguments("--headless=new");
+        options.addArguments("--width=400");
+        options.addArguments("--height=400");
+        driver = new FirefoxDriver(options);
         setImplicitWaitTime(15);
         chapterNameFormat = "";
         chapterImageLinks = new ArrayList<>();
+    }
+
+    public void close(){
+        driver.close();
     }
 
     public ArrayList<String> getChapterImageLinks(){
