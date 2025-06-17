@@ -212,7 +212,8 @@ public class Parser {
         for(int page = 0; page< chapterPageAmount; page++){
             chapterImageLinks.add(temp
                     .replace("0_master1200", page+"")
-                    .replace("master", "original"));
+                    .replace("master", "original")
+                    .replace(".jpg", ".png"));
         }
     }
 
