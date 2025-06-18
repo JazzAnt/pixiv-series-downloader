@@ -1,10 +1,12 @@
 package org.jazzant.pixivseriesdownloader;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -13,11 +15,12 @@ import java.util.List;
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
     private final WebDriver driver;
+    private final WebDriverWait driverWait;
     private boolean isLoggedIn;
     //set by setters
     private String pixivUsername;
     private String pixivPassword;
-    private int implicitWaitTime;
+    private int waitTime;
     private String seriesLink;
     private String chapterNameFormat;
     //set by parseSeriesDetails()
@@ -38,7 +41,8 @@ public class Parser {
         options.addArguments("--width=400");
         options.addArguments("--height=450");
         driver = new FirefoxDriver(options);
-        setImplicitWaitTime(10);
+        driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        setWaitTime(10);
         isLoggedIn = false;
         chapterNameFormat = "";
         pixivUsername = "";
@@ -53,7 +57,9 @@ public class Parser {
     public void setPixivUsername(String pixivUsername){this.pixivUsername = pixivUsername;}
     public void setPixivPassword(String pixivPassword){this.pixivPassword = pixivPassword;}
 
-    public void loginPixiv() throws InterruptedException {
+    public boolean loginPixiv() {
+        if(isLoggedIn) return true;
+
         driver.get("https://accounts.pixiv.net/login");
         if(!pixivUsername.isBlank()) {
             WebElement login = driver.findElements(By.tagName("fieldset")).get(0).findElement(By.tagName("input"));
@@ -67,14 +73,15 @@ public class Parser {
             WebElement loginButton = driver.findElement(By.id("app-mount-point")).findElements(By.tagName("button")).get(5);
             loginButton.click();
 
-            if (driver.findElements(By.className("zone-name-title")).isEmpty()){
-                System.out.println("login fail");
-            }
-            else {
+            try {
+                driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
                 isLoggedIn = true;
-               System.out.println("logged in");
+            }
+            catch (TimeoutException _){
+                isLoggedIn = false;
             }
         }
+        return isLoggedIn;
     }
 
     public ArrayList<String> getChapterImageLinks(){
@@ -88,12 +95,14 @@ public class Parser {
     }
 
     /**
-     * Modifies the amount of wait time the driver will wait for the JS elements to load before failing (Default is 10 seconds)
-     * @param implicitWaitTime the amount of wait time in seconds
+     * Modifies the amount of wait time the driver will wait for various operation attempts (such as waiting for
+     * a webpage or web element to load) before giving up
+     * @param waitTime the amount of wait time in seconds (Default is 10 seconds)
      */
-    public void setImplicitWaitTime(int implicitWaitTime){
-        this.implicitWaitTime = implicitWaitTime;
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(this.implicitWaitTime));
+    public void setWaitTime(int waitTime){
+        this.waitTime = waitTime;
+        driverWait.withTimeout(Duration.ofSeconds(this.waitTime));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(this.waitTime));
     }
 
     /**
@@ -239,7 +248,7 @@ public class Parser {
                     .getText().split("/");
             chapterPageAmount = Integer.parseInt(tempArray[tempArray.length - 1]);
         }
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWaitTime));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
     }
 
     /**
@@ -267,7 +276,7 @@ public class Parser {
         if(currentLink.equals(seriesLink)) return false;
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         boolean isLatestChapter = driver.findElements(By.className("gtm-series-next-work-button-in-illust-detail")).isEmpty();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWaitTime));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
         return isLatestChapter;
     }
 
