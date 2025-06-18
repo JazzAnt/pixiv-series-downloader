@@ -33,13 +33,13 @@ public class Parser {
     private String chapterUploadDate;
     private int chapterNumber;
     private int chapterPageAmount;
-    private ArrayList<String> chapterImageLinks;
+    private final ArrayList<String> chapterImageLinks;
 
     public Parser(){
         FirefoxOptions options = new FirefoxOptions();
 //        options.addArguments("--headless=new");
         options.addArguments("--width=400");
-        options.addArguments("--height=450");
+        options.addArguments("--height=500");
         driver = new FirefoxDriver(options);
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
         setWaitTime(10);
@@ -62,15 +62,18 @@ public class Parser {
 
         driver.get("https://accounts.pixiv.net/login");
         if(!pixivUsername.isBlank()) {
-            WebElement login = driver.findElements(By.tagName("fieldset")).get(0).findElement(By.tagName("input"));
+            WebElement login = driver.findElements(By.tagName("fieldset")).get(0)
+                    .findElement(By.tagName("input"));
             login.sendKeys(pixivUsername);
         }
         if(!pixivPassword.isBlank()) {
-            WebElement passwordInput = driver.findElements(By.tagName("fieldset")).get(1).findElement(By.tagName("input"));
+            WebElement passwordInput = driver.findElements(By.tagName("fieldset")).get(1)
+                    .findElement(By.tagName("input"));
             passwordInput.sendKeys(pixivPassword);
         }
         if(!pixivUsername.isBlank() && !pixivPassword.isBlank()) {
-            WebElement loginButton = driver.findElement(By.id("app-mount-point")).findElements(By.tagName("button")).get(5);
+            WebElement loginButton = driver.findElement(By.id("app-mount-point"))
+                    .findElements(By.tagName("button")).get(5);
             loginButton.click();
 
             try {
@@ -149,9 +152,15 @@ public class Parser {
                     .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[1]"))
                     .getText();
         else {
-            String[] tempArray = driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
-                    .getText().split("#");
+            String[] tempArray;
+            if(isLoggedIn)
+                tempArray = driver
+                        .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                        .getText().split("#");
+            else
+                tempArray = driver
+                        .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                        .getText().split("#");
             tempArray[tempArray.length - 1] = "";
             seriesTitle = String.join("", tempArray).trim();
         }
@@ -165,24 +174,41 @@ public class Parser {
             seriesArtist = driver
                     .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/aside/section[1]/h2/div/div/div/a/div"))
                     .getText();
-        else
+        else if(isLoggedIn){
+            seriesArtist = driver
+                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[2]/div[1]/div/div[1]/h2/div/div/a/div"))
+                    .getText();
+        }
+        else{
             seriesArtist = driver
                     .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[2]/div/div/div[1]/h2/div/div/a/div"))
                     .getText();
+        }
+
+
     }
 
     /**
      * Goes to the next chapter, or the first chapter if the current page is the series page.
      */
     public void goToNextChapter(){
-        if(currentLink.equals(seriesLink))
-            currentLink = PIXIV_URL + driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[3]/div/a"))
-                    .getDomAttribute("href");
-        else
+        if(!currentLink.equals(seriesLink)){
             currentLink = PIXIV_URL + driver
                     .findElement(By.className("gtm-series-next-work-button-in-illust-detail"))
                     .getDomAttribute("href");
+        }
+        else if(isLoggedIn){
+            currentLink = PIXIV_URL + driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[4]/div/a"))
+                    .getDomAttribute("href");
+        }
+        else {
+            currentLink = PIXIV_URL + driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[3]/div/a"))
+                    .getDomAttribute("href");
+        }
+
+
         driver.get(currentLink);
     }
 
@@ -226,9 +252,18 @@ public class Parser {
      * Parses the current chapter number and sets it's variable
      */
     private void parseChapterNumber(){
-        String[] tempArray = driver
-                .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
-                .getText().split("#");
+        String[] tempArray;
+        if(isLoggedIn){
+            tempArray = driver
+                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                    .getText().split("#");
+        }
+        else {
+            tempArray = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figcaption/div[2]/div/div[2]/a"))
+                    .getText().split("#");
+        }
+
         chapterNumber = Integer.parseInt(tempArray[tempArray.length - 1]);
     }
 
@@ -256,10 +291,28 @@ public class Parser {
      */
     private void parseImageLinks(){
         chapterImageLinks.clear();
-        //Get the image link and split it in two
-        String temp = driver
-                .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/div/img"))
-                .getDomAttribute("src");
+        String temp;
+        if(chapterPageAmount == 1 && isLoggedIn){
+            temp = driver
+                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/a/img"))
+                    .getDomAttribute("src");
+        }
+        else if(chapterPageAmount > 1 && isLoggedIn){
+            temp = driver
+                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/a/img"))
+                    .getDomAttribute("src");
+        }
+        else if(chapterPageAmount == 1 && !isLoggedIn){
+            temp = driver
+                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/div/img"))
+                    .getDomAttribute("src");
+        }
+        else{ //if(chapterPageAmount > 1 && !isLoggedIn)
+            temp = driver
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/div/img"))
+                    .getDomAttribute("src");
+        }
+
         for(int page = 0; page< chapterPageAmount; page++){
             chapterImageLinks.add(temp
                     .replace("0_master1200", page+"")
