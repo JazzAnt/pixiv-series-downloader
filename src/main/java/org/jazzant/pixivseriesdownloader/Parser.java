@@ -1,9 +1,6 @@
 package org.jazzant.pixivseriesdownloader;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,6 +13,7 @@ public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
     private final WebDriver driver;
     private final WebDriverWait driverWait;
+    private final WebDriverWait driverLongWait;
     private boolean isLoggedIn;
     //set by setters
     private String pixivUsername;
@@ -42,6 +40,7 @@ public class Parser {
         options.addArguments("--height=500");
         driver = new FirefoxDriver(options);
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(99));
         setWaitTime(10);
         isLoggedIn = false;
         chapterNameFormat = "";
@@ -79,9 +78,26 @@ public class Parser {
             try {
                 driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
                 isLoggedIn = true;
+                return isLoggedIn;
             }
             catch (TimeoutException _){
                 isLoggedIn = false;
+            }
+
+            String reCaptchaTitle = driver.findElement(By.tagName("iframe")).getDomAttribute("title");
+            if(reCaptchaTitle != null && reCaptchaTitle.equals("reCAPTCHA")){
+                WebDriver.Window window = driver.manage().window();
+                Point position = window.getPosition();
+                window.minimize();
+                window.setPosition(position);
+                try {
+                    driverLongWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
+                    isLoggedIn = true;
+                    return isLoggedIn;
+                }
+                catch (TimeoutException _){
+                    isLoggedIn = false;
+                }
             }
         }
         return isLoggedIn;
