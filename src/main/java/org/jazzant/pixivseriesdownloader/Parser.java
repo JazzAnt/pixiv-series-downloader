@@ -3,6 +3,7 @@ package org.jazzant.pixivseriesdownloader;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -12,6 +13,7 @@ import java.util.List;
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
     private final WebDriver driver;
+    private final WebDriver.Window window;
     private final WebDriverWait driverWait;
     private final WebDriverWait driverLongWait;
     private boolean isLoggedIn;
@@ -39,6 +41,7 @@ public class Parser {
         options.addArguments("--width=400");
         options.addArguments("--height=500");
         driver = new FirefoxDriver(options);
+        window = driver.manage().window();
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(99));
         setWaitTime(10);
@@ -58,49 +61,82 @@ public class Parser {
 
     public boolean loginPixiv() {
         if(isLoggedIn) return true;
+        goToLoginPage();
+        if(enterUsernameField() && enterPasswordField()) {
+            clickLoginButton();
+            isLoggedIn = waitForLoginShort();
+            if(isLoggedIn) return true;
 
-        driver.get("https://accounts.pixiv.net/login");
-        if(!pixivUsername.isBlank()) {
-            WebElement login = driver.findElements(By.tagName("fieldset")).get(0)
-                    .findElement(By.tagName("input"));
-            login.sendKeys(pixivUsername);
+            if(detectReCAPTCHA()){
+                windowToFront();
+                isLoggedIn = waitForLoginLong();
+            }
         }
-        if(!pixivPassword.isBlank()) {
-            WebElement passwordInput = driver.findElements(By.tagName("fieldset")).get(1)
-                    .findElement(By.tagName("input"));
-            passwordInput.sendKeys(pixivPassword);
-        }
-        if(!pixivUsername.isBlank() && !pixivPassword.isBlank()) {
-            WebElement loginButton = driver.findElement(By.id("app-mount-point"))
-                    .findElements(By.tagName("button")).get(5);
-            loginButton.click();
-
-            try {
-                driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
-                isLoggedIn = true;
-                return isLoggedIn;
-            }
-            catch (TimeoutException _){
-                isLoggedIn = false;
-            }
-
-            String reCaptchaTitle = driver.findElement(By.tagName("iframe")).getDomAttribute("title");
-            if(reCaptchaTitle != null && reCaptchaTitle.equals("reCAPTCHA")){
-                WebDriver.Window window = driver.manage().window();
-                Point position = window.getPosition();
-                window.minimize();
-                window.setPosition(position);
-                try {
-                    driverLongWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
-                    isLoggedIn = true;
-                    return isLoggedIn;
-                }
-                catch (TimeoutException _){
-                    isLoggedIn = false;
-                }
-            }
+        else {
+            windowToFront();
+            isLoggedIn = waitForLoginLong();
         }
         return isLoggedIn;
+    }
+
+    private void goToLoginPage(){
+        driver.get("https://accounts.pixiv.net/login");
+    }
+    private boolean enterUsernameField(){
+        if(!driver.getCurrentUrl().contains("accounts.pixiv.net/login") || pixivUsername.isBlank())
+            return false;
+
+        driver.findElements(By.tagName("fieldset")).get(0)
+                .findElement(By.tagName("input"))
+                .sendKeys(pixivUsername);
+        return true;
+    }
+    private boolean enterPasswordField(){
+        if(!driver.getCurrentUrl().contains("accounts.pixiv.net/login") || pixivPassword.isBlank())
+            return false;
+
+        driver.findElements(By.tagName("fieldset")).get(1)
+                .findElement(By.tagName("input"))
+                .sendKeys(pixivPassword);
+        return true;
+    }
+    private void clickLoginButton(){
+        driver.findElement(By.id("app-mount-point"))
+                .findElements(By.tagName("button")).get(5)
+                .click();
+    }
+    private boolean waitForLoginShort(){
+        try {
+            driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
+            return true;
+        }
+        catch (TimeoutException _){
+            return false;
+        }
+    }
+    private boolean waitForLoginLong(){
+        try {
+            driverLongWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
+            return true;
+        }
+        catch (TimeoutException _){
+            return false;
+        }
+    }
+    private boolean detectReCAPTCHA(){
+        List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
+        for(WebElement iframe : iframes){
+            if(iframe.getDomAttribute("title") != null && iframe.getDomAttribute("title").equals("reCAPTCHA")){
+                new Actions(driver).moveToElement(iframe).perform();
+                return true;
+            }
+        }
+        return false;
+    }
+    private void windowToFront(){
+        Point position = window.getPosition();
+        window.minimize();
+        window.setPosition(position);
     }
 
     public ArrayList<String> getChapterImageLinks(){
