@@ -1,9 +1,12 @@
 package org.jazzant.pixivseriesdownloader;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
@@ -19,6 +22,7 @@ public class Downloader{
     public static final int SAVE_AS_CBZ = 0;
     public static final int SAVE_AS_ZIP = 1;
     public static final int SAVE_AS_FOLDER = 2;
+    public static final int SAVE_AS_PDF = 3;
     private int saveAs;
 
     private ArrayList<String> downloadLinks;
@@ -74,6 +78,10 @@ public class Downloader{
         if(saveAs == Downloader.SAVE_AS_FOLDER) {
             chapterDirectory = seriesDirectory + "\\" + chapterName;
             return downloadChapterAsFolder();
+        }
+        if(saveAs == Downloader.SAVE_AS_PDF){
+            chapterDirectory = seriesDirectory + "\\" + chapterName + ".pdf";
+            return downloadChapterAsPdf();
         }
         return false;
     }
@@ -139,5 +147,40 @@ public class Downloader{
         } catch (IOException | URISyntaxException e) {
             return false;
         }
+    }
+
+    public boolean downloadChapterAsPdf(){
+        try(PDDocument document = new PDDocument()) {
+            for(String link : downloadLinks){
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                URLConnection connection = new URI(link).toURL().openConnection();
+                connection.setRequestProperty("Referer", "https://www.pixiv.net");
+                InputStream inputStream = connection.getInputStream();
+                int length;
+                byte[] buffer = new byte[1024];
+
+                while((length = inputStream.read(buffer)) != -1){
+                    byteArrayOutputStream.write(buffer, 0, length);
+                }
+
+                byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+                String[] pathArray = connection.getURL().getPath().split("/");
+                String filename = pathArray[pathArray.length - 1];
+
+                PDImageXObject image = PDImageXObject.createFromByteArray(document, byteArray, filename);
+                PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
+                document.addPage(page);
+                PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                contentStream.drawImage(image, 0, 0);
+                contentStream.close();
+            }
+            document.save(chapterDirectory);
+            return true;
+        } catch (IOException | URISyntaxException e) {
+            return false;
+        }
+
+
     }
 }
