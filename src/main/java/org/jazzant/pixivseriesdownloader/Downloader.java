@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class Downloader {
-    private static final int SAVE_AS_CBZ = 0;
-    private static final int SAVE_AS_ZIP = 1;
-    private static final int SAVE_AS_FOLDER = 2;
+public class Downloader{
+    public static final int SAVE_AS_CBZ = 0;
+    public static final int SAVE_AS_ZIP = 1;
+    public static final int SAVE_AS_FOLDER = 2;
     private int saveAs;
 
     private ArrayList<String> downloadLinks;
@@ -41,10 +41,15 @@ public class Downloader {
     private String libraryDir;
     private String groupDir;
     private String seriesDir;
+    private String seriesDirectory;
+    private String chapterDirectory;
 
     public Downloader(int saveAs, String libraryDir){
         this.saveAs = saveAs;
         this.libraryDir = libraryDir;
+        groupDir = "";
+        seriesDir = "";
+        chapterName = "";
     }
 
     public void setSaveAs(int saveAs){this.saveAs = saveAs;}
@@ -53,33 +58,41 @@ public class Downloader {
     public void setChapterName(String chapterName){this.chapterName = chapterName;}
     public void setDownloadLinks(ArrayList<String> downloadLinks){this.downloadLinks = downloadLinks;}
 
-    public void downloadChapter(){
-        if(saveAs == Downloader.SAVE_AS_CBZ || saveAs == Downloader.SAVE_AS_ZIP){
-            downloadChapterAsZip();
+    public boolean downloadChapter(){
+        if(libraryDir.isBlank() || seriesDir.isBlank() || chapterName.isBlank())
+            throw new IllegalArgumentException("Directories are not properly set");
+
+        seriesDirectory = generateDirectory();
+        if(saveAs == Downloader.SAVE_AS_CBZ) {
+            chapterDirectory = seriesDirectory + "\\" + chapterName + ".cbz";
+            return downloadChapterAsZip();
         }
-        if(saveAs == Downloader.SAVE_AS_FOLDER){
-            downloadChapterAsFolder();
-        };
+        if(saveAs == Downloader.SAVE_AS_ZIP) {
+            chapterDirectory = seriesDirectory + "\\" + chapterName + ".zip";
+            return downloadChapterAsZip();
+        }
+        if(saveAs == Downloader.SAVE_AS_FOLDER) {
+            chapterDirectory = seriesDirectory + "\\" + chapterName;
+            return downloadChapterAsFolder();
+        }
+        return false;
     }
 
-    public void downloadChapterAsZip(){
+    private String generateDirectory(){
         String directory = libraryDir + "\\" + groupDir + "\\" + seriesDir;
-        String format;
-        if(saveAs == Downloader.SAVE_AS_CBZ) {
-            format = ".cbz";
-        }
-        else {
-            format = ".zip";
-        }
         new File(directory).mkdirs();
-        String chapterDirectory = directory + "\\" + chapterName + format;
+        return directory;
+    }
+
+    private boolean downloadChapterAsZip(){
         try {
             FileOutputStream fos = new FileOutputStream(chapterDirectory);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
 
             for(String link : downloadLinks){
                 URLConnection connection = new URI(link).toURL().openConnection();
-                connection.addRequestProperty("Referer", "https://www.pixiv.net");
+                connection.setRequestProperty("Referer", "https://www.pixiv.net");
+
                 String[] pathArray = connection.getURL().getPath().split("/");
                 String filename = pathArray[pathArray.length - 1];
 
@@ -87,7 +100,6 @@ public class Downloader {
                 zipOut.putNextEntry(zipEntry);
 
                 InputStream inputStream = connection.getInputStream();
-
                 byte[] buffer = new byte[1024];
                 int length;
                 while((length = inputStream.read(buffer)) != -1){
@@ -97,45 +109,35 @@ public class Downloader {
             }
             zipOut.close();
             fos.close();
+            return true;
         } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
-    public void downloadChapterAsFolder(){
-        String directory = libraryDir + "\\" + groupDir + "\\" + seriesDir;
-
-        new File(directory).mkdirs();
-        String chapterDirectory = directory + "\\" + chapterName;
+    public boolean downloadChapterAsFolder(){
         new File(chapterDirectory).mkdirs();
         try {
             for(String link : downloadLinks){
                 URLConnection connection = new URI(link).toURL().openConnection();
-                connection.addRequestProperty("Referer", "https://www.pixiv.net");
+                connection.setRequestProperty("Referer", "https://www.pixiv.net");
+
                 String[] pathArray = connection.getURL().getPath().split("/");
                 String filename = pathArray[pathArray.length - 1];
                 String fileDirectory = chapterDirectory + "\\" + filename;
-//              (Old buffer reliant downloader code, kept in case the new one fails)
-//                FileOutputStream fos = new FileOutputStream(fileDirectory);
-//                InputStream is = connection.getInputStream();
-//
-//                byte[] buffer = new byte[1024];
-//                int length;
-//                while((length = is.read(buffer)) != -1){
-//                    fos.write(buffer, 0, length);
-//                }
-//                is.close();
-//                fos.close();
+
                 ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
                 FileOutputStream fos = new FileOutputStream(fileDirectory);
                 FileChannel fileChannel = fos.getChannel();
                 fileChannel.transferFrom(rbc,0, Long.MAX_VALUE);
+
                 fileChannel.close();
                 fos.close();
                 rbc.close();
             }
+            return true;
         } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 }
