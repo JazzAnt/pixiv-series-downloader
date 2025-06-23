@@ -92,95 +92,91 @@ public class Downloader{
         return directory;
     }
 
+    private InputStream getInputStreamFromImageLink(String imageLink) throws URISyntaxException, IOException {
+        URLConnection connection = new URI(imageLink).toURL().openConnection();
+        connection.setRequestProperty("Referer", "https://www.pixiv.net");
+        return connection.getInputStream();
+    }
+
+    private String getImageIDFromImageLink(String imageLink){
+        String[] pathArray = imageLink.split("/");
+        return pathArray[pathArray.length - 1];
+    }
+
     private boolean downloadChapterAsZip(){
-        try {
-            FileOutputStream fos = new FileOutputStream(chapterDirectory);
-            ZipOutputStream zipOut = new ZipOutputStream(fos);
-
+        try (FileOutputStream fos = new FileOutputStream(chapterDirectory);
+             ZipOutputStream zipOut = new ZipOutputStream(fos);)
+        {
             for(String link : downloadLinks){
-                URLConnection connection = new URI(link).toURL().openConnection();
-                connection.setRequestProperty("Referer", "https://www.pixiv.net");
+                try(InputStream inputStream = getInputStreamFromImageLink(link)){
+                    ZipEntry zipEntry = new ZipEntry(getImageIDFromImageLink(link));
+                    zipOut.putNextEntry(zipEntry);
 
-                String[] pathArray = connection.getURL().getPath().split("/");
-                String filename = pathArray[pathArray.length - 1];
-
-                ZipEntry zipEntry = new ZipEntry(filename);
-                zipOut.putNextEntry(zipEntry);
-
-                InputStream inputStream = connection.getInputStream();
-                byte[] buffer = new byte[1024];
-                int length;
-                while((length = inputStream.read(buffer)) != -1){
-                    zipOut.write(buffer, 0, length);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while((length = inputStream.read(buffer)) != -1){
+                        zipOut.write(buffer, 0, length);
+                    }
                 }
-                inputStream.close();
+                catch (URISyntaxException e){
+                    return false;
+                }
             }
-            zipOut.close();
-            fos.close();
-            return true;
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             return false;
         }
+        return true;
     }
 
     public boolean downloadChapterAsFolder(){
         new File(chapterDirectory).mkdirs();
-        try {
-            for(String link : downloadLinks){
-                URLConnection connection = new URI(link).toURL().openConnection();
-                connection.setRequestProperty("Referer", "https://www.pixiv.net");
-
-                String[] pathArray = connection.getURL().getPath().split("/");
-                String filename = pathArray[pathArray.length - 1];
-                String fileDirectory = chapterDirectory + "\\" + filename;
-
-                ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-                FileOutputStream fos = new FileOutputStream(fileDirectory);
-                FileChannel fileChannel = fos.getChannel();
+        for(String link : downloadLinks){
+            try(ReadableByteChannel rbc = Channels.newChannel(getInputStreamFromImageLink(link));
+                FileOutputStream fos = new FileOutputStream(chapterDirectory + "\\" + getImageIDFromImageLink(link));
+                FileChannel fileChannel = fos.getChannel();)
+            {
                 fileChannel.transferFrom(rbc,0, Long.MAX_VALUE);
-
-                fileChannel.close();
-                fos.close();
-                rbc.close();
             }
-            return true;
-        } catch (IOException | URISyntaxException e) {
-            return false;
+            catch (IOException | URISyntaxException e){
+               return false;
+            }
         }
+        return true;
+    }
+
+    private byte[] getByteArrayFromImageLink(String imageLink) throws URISyntaxException, IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        InputStream inputStream = getInputStreamFromImageLink(imageLink);
+        int length;
+        byte[] buffer = new byte[1024];
+
+        while((length = inputStream.read(buffer)) != -1){
+            byteArrayOutputStream.write(buffer, 0, length);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     public boolean downloadChapterAsPdf(){
-        try(PDDocument document = new PDDocument()) {
-            for(String link : downloadLinks){
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                URLConnection connection = new URI(link).toURL().openConnection();
-                connection.setRequestProperty("Referer", "https://www.pixiv.net");
-                InputStream inputStream = connection.getInputStream();
-                int length;
-                byte[] buffer = new byte[1024];
-
-                while((length = inputStream.read(buffer)) != -1){
-                    byteArrayOutputStream.write(buffer, 0, length);
-                }
-
-                byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-                String[] pathArray = connection.getURL().getPath().split("/");
-                String filename = pathArray[pathArray.length - 1];
-
-                PDImageXObject image = PDImageXObject.createFromByteArray(document, byteArray, filename);
+        PDDocument document = new PDDocument();
+        for(String link : downloadLinks){
+            try {
+                PDImageXObject image = PDImageXObject.createFromByteArray(document, getByteArrayFromImageLink(link), getImageIDFromImageLink(link));
                 PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
                 document.addPage(page);
                 PDPageContentStream contentStream = new PDPageContentStream(document, page);
                 contentStream.drawImage(image, 0, 0);
                 contentStream.close();
             }
+            catch (URISyntaxException | IOException e){
+                return false;
+            }
+        }
+        try {
             document.save(chapterDirectory);
-            return true;
-        } catch (IOException | URISyntaxException e) {
+        }
+        catch (IOException e){
             return false;
         }
-
-
+        return true;
     }
 }
