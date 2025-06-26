@@ -12,6 +12,7 @@ import java.util.List;
 
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
+    private final String seriesLinkRegex = "(https://|http://)?(www\\.pixiv\\.net)?/user/\\d+/series/\\d+$";
     private final WebDriver driver;
     private final WebDriver.Window window;
     private final WebDriverWait driverWait;
@@ -407,5 +408,9 @@ public class Parser {
                .replace("{series_title}", seriesTitle);
 
         return "Chapter" + chapterNumber + "_" + chapterTitle;
+    }
+
+    public boolean checkSeriesLink(String link){
+        return link.matches(seriesLinkRegex);
     }
 }
