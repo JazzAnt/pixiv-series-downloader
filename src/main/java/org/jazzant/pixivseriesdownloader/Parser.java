@@ -9,10 +9,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
-    private final String seriesLinkRegex = "(https://|http://)?(www\\.pixiv\\.net)?/user/\\d+/series/\\d+$";
+    private final String SERIES_LINK_REGEX = "/user/(\\d+)/series/(\\d+)$";
     private final WebDriver driver;
     private final WebDriver.Window window;
     private final WebDriverWait driverWait;
@@ -22,7 +24,8 @@ public class Parser {
     private String pixivUsername;
     private String pixivPassword;
     private int waitTime;
-    private String seriesLink;
+    private String artistID;
+    private String seriesID;
     private String chapterNameFormat;
     //set by parseSeriesDetails()
     private String seriesTitle;
@@ -161,14 +164,27 @@ public class Parser {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(this.waitTime));
     }
 
-    /**
-     * Attempts to go to the series link given in the parameter, and sets the series link if successful.
-     * @param seriesLink The series link, the one that's formatted (pixiv.net/user/___/series/___)
-     */
-    public void setSeries(String seriesLink){
-        driver.get(seriesLink);
-        this.seriesLink = seriesLink;
-        currentLink = this.seriesLink;
+    public boolean setSeries(String seriesLink){
+        Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
+        Matcher matcher = pattern.matcher(seriesLink.trim());
+        if(matcher.find()){
+            artistID = matcher.group(1);
+            seriesID = matcher.group(2);
+            return true;
+        }
+        else return false;
+    }
+
+    public String generateSeriesLink(){
+        return PIXIV_URL + "/user/" + artistID + "/series/" + seriesID;
+    }
+
+    public void goToSeries(){
+        driver.get(generateSeriesLink());
+        currentLink = generateSeriesLink();
+    }
+    public boolean checkSeriesLink(String seriesLink){
+        return seriesLink.trim().matches(SERIES_LINK_REGEX);
     }
 
     /**
@@ -200,7 +216,7 @@ public class Parser {
      * Parses the series title and sets its variable.
      */
     private void parseSeriesTitle(){
-        if(currentLink.equals(seriesLink))
+        if(currentLink.equals(generateSeriesLink()))
             seriesTitle = driver
                     .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[1]"))
                     .getText();
@@ -223,7 +239,7 @@ public class Parser {
      * Parses the series artist name and sets its variable.
      */
     private void parseSeriesArtist(){
-        if(currentLink.equals(seriesLink))
+        if(currentLink.equals(generateSeriesLink()))
             seriesArtist = driver
                     .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/aside/section[1]/h2/div/div/div/a/div"))
                     .getText();
@@ -245,7 +261,7 @@ public class Parser {
      * Goes to the next chapter, or the first chapter if the current page is the series page.
      */
     public void goToNextChapter(){
-        if(!currentLink.equals(seriesLink)){
+        if(!currentLink.equals(generateSeriesLink())){
             currentLink = PIXIV_URL + driver
                     .findElement(By.className("gtm-series-next-work-button-in-illust-detail"))
                     .getDomAttribute("href");
@@ -379,7 +395,7 @@ public class Parser {
      * @return true if it's the latest chapter, and false if not.
      */
     public boolean isLatestChapter(){
-        if(currentLink.equals(seriesLink)) return false;
+        if(currentLink.equals(generateSeriesLink())) return false;
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         boolean isLatestChapter = driver.findElements(By.className("gtm-series-next-work-button-in-illust-detail")).isEmpty();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
@@ -408,9 +424,5 @@ public class Parser {
                .replace("{series_title}", seriesTitle);
 
         return "Chapter" + chapterNumber + "_" + chapterTitle;
-    }
-
-    public boolean checkSeriesLink(String link){
-        return link.matches(seriesLinkRegex);
     }
 }
