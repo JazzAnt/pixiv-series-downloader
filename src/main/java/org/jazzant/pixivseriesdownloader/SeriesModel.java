@@ -14,6 +14,7 @@ public class SeriesModel {
     private final StringProperty artist = new SimpleStringProperty();
     private final IntegerProperty status = new SimpleIntegerProperty();
     //pixiv links
+    private final StringProperty seriesLink = new SimpleStringProperty();
     private final IntegerProperty artistID = new SimpleIntegerProperty();
     private final IntegerProperty seriesID = new SimpleIntegerProperty();
     private final IntegerProperty latestChapterID = new SimpleIntegerProperty();
@@ -37,6 +38,10 @@ public class SeriesModel {
     public int getStatus(){return status.get();}
     public void setStatus(int status){this.status.set(status);}
     public IntegerProperty getStatusProperty(){return status;}
+
+    public String getSeriesLink(){return seriesLink.get();}
+    public void setSeriesLink(String seriesLink){this.seriesLink.set(seriesLink);}
+    public StringProperty getSeriesLinkProperty(){return seriesLink;}
 
     public int getArtistId(){return artistID.get();}
     public void setArtistId(int artistId){this.artistID.set(artistId);}
