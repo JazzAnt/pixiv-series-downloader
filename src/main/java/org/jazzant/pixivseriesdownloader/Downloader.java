@@ -19,8 +19,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Downloader{
-    public static final int SAVE_AS_CBZ = 0;
-    public static final int SAVE_AS_ZIP = 1;
+    public static final int SAVE_AS_ZIP = 0;
+    public static final int SAVE_AS_CBZ = 1;
     public static final int SAVE_AS_FOLDER = 2;
     public static final int SAVE_AS_PDF = 3;
     private int saveAs;
@@ -48,15 +48,16 @@ public class Downloader{
     private String seriesDirectory;
     private String chapterDirectory;
 
-    public Downloader(int saveAs, String libraryDir){
-        this.saveAs = saveAs;
-        this.libraryDir = libraryDir;
+    public Downloader(){
+        this.saveAs = Downloader.SAVE_AS_ZIP;
+        this.libraryDir = "C:\\Library";
         groupDir = "";
         seriesDir = "";
         chapterName = "";
     }
 
     public void setSaveAs(int saveAs){this.saveAs = saveAs;}
+    public void setLibraryDir(String libraryDir){this.libraryDir = libraryDir;}
     public void setGroupDir(String groupDir){this.groupDir = groupDir;}
     public void setSeriesDir(String seriesDir){this.seriesDir = seriesDir;}
     public void setChapterName(String chapterName){this.chapterName = chapterName;}
