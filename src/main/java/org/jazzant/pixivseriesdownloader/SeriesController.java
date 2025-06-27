@@ -10,8 +10,8 @@ public class SeriesController {
 
     public SeriesController(){
         SeriesModel model = new SeriesModel();
-        viewBuilder = new SeriesViewBuilder(model);
         interactor = new SeriesInteractor(model);
+        viewBuilder = new SeriesViewBuilder(model, interactor::saveSeries);
     }
 
     public Region getView(){
