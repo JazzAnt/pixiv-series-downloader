@@ -18,4 +18,19 @@ public class SeriesInteractor {
                 + "\nSeriesID: " + model.getSeriesId()
                 + "\nLatestChapterID: " + model.getLatestChapterId());
     }
+
+    public void parseSeries() {
+        Series series = new Series();
+
+        Parser.setSeries(series);
+        series.setSeriesLink(model.getSeriesLink());
+        Parser.goToSeries();
+        Parser.parseSeriesDetails();
+
+        model.setDirectoryTitle(series.getTitle());
+        model.setTitle(series.getTitle());
+        model.setArtist(series.getArtist());
+        model.setArtistId(series.getArtistID());
+        model.setSeriesId(series.getSeriesID());
+    }
 }

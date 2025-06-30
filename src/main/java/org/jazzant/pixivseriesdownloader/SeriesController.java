@@ -1,7 +1,6 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.scene.layout.Region;
-import javafx.util.Builder;
 
 
 public class SeriesController {
@@ -11,7 +10,7 @@ public class SeriesController {
     public SeriesController(){
         SeriesModel model = new SeriesModel();
         interactor = new SeriesInteractor(model);
-        viewBuilder = new SeriesViewBuilder(model, interactor::saveSeries);
+        viewBuilder = new SeriesViewBuilder(model, interactor::saveSeries, interactor::parseSeries);
     }
 
     public Region getView(){
