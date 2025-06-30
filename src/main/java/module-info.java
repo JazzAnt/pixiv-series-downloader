@@ -4,6 +4,7 @@ module org.jazzant.pixivseriesdownloader {
     requires org.seleniumhq.selenium.support;
     requires org.seleniumhq.selenium.firefox_driver;
     requires org.apache.pdfbox;
+    requires java.sql;
 
 
     opens org.jazzant.pixivseriesdownloader to javafx.fxml;
