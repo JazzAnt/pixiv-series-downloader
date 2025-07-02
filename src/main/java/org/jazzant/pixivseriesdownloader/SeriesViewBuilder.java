@@ -3,6 +3,7 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
@@ -29,82 +30,115 @@ public class SeriesViewBuilder implements Builder<Region> {
     @Override
     public Region build() {
         BorderPane view = new BorderPane();
-        view.setTop(parseButton());
+        view.setTop(createTop());
         view.setCenter(createCenter());
-        view.setBottom(saveButton());
-
+        view.setBottom(createBottom());
+        view.setMinWidth(400);
+        view.setMinHeight(400);
         return view;
     }
 
-    public Node createCenter(){
-        VBox view = new VBox(
-                seriesLinkField(),
+    private Node createTop(){
+        HBox view = new HBox(10,
+                headerLabel("PIXIV SERIES DOWNLOADER"));
+        view.setAlignment(Pos.CENTER);
+        return view;
+    }
+
+    private Node createCenter(){
+        VBox view = new VBox(10,
+            seriesLinkField(),
                 groupDirField(),
                 titleDirField(),
                 titleField(),
                 artistField()
         );
+        view.setFillWidth(true);
+        view.setAlignment(Pos.TOP_LEFT);
         return view;
     }
 
-    public Node seriesLinkField(){
-        return new HBox(
+    private Node createBottom(){
+        HBox view = new HBox(10,
+                parseButton(),
+                saveButton()
+        );
+        view.setAlignment(Pos.CENTER_RIGHT);
+        return view;
+    }
+
+    private Node seriesLinkField(){
+        return new HBox(5,
                 promptLabel("Series Link"),
                 boundTextField(model.getSeriesLinkProperty())
         );
     }
-    public Node groupDirField(){
-        return new HBox(
+    private Node groupDirField(){
+        return new HBox(5,
                 promptLabel("Group Name"),
                 boundTextField(model.getDirectoryGroupProperty())
         );
     }
-    public Node titleDirField(){
-        return new HBox(
+    private Node titleDirField(){
+        return new HBox(5,
                 promptLabel("Title Name"),
                 boundTextField(model.getDirectoryTitleProperty())
         );
     }
 
-    public Node titleField(){
-        return new HBox(
+    private Node titleField(){
+        return new HBox(5,
                 promptLabel("Title"),
-                boundTextField(model.getTitleProperty())
+                boundLabel(model.getTitleProperty())
         );
     }
-    public Node artistField(){
-        return new HBox(
+    private Node artistField(){
+        return new HBox(5,
                 promptLabel("Artist"),
-                boundTextField(model.getArtistProperty())
+                boundLabel(model.getArtistProperty())
         );
     }
 
     private Node parseButton(){
         Button parseButton = new Button("Parse");
         parseButton.setOnAction(event->parseHandler.run());
-        HBox view = new HBox(parseButton);
-        view.setAlignment(Pos.CENTER);
-        return view;
+        return parseButton;
     }
 
     private Node saveButton(){
        Button saveButton = new Button("Save");
        saveButton.setOnAction(event->saveHandler.run());
-       HBox view = new HBox(saveButton);
-       view.setAlignment(Pos.CENTER_RIGHT);
-       return view;
+       return saveButton;
     }
 
     private Node boundTextField(StringProperty boundProperty){
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(boundProperty);
+        textField.setPrefWidth(300);
         return textField;
     }
 
     private Node boundTextField(IntegerProperty boundProperty){
         TextField textField = new TextField();
         Bindings.bindBidirectional(textField.textProperty(), boundProperty, new NumberStringConverter());
+        textField.setPrefWidth(300);
         return textField;
+    }
+
+    private Node boundLabel(StringProperty boundProperty){
+        Label label = (Label) styledLabel("", "bound-label");
+        Bindings.bindBidirectional(label.textProperty(), boundProperty);
+        return label;
+    }
+
+    private Node boundLabel(IntegerProperty boundProperty){
+        Label label = (Label) styledLabel("", "bound-label");
+        Bindings.bindBidirectional(label.textProperty(), boundProperty, new NumberStringConverter());
+        return label;
+    }
+
+    private Node headerLabel(String contents){
+        return styledLabel(contents, "header-label");
     }
 
     private Node promptLabel(String contents){
