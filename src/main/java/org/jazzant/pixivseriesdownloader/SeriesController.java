@@ -14,7 +14,7 @@ public class SeriesController {
         viewBuilder = new SeriesViewBuilder(model, this::saveSeries, interactor::parseSeries);
     }
 
-    private void saveSeries(){
+    private void saveSeries(Runnable onSaveSucceed){
         Task<Void> saveTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -22,6 +22,7 @@ public class SeriesController {
                 return null;
             }
         };
+        saveTask.setOnSucceeded(event->onSaveSucceed.run());
         Thread saveThread = new Thread(saveTask);
         saveThread.start();
     }

@@ -3,7 +3,6 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
@@ -17,13 +16,14 @@ import javafx.util.Builder;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class SeriesViewBuilder implements Builder<Region> {
     private final SeriesModel model;
-    private final Runnable saveHandler;
+    private final Consumer<Runnable> saveHandler;
     private final Runnable parseHandler;
 
-    public SeriesViewBuilder(SeriesModel model, Runnable saveHandler, Runnable parseHandler){
+    public SeriesViewBuilder(SeriesModel model, Consumer<Runnable> saveHandler, Runnable parseHandler){
         this.model = model;
         this.saveHandler = saveHandler;
         this.parseHandler = parseHandler;
@@ -110,7 +110,10 @@ public class SeriesViewBuilder implements Builder<Region> {
 
     private Node saveButton(){
        Button saveButton = new Button("Save");
-       saveButton.setOnAction(event->saveHandler.run());
+       saveButton.setOnAction(event-> {
+           saveButton.setDisable(true);
+           saveHandler.accept(() -> saveButton.setDisable(false));
+       });
        return saveButton;
     }
 
