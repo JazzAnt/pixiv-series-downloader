@@ -30,7 +30,6 @@ public class Parser {
     private static String pixivUsername;
     private static String pixivPassword;
     private static int waitTime;
-    private static String currentLink;
 
     private Parser(){}
 
@@ -244,7 +243,7 @@ public class Parser {
         chapter.setTitle(chapterTitle);
     }
     private static void parseChapterID(){
-        String[] tempArray = currentLink.split("/");
+        String[] tempArray = driver.getCurrentUrl().split("/");
         int chapterPixivID = Integer.parseInt(tempArray[tempArray.length-1]);
         chapter.setPixivID(chapterPixivID);
     }
