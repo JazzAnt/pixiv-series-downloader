@@ -30,15 +30,14 @@ public class SeriesDatabase {
 
     public void createTable(){
         String sql = "CREATE TABLE IF NOT EXISTS series ("
-                + " ID INTEGER PRIMARY KEY,"
                 + " DirectoryGroup NVARCHAR(100) NOT NULL,"
                 + " DirectoryTitle NVARCHAR(100) NOT NULL,"
                 + " Title NVARCHAR(100) NOT NULL,"
                 + " Artist NVARCHAR(100) NOT NULL,"
                 + " Status INTEGER NOT NULL,"
-                + " ArtistId INTEGER NOT NULL,"
-                + " SeriesId INTEGER NOT NULL,"
-                + " LatestChapterId INTEGER NOT NULL"
+                + " ArtistID INTEGER NOT NULL,"
+                + " SeriesID INTEGER PRIMARY KEY,"
+                + " LatestChapterID INTEGER NOT NULL"
                 + ");";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement()) {
@@ -50,7 +49,7 @@ public class SeriesDatabase {
 
     public int createRecord(String DirectoryGroup, String DirectoryTitle, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
-        String sql = "INSERT INTO series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistId, SeriesId, LatestChapterId) " +
+        String sql = "INSERT INTO series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
                 "VALUES(?,?,?,?,?,?,?,?);";
 
         try(Connection connection = DriverManager.getConnection(databaseUrl);
