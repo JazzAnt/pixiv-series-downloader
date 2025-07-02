@@ -1,6 +1,7 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
 
 
@@ -15,14 +16,20 @@ public class SeriesController {
     }
 
     private void saveSeries(Runnable onSaveSucceed){
-        Task<Void> saveTask = new Task<Void>() {
+        Task<Boolean> saveTask = new Task<>() {
             @Override
-            protected Void call() throws Exception {
-                interactor.saveSeries();
-                return null;
+            protected Boolean call() throws Exception {
+                return interactor.saveSeries();
             }
         };
-        saveTask.setOnSucceeded(event->onSaveSucceed.run());
+        saveTask.setOnSucceeded(event->{
+            onSaveSucceed.run();
+            if(!saveTask.getValue()){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Series with this ID already exists in the database.");
+                alert.show();
+            }
+        });
         Thread saveThread = new Thread(saveTask);
         saveThread.start();
     }
