@@ -22,8 +22,7 @@ public class Series {
                 artist == null || artist.isBlank() ||
                 status == null ||
                 artistID < 1 ||
-                seriesID < 1 ||
-                latestChapterID < 1
+                seriesID < 1
         ) return false;
         return true;
     }
