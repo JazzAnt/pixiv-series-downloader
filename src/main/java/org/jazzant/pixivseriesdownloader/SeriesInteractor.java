@@ -1,11 +1,36 @@
 package org.jazzant.pixivseriesdownloader;
 
+import javafx.beans.binding.Bindings;
+
+import javax.imageio.spi.ServiceRegistry;
+
 public class SeriesInteractor {
     private final SeriesModel model;
     private final SeriesBroker broker = new SeriesBroker();
 
     public SeriesInteractor(SeriesModel model){
         this.model = model;
+        model.getOkToSaveProperty().bind(Bindings.createBooleanBinding(this::isDataValid,
+                model.getDirectoryGroupProperty(),
+                model.getDirectoryTitleProperty(),
+                model.getTitleProperty(),
+                model.getArtistProperty(),
+                model.getStatusProperty(),
+                model.getArtistIdProperty(),
+                model.getSeriesIdProperty()
+        ));
+    }
+
+    private boolean isDataValid(){
+        if(model.getDirectoryGroup().isBlank() ||
+                model.getDirectoryTitle().isBlank() ||
+                model.getTitle().isBlank() ||
+                model.getArtist().isBlank() ||
+                model.getStatus() < 0 || model.getStatus() >= SeriesStatus.values().length ||
+                model.getArtistId() < 0 ||
+                model.getSeriesId() < 0
+        ) return false;
+        return true;
     }
 
     public void saveSeries(){

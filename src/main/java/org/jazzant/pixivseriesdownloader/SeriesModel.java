@@ -1,11 +1,9 @@
 package org.jazzant.pixivseriesdownloader;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 public class SeriesModel {
+    private final BooleanProperty okToSave = new SimpleBooleanProperty();
     //directory stuff
     private final StringProperty directoryGroup = new SimpleStringProperty();
     private final StringProperty directoryTitle = new SimpleStringProperty();
@@ -55,4 +53,7 @@ public class SeriesModel {
     public void setLatestChapterId(int latestChapterId){this.latestChapterID.set(latestChapterId);}
     public IntegerProperty getLatestChapterIdProperty(){return latestChapterID;}
 
+    public boolean getOkToSave(){return okToSave.get();}
+    public void setOkToSave(boolean bool){this.okToSave.set(bool);}
+    public BooleanProperty getOkToSaveProperty(){return okToSave;}
 }

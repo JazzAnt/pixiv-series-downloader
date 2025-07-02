@@ -110,9 +110,11 @@ public class SeriesViewBuilder implements Builder<Region> {
 
     private Node saveButton(){
        Button saveButton = new Button("Save");
+       saveButton.disableProperty().bind(model.getOkToSaveProperty().not());
        saveButton.setOnAction(event-> {
+           saveButton.disableProperty().unbind();
            saveButton.setDisable(true);
-           saveHandler.accept(() -> saveButton.setDisable(false));
+           saveHandler.accept(() -> saveButton.disableProperty().bind(model.getOkToSaveProperty().not()));
        });
        return saveButton;
     }
