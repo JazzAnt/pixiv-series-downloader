@@ -1,12 +1,6 @@
 package org.jazzant.pixivseriesdownloader;
 
 public class SeriesDTO {
-    private static final int STATUS_ONGOING = 0;
-    private static final int STATUS_COMPLETED = 1;
-    private static final int STATUS_HIATUS = 2;
-    private static final int STATUS_PAUSED = 3;
-    private static final int STATUS_DELETED = 4;
-
     private String directoryGroup;
     private String directoryTitle;
     private String title;
@@ -65,38 +59,12 @@ public class SeriesDTO {
         return status;
     }
 
-    public SeriesStatus getStatusEnum() throws Exception {
-        switch (this.status){
-            case STATUS_ONGOING -> {
-                return SeriesStatus.ONGOING;
-            }
-            case STATUS_COMPLETED -> {
-                return SeriesStatus.COMPLETED;
-            }
-            case STATUS_HIATUS -> {
-                return SeriesStatus.HIATUS;
-            }
-            case STATUS_PAUSED -> {
-                return SeriesStatus.PAUSED;
-            }
-            case STATUS_DELETED -> {
-                return SeriesStatus.DELETED;
-            }
-            default -> {
-                throw new Exception("The DTO's Status Variable is incompatible with any SeriesStatus Enum");
-            }
-        }
+    public SeriesStatus getStatusEnum(){
+        return SeriesStatus.getStatusFromCode(status);
     }
 
     public void setStatus(SeriesStatus status) {
-        switch (status){
-            case ONGOING -> this.status=STATUS_ONGOING;
-            case COMPLETED -> this.status=STATUS_COMPLETED;
-            case HIATUS -> this.status=STATUS_HIATUS;
-            case PAUSED -> this.status=STATUS_PAUSED;
-            case DELETED -> this.status=STATUS_DELETED;
-            default -> this.status=-1;
-        }
+        this.status = status.getCode();
     }
 
     public int getArtistID() {
