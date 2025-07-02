@@ -1,6 +1,7 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.beans.binding.Bindings;
+import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
 import javax.imageio.spi.ServiceRegistry;
 
@@ -33,8 +34,14 @@ public class SeriesInteractor {
         return true;
     }
 
-    public void saveSeries(){
-        broker.createRecord(createSeriesFromModel());
+    public boolean saveSeries(){
+        try {
+            broker.createRecord(createSeriesFromModel());
+            return true;
+        }
+        catch (SeriesAlreadyInDatabaseException e){
+            return false;
+        }
     }
 
     public Series createSeriesFromModel(){
