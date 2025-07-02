@@ -16,6 +16,8 @@ import javafx.scene.control.Button;
 import javafx.util.Builder;
 import javafx.util.converter.NumberStringConverter;
 
+import java.util.Objects;
+
 public class SeriesViewBuilder implements Builder<Region> {
     private final SeriesModel model;
     private final Runnable saveHandler;
@@ -30,6 +32,7 @@ public class SeriesViewBuilder implements Builder<Region> {
     @Override
     public Region build() {
         BorderPane view = new BorderPane();
+        view.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource("/css/series.css")).toExternalForm());
         view.setTop(createTop());
         view.setCenter(createCenter());
         view.setBottom(createBottom());

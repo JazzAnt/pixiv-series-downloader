@@ -1,0 +1,39 @@
+* {
+   -fx-font-size: 16px;
+}
+
+.root {
+   -fx-background-color: lightskyblue;
+}
+
+.header-label {
+   -fx-text-fill: darkblue;
+   -fx-font-weight: bolder;
+   -fx-font-size: 32px;
+}
+
+.prompt-label {
+   -fx-text-fill: darkred;
+   -fx-font-weight: bold;
+}
+
+.bound-label {
+   -fx-text-fill: darkgreen;
+}
+
+
+/* .root {
+   prompt-colour: #a04000;
+   heading-colour: #2090c0;
+}
+
+.header-label {
+   -fx-text-fill: heading-colour;
+   -fx-font-size: 32px;
+}
+
+.prompt-label {
+   -fx-text-fill: prompt-colour;
+   -fx-font-size: 16px;
+   -fx-font-weight: bold;
+} */
