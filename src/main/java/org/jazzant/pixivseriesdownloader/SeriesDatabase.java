@@ -1,5 +1,7 @@
 package org.jazzant.pixivseriesdownloader;
 
+import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
+
 import java.sql.*;
 
 public class SeriesDatabase {
@@ -30,13 +32,13 @@ public class SeriesDatabase {
 
     public void createTable(){
         String sql = "CREATE TABLE IF NOT EXISTS series ("
+                + " SeriesID INTEGER PRIMARY KEY,"
                 + " DirectoryGroup NVARCHAR(100) NOT NULL,"
                 + " DirectoryTitle NVARCHAR(100) NOT NULL,"
                 + " Title NVARCHAR(100) NOT NULL,"
                 + " Artist NVARCHAR(100) NOT NULL,"
                 + " Status INTEGER NOT NULL,"
                 + " ArtistID INTEGER NOT NULL,"
-                + " SeriesID INTEGER PRIMARY KEY,"
                 + " LatestChapterID INTEGER NOT NULL"
                 + ");";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
@@ -49,6 +51,7 @@ public class SeriesDatabase {
 
     public int createRecord(String DirectoryGroup, String DirectoryTitle, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
+        if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
         String sql = "INSERT INTO series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
                 "VALUES(?,?,?,?,?,?,?,?);";
 
@@ -67,5 +70,20 @@ public class SeriesDatabase {
             System.out.println(e.getMessage());
             return -1;
         }
+    }
+
+    public boolean seriesExists(int SeriesId){
+        boolean result = false;
+        String sql = "SELECT CASE WHEN EXISTS (SELECT * FROM series WHERE SeriesID = ?) " +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1, SeriesId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            result = resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 }
