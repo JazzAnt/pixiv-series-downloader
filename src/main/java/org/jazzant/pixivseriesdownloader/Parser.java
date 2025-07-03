@@ -13,8 +13,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Parser {
     private static final String PIXIV_URL = "https://www.pixiv.net";
@@ -100,19 +98,14 @@ public class Parser {
      */
     public static void goToNextChapter(){
         String nextChapterLink;
-        if(!Objects.equals(driver.getCurrentUrl(), series.getSeriesLink())){
+        if(Objects.equals(driver.getCurrentUrl(), series.getSeriesLink())){
             nextChapterLink = PIXIV_URL + driver
-                    .findElement(By.className("gtm-series-next-work-button-in-illust-detail"))
-                    .getDomAttribute("href");
-        }
-        else if(isLoggedIn){
-            nextChapterLink = PIXIV_URL + driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[4]/div/a"))
+                    .findElement(By.className("gtm-manga-series-first-story")).findElement(By.tagName("a"))
                     .getDomAttribute("href");
         }
         else {
             nextChapterLink = PIXIV_URL + driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[3]/div/a"))
+                    .findElement(By.className("gtm-series-next-work-button-in-illust-detail"))
                     .getDomAttribute("href");
         }
         driver.get(nextChapterLink);
@@ -202,7 +195,7 @@ public class Parser {
         String title;
         if(Objects.equals(driver.getCurrentUrl(), series.getSeriesLink())){
             title = driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[2]/section/div/div[1]/div[1]"))
+                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[last()]/section/div/div[1]/div[1]"))
                     .getText();
         }
         else {
@@ -224,7 +217,7 @@ public class Parser {
         String artist;
         if(Objects.equals(driver.getCurrentUrl(), series.getSeriesLink()))
             artist = driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/aside/section[1]/h2/div/div/div/a/div"))
+                    .findElement(By.xpath("//div[contains(@class, 'gtm-manga-series-profile')]/div/div/a/div"))
                     .getText();
         else if(isLoggedIn){
             artist = driver
