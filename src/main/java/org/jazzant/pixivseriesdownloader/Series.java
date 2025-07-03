@@ -10,7 +10,7 @@ public class Series {
     private String directoryTitle;
     private String title;
     private String artist;
-    private SeriesStatus status;
+    private SeriesStatus status = SeriesStatus.ONGOING;
     private int artistID;
     private int seriesID;
     private int latestChapterID;
