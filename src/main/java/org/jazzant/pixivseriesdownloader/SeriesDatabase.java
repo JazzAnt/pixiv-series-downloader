@@ -86,12 +86,12 @@ public class SeriesDatabase {
 
     public ArrayList<String> selectAllGroups(){
         ArrayList<String> groups = new ArrayList<>();
-        String sql = "SELECT \"DirectoryGroup\" FROM Series";
+        String sql = "SELECT \"GroupDirectory\" FROM Series";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql)){
             while(resultSet.next()){
-                groups.add(resultSet.getString("DirectoryGroup"));
+                groups.add(resultSet.getString("GroupDirectory"));
             }
         } catch (SQLException e){
             throw new RuntimeException(e);
