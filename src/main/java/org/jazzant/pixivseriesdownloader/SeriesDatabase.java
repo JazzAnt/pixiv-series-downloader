@@ -3,35 +3,13 @@ package org.jazzant.pixivseriesdownloader;
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SeriesDatabase {
     private final String databaseUrl = "jdbc:sqlite:series.db";
 
-    public boolean testConnection(){
-        try(Connection connection = DriverManager.getConnection(databaseUrl)) {
-            return true;
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    public void checkCollation(){
-        String sql = "SELECT * FROM fn_helpcollations() WHERE name LIKE N'Japanese%';";
-        try(Connection connection = DriverManager.getConnection(databaseUrl);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql)) {
-
-            while(resultSet.next()){
-                System.out.println(resultSet.getString("name"));
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-    }
-
     public void createTable(){
-        String sql = "CREATE TABLE IF NOT EXISTS series ("
+        String sql = "CREATE TABLE IF NOT EXISTS Series ("
                 + " SeriesID INTEGER PRIMARY KEY,"
                 + " DirectoryGroup NVARCHAR(100) NOT NULL,"
                 + " DirectoryTitle NVARCHAR(100) NOT NULL,"
@@ -52,7 +30,7 @@ public class SeriesDatabase {
     public int createRecord(String DirectoryGroup, String DirectoryTitle, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
         if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
-        String sql = "INSERT INTO series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
+        String sql = "INSERT INTO Series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
                 "VALUES(?,?,?,?,?,?,?,?);";
 
         try(Connection connection = DriverManager.getConnection(databaseUrl);
