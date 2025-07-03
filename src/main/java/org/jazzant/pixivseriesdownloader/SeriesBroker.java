@@ -29,6 +29,7 @@ public class SeriesBroker {
         series.setArtistID(seriesDTO.getArtistID());
         series.setSeriesID(seriesDTO.getSeriesID());
         series.setLatestChapterID(seriesDTO.getLatestChapterID());
+        return series;
     }
     private SeriesDTO createDTOFromSeries(Series series){
         return new SeriesDTO(
