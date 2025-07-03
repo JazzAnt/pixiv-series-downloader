@@ -20,6 +20,10 @@ public class SeriesDAO {
         return result > 0;
     }
 
+    public ArrayList<SeriesDTO> selectAll(){
+        return database.selectAll();
+    }
+
     public ArrayList<String> selectAllGroups(){
         return database.selectAllGroups();
     }

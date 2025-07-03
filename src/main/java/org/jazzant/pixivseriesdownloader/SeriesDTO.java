@@ -12,12 +12,13 @@ public class SeriesDTO {
 
     public SeriesDTO(){}
 
-    public SeriesDTO(String directoryGroup, String directoryTitle, String title, String artist, SeriesStatus status, int artistID, int seriesID, int latestChapterID) {
+
+    public SeriesDTO(String directoryGroup, String directoryTitle, String title, String artist, int status, int artistID, int seriesID, int latestChapterID) {
         this.directoryGroup = directoryGroup;
         this.directoryTitle = directoryTitle;
         this.title = title;
         this.artist = artist;
-        setStatus(status);
+        this.status = status;
         this.artistID = artistID;
         this.seriesID = seriesID;
         this.latestChapterID = latestChapterID;

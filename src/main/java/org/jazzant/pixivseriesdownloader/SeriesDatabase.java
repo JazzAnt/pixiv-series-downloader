@@ -94,6 +94,31 @@ public class SeriesDatabase {
         return result;
     }
 
+    public ArrayList<SeriesDTO> selectAll(){
+        ArrayList<SeriesDTO> seriesList = new ArrayList<>();
+        String sql = "SELECT * FROM " + TABLE_NAME;
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql)){
+            while(resultSet.next()){
+                SeriesDTO seriesDTO = new SeriesDTO(
+                       resultSet.getString(Column.GROUP_DIRECTORY.getColumnName()),
+                       resultSet.getString(Column.TITLE_DIRECTORY.getColumnName()),
+                       resultSet.getString(Column.TITLE.getColumnName()),
+                       resultSet.getString(Column.ARTIST.getColumnName()),
+                       resultSet.getInt(Column.STATUS.getColumnName()),
+                       resultSet.getInt(Column.ARTIST_ID.getColumnName()),
+                       resultSet.getInt(Column.SERIES_ID.getColumnName()),
+                       resultSet.getInt(Column.LATEST_CHAPTER_ID.getColumnName())
+                );
+                seriesList.add(seriesDTO);
+            }
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
+
     public ArrayList<String> selectAllGroups(){
         ArrayList<String> groups = new ArrayList<>();
         String sql = "SELECT \"" + Column.GROUP_DIRECTORY + "\" FROM " + TABLE_NAME;
