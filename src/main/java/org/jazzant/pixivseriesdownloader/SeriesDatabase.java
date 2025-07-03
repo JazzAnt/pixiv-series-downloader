@@ -1,7 +1,6 @@
 package org.jazzant.pixivseriesdownloader;
 
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,7 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class SeriesDatabase {
-    private String databaseUrl = "jdbc:sqlite:series.db";
+    private final String TABLE_NAME = "Series";
+    private String databaseUrl = "jdbc:sqlite:PixivSeriesDownloader.db";
 
     public SeriesDatabase(){
         this.createTable();
@@ -28,15 +28,15 @@ public class SeriesDatabase {
     }
 
     public void createTable(){
-        String sql = "CREATE TABLE IF NOT EXISTS Series ("
-                + " SeriesID INTEGER PRIMARY KEY,"
-                + " ArtistID INTEGER NOT NULL,"
-                + " GroupDirectory NVARCHAR(100) NOT NULL,"
-                + " TitleDirectory NVARCHAR(100) NOT NULL,"
-                + " Title NVARCHAR(100) NOT NULL,"
-                + " Artist NVARCHAR(100) NOT NULL,"
-                + " Status INTEGER NOT NULL,"
-                + " LatestChapterID INTEGER NOT NULL"
+        String sql = "CREATE TABLE IF NOT EXISTS "+ TABLE_NAME + " ( "
+                + Column.SERIES_ID + " INTEGER PRIMARY KEY, "
+                + Column.ARTIST_ID + " INTEGER NOT NULL, "
+                + Column.GROUP_DIRECTORY + " NVARCHAR(100) NOT NULL, "
+                + Column.TITLE_DIRECTORY + " NVARCHAR(100) NOT NULL, "
+                + Column.TITLE + " NVARCHAR(100) NOT NULL, "
+                + Column.ARTIST + " NVARCHAR(100) NOT NULL, "
+                + Column.STATUS + " INTEGER NOT NULL, "
+                + Column.LATEST_CHAPTER_ID + " INTEGER NOT NULL "
                 + ");";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement()) {
@@ -49,7 +49,16 @@ public class SeriesDatabase {
     public int createRecord(String GroupDirectory, String TitleDirectory, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
         if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
-        String sql = "INSERT INTO Series(GroupDirectory, TitleDirectory, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
+        String sql = "INSERT INTO " + TABLE_NAME + " (" +
+                Column.GROUP_DIRECTORY + ", " +
+                Column.TITLE_DIRECTORY + ", " +
+                Column.TITLE + ", " +
+                Column.ARTIST + ", " +
+                Column.STATUS + ", " +
+                Column.ARTIST_ID + ", " +
+                Column.SERIES_ID + ", " +
+                Column.LATEST_CHAPTER_ID +
+                ") " +
                 "VALUES(?,?,?,?,?,?,?,?);";
 
         try(Connection connection = DriverManager.getConnection(databaseUrl);
@@ -71,7 +80,8 @@ public class SeriesDatabase {
 
     public boolean seriesExists(int SeriesId){
         boolean result = false;
-        String sql = "SELECT CASE WHEN EXISTS (SELECT * FROM series WHERE SeriesID = ?) " +
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + Column.SERIES_ID + " = ?) " +
                 "THEN 1 ELSE 0 END";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
@@ -86,12 +96,12 @@ public class SeriesDatabase {
 
     public ArrayList<String> selectAllGroups(){
         ArrayList<String> groups = new ArrayList<>();
-        String sql = "SELECT \"GroupDirectory\" FROM Series";
+        String sql = "SELECT \"" + Column.GROUP_DIRECTORY + "\" FROM " + TABLE_NAME;
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql)){
             while(resultSet.next()){
-                groups.add(resultSet.getString("GroupDirectory"));
+                groups.add(resultSet.getString(Column.GROUP_DIRECTORY.getColumnName()));
             }
         } catch (SQLException e){
             throw new RuntimeException(e);
