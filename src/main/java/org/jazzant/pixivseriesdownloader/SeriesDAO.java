@@ -1,5 +1,7 @@
 package org.jazzant.pixivseriesdownloader;
 
+import java.util.ArrayList;
+
 public class SeriesDAO {
 
     private static SeriesDatabase database = new SeriesDatabase();
@@ -16,5 +18,9 @@ public class SeriesDAO {
                 seriesDTO.getLatestChapterID()
         );
         return result > 0;
+    }
+
+    public ArrayList<String> selectAllGroups(){
+        return database.selectAllGroups();
     }
 }
