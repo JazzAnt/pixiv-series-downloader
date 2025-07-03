@@ -2,11 +2,30 @@ package org.jazzant.pixivseriesdownloader;
 
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 
 public class SeriesDatabase {
-    private final String databaseUrl = "jdbc:sqlite:series.db";
+    private String databaseUrl = "jdbc:sqlite:series.db";
+
+    public SeriesDatabase(){
+        this.createTable();
+    }
+
+    public SeriesDatabase(String databaseDirectory){
+        if(directoryExists(databaseDirectory)){
+            this.databaseUrl = "jdbc:sqlite:" + databaseDirectory + "series.db";
+        }
+        this.createTable();
+    }
+
+    private boolean directoryExists(String directory){
+        Path path = Paths.get(directory);
+        return Files.exists(path) && Files.isDirectory(path);
+    }
 
     public void createTable(){
         String sql = "CREATE TABLE IF NOT EXISTS Series ("
