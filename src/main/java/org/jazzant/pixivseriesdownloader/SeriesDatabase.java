@@ -30,12 +30,12 @@ public class SeriesDatabase {
     public void createTable(){
         String sql = "CREATE TABLE IF NOT EXISTS Series ("
                 + " SeriesID INTEGER PRIMARY KEY,"
-                + " DirectoryGroup NVARCHAR(100) NOT NULL,"
-                + " DirectoryTitle NVARCHAR(100) NOT NULL,"
+                + " ArtistID INTEGER NOT NULL,"
+                + " GroupDirectory NVARCHAR(100) NOT NULL,"
+                + " TitleDirectory NVARCHAR(100) NOT NULL,"
                 + " Title NVARCHAR(100) NOT NULL,"
                 + " Artist NVARCHAR(100) NOT NULL,"
                 + " Status INTEGER NOT NULL,"
-                + " ArtistID INTEGER NOT NULL,"
                 + " LatestChapterID INTEGER NOT NULL"
                 + ");";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
@@ -46,16 +46,16 @@ public class SeriesDatabase {
         }
     }
 
-    public int createRecord(String DirectoryGroup, String DirectoryTitle, String Title, String Artist,
+    public int createRecord(String GroupDirectory, String TitleDirectory, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
         if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
-        String sql = "INSERT INTO Series(DirectoryGroup, DirectoryTitle, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
+        String sql = "INSERT INTO Series(GroupDirectory, TitleDirectory, Title, Artist, Status, ArtistID, SeriesID, LatestChapterID) " +
                 "VALUES(?,?,?,?,?,?,?,?);";
 
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, DirectoryGroup);
-            preparedStatement.setString(2, DirectoryTitle);
+            preparedStatement.setString(1, GroupDirectory);
+            preparedStatement.setString(2, TitleDirectory);
             preparedStatement.setString(3, Title);
             preparedStatement.setString(4, Artist);
             preparedStatement.setInt(5, Status);
