@@ -16,6 +16,7 @@ import java.util.Objects;
 
 public class Parser {
     private static final String PIXIV_URL = "https://www.pixiv.net";
+    private static boolean initialized = false;
     private static WebDriver driver = null;
     private static WebDriver.Window window = null;
     private static WebDriverWait driverWait = null;
@@ -32,22 +33,25 @@ public class Parser {
     private Parser(){}
 
     public static void initialize(){
-        FirefoxOptions options = new FirefoxOptions();
-        options.addArguments("--width=400");
-        options.addArguments("--height=500");
-        driver = new FirefoxDriver(options);
-        window = driver.manage().window();
-        driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(99));
-        setWaitTime(10);
-        isLoggedIn = false;
-        pixivUsername = "";
-        pixivPassword = "";
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width/2;
-        int y = screenSize.height/2;
-        screenCenter = new Point(x,y);
-        windowMinimize();
+        if (!initialized) {
+            FirefoxOptions options = new FirefoxOptions();
+            options.addArguments("--width=400");
+            options.addArguments("--height=500");
+            driver = new FirefoxDriver(options);
+            window = driver.manage().window();
+            driverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(99));
+            setWaitTime(10);
+            isLoggedIn = false;
+            pixivUsername = "";
+            pixivPassword = "";
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = screenSize.width / 2;
+            int y = screenSize.height / 2;
+            screenCenter = new Point(x, y);
+            windowMinimize();
+            initialized = true;
+        }
     }
     public static void setSeries(Series seriesObject){series = seriesObject;}
     public static void setChapter(Chapter chapterObject){chapter = chapterObject;}

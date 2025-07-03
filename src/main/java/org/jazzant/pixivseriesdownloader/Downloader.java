@@ -17,19 +17,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Downloader{
-    private static String libraryDir;
-    private static SaveAs fileFormat;
-    private static String filenameFormat;
+    private static String libraryDir = "C:\\Library";
+    private static SaveAs fileFormat = SaveAs.ZIP;
+    private static String filenameFormat = "";
     private static String fileDirectory;
     private static Series series;
     private static Chapter chapter;
 
     private Downloader(){}
-    public static void initialize(){
-        libraryDir = "C:\\Library";
-        fileFormat = SaveAs.ZIP;
-        filenameFormat = "";
-    }
     public static void setLibraryDir(String libraryDirectory){libraryDir = libraryDirectory;}
     public static void setFileFormat(SaveAs saveAs){fileFormat = saveAs;}
     public static void setFilenameFormat(String filenameFormatting){filenameFormat = filenameFormatting;}
