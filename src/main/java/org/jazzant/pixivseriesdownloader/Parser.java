@@ -95,7 +95,10 @@ public class Parser {
      * @return true if the series exists, false if it's not.
      */
     public static boolean seriesExists(){
-        return !driver.findElement(By.tagName("h1")).getText().equals("Page not found");
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        List<WebElement> tempList = driver.findElements(By.className("gtm-manga-series-first-story"));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
+        return !tempList.isEmpty();
     }
     /**
      * Goes to the next chapter, or the first chapter if the current page is the series page.
