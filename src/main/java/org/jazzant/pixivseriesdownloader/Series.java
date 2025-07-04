@@ -27,7 +27,9 @@ public class Series {
         return true;
     }
     public static boolean checkSeriesLinkFormat(String seriesLink){
-        return seriesLink.trim().matches(SERIES_LINK_REGEX);
+        Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
+        Matcher matcher = pattern.matcher(seriesLink.trim());
+        return matcher.find();
     }
     public boolean setSeriesLink(String seriesLink){
         Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
