@@ -35,9 +35,13 @@ public class Series {
         Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
         Matcher matcher = pattern.matcher(seriesLink.trim());
         if(matcher.find()){
-            artistID = Integer.parseInt(matcher.group(1));
-            seriesID = Integer.parseInt(matcher.group(2));
-            return true;
+            try {
+                artistID = Integer.parseInt(matcher.group(1));
+                seriesID = Integer.parseInt(matcher.group(2));
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
         else return false;
     }
