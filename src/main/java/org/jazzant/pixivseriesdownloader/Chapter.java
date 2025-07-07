@@ -82,7 +82,7 @@ public class Chapter {
         this.pageAmount = pageAmount;
     }
 
-    public ArrayList<String> getImageLinks() {
+    public ArrayList<String> getImageURLs() {
         return imageLinks;
     }
 
