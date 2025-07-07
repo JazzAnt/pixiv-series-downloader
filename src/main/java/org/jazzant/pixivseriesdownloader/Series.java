@@ -4,8 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Series {
-    private static final String PIXIV_URL = "https://www.pixiv.net";
-    private static final String SERIES_LINK_REGEX = "/user/(\\d+)/series/(\\d+)$";
+    private static final String PIXIV_URL = "www.pixiv.net";
+    private static final String SERIES_URL_REGEX = "www\\.pixiv\\.net/user/(\\d+)/series/(\\d+)$";
     private String directoryGroup;
     private String directoryTitle;
     private String title;
@@ -26,14 +26,14 @@ public class Series {
         ) return false;
         return true;
     }
-    public static boolean checkSeriesLinkFormat(String seriesLink){
-        Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
-        Matcher matcher = pattern.matcher(seriesLink.trim());
+    public static boolean checkSeriesURLFormat(String seriesURL){
+        Pattern pattern = Pattern.compile(SERIES_URL_REGEX);
+        Matcher matcher = pattern.matcher(seriesURL.trim());
         return matcher.find();
     }
-    public boolean setSeriesLink(String seriesLink){
-        Pattern pattern = Pattern.compile(SERIES_LINK_REGEX);
-        Matcher matcher = pattern.matcher(seriesLink.trim());
+    public boolean setSeriesIDAndArtistIDsFromSeriesURL(String seriesURL){
+        Pattern pattern = Pattern.compile(SERIES_URL_REGEX);
+        Matcher matcher = pattern.matcher(seriesURL.trim());
         if(matcher.find()){
             try {
                 artistID = Integer.parseInt(matcher.group(1));
