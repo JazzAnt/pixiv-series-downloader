@@ -12,10 +12,32 @@ public class SeriesModel {
     private final StringProperty artist = new SimpleStringProperty();
     private final IntegerProperty status = new SimpleIntegerProperty();
     //pixiv links
-    private final StringProperty seriesLink = new SimpleStringProperty();
     private final IntegerProperty artistID = new SimpleIntegerProperty();
     private final IntegerProperty seriesID = new SimpleIntegerProperty();
     private final IntegerProperty latestChapterID = new SimpleIntegerProperty();
+
+    public Series getSeries(){
+        Series series = new Series();
+        series.setDirectoryGroup(getDirectoryGroup());
+        series.setDirectoryTitle(getDirectoryTitle());
+        series.setTitle(getTitle());
+        series.setArtist(getArtist());
+        series.setStatus(SeriesStatus.getStatusFromCode(getStatus()));
+        series.setArtistID(getArtistId());
+        series.setSeriesID(getSeriesId());
+        series.setLatestChapterID(getLatestChapterId());
+        return series;
+    }
+    public void setPropertiesFromSeries(Series series){
+        setDirectoryGroup(series.getDirectoryGroup());
+        setDirectoryTitle(series.getDirectoryTitle());
+        setTitle(series.getTitle());
+        setArtist(series.getArtist());
+        setStatus(series.getStatus().getCode());
+        setArtistId(series.getArtistID());
+        setSeriesId(series.getSeriesID());
+        setLatestChapterId(series.getLatestChapterID());
+    }
 
     public String getDirectoryGroup(){return directoryGroup.get();}
     public void setDirectoryGroup(String group){this.directoryGroup.set(group);}
@@ -36,10 +58,6 @@ public class SeriesModel {
     public int getStatus(){return status.get();}
     public void setStatus(int status){this.status.set(status);}
     public IntegerProperty getStatusProperty(){return status;}
-
-    public String getSeriesLink(){return seriesLink.get();}
-    public void setSeriesLink(String seriesLink){this.seriesLink.set(seriesLink);}
-    public StringProperty getSeriesLinkProperty(){return seriesLink;}
 
     public int getArtistId(){return artistID.get();}
     public void setArtistId(int artistId){this.artistID.set(artistId);}
