@@ -1,8 +1,11 @@
 package org.jazzant.pixivseriesdownloader;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Chapter {
+    private static final String ARTWORK_URL_REGEX = "www\\.pixiv\\.net/?e?n?/artworks/([0-9]+)$";
     private String title;
     private String uploadDate;
     private int pixivID;
@@ -21,6 +24,24 @@ public class Chapter {
         return true;
     }
 
+    public static boolean checkChapterURLFormat(String chapterURL){
+        Pattern pattern = Pattern.compile(ARTWORK_URL_REGEX);
+        Matcher matcher = pattern.matcher(chapterURL.trim());
+        return matcher.find();
+    }
+    public boolean setPixivIDFromChapterURL(String chapterURL){
+        Pattern pattern = Pattern.compile(ARTWORK_URL_REGEX);
+        Matcher matcher = pattern.matcher(chapterURL.trim());
+        if(matcher.find()){
+            try {
+                pixivID = Integer.parseInt(matcher.group(1));
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        else return false;
+    }
     public String getTitle() {
         return title;
     }
