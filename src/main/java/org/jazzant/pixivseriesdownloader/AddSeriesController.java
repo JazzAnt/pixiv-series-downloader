@@ -244,6 +244,7 @@ public class AddSeriesController implements Initializable {
             parseButtonReport.setText("");
         } catch (ParserException e) {
             parseButtonReport.setText(e.getMessage());
+            seriesUrlField.setDisable(false);
         }
     }
 
