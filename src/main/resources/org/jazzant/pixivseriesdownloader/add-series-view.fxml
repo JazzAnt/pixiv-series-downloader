@@ -17,7 +17,7 @@
 
     <HBox alignment="CENTER">
         <Label text="Series URL: "/>
-        <TextField fx:id="seriesUrlField" promptText="www.pixiv.net/user/0000000/series/0000000" minWidth="310"/>
+        <TextField fx:id="seriesUrlField" promptText="https://www.pixiv.net/user/0000000/series/0000000" minWidth="300" prefWidth="350"/>
     </HBox>
     <HBox alignment="TOP_RIGHT">
         <padding>
