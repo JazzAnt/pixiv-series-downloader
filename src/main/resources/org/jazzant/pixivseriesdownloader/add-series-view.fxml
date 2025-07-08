@@ -5,27 +5,73 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane alignment="CENTER" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.AddSeriesController">
+<?import javafx.scene.Group?>
+<GridPane maxWidth="1000"
+        alignment="CENTER" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.AddSeriesController">
     <padding>
         <Insets bottom="10" left="15" right="15" top="15" />
     </padding>
 
     <gridLinesVisible>true</gridLinesVisible>
+<!--    ROW 0-->
+    <HBox alignment="TOP_CENTER" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" >
+        <Text text="Add a Series to the database"/>
+    </HBox>
+<!--    ROW 1-->
+    <Label text="Series URL" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <TextField fx:id="seriesUrlField" promptText="www.pixiv.net/user/000000/series/000000" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+<!--    ROW 2-->
+    <HBox alignment="TOP_RIGHT" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+        <Button fx:id="parseButton" text="Parse" onAction="#handleParseButton" minWidth="75"/>
+    </HBox>
+<!--    ROW 3-->
+    <HBox alignment="TOP_CENTER" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
+        <Text fx:id="parseButtonErrorText"/>
+    </HBox>
+<!--    ROW 4-->
+    <Label fx:id="dirGroupLabel" text="Group Directory" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <TextField fx:id="dirGroupField" promptText="Series Group Directory" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    <ComboBox fx:id="dirGroupComboBox" minWidth="250" prefWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+<!--    ROW 5-->
+    <CheckBox fx:id="createNewGroupCheckBox" onAction="#handleGroupCheckBox" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <Label fx:id="dirGroupCheckLabel" text="Create a new group" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+<!--    ROW 6-->
+    <Label fx:id="dirTitleLabel" text="Title Directory" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <TextField fx:id="dirTitleField" promptText="Series Title Directory" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+<!--    ROW 7-->
+    <CheckBox fx:id="useDefaultTitleCheckBox" onAction="#handleTitleCheckBox" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+    <Label fx:id="dirTitleCheckLabel" text="Use the default title" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+<!--    ROW 8-->
+    <Label fx:id="artistLabel" text="Artist:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Text fx:id="artistText" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+<!--    ROW 9-->
+    <Label fx:id="titleLabel" text="Title:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+    <Text fx:id="titleText" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+<!--    ROW 10-->
+    <Label fx:id="directoryDisplayLabel" text="Directory:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+    <VBox fx:id="directoryDisplay" GridPane.rowIndex="10" GridPane.columnIndex="1">
+        <HBox>
+            <Text fx:id="dirLibraryText" text="Library"/>
+        </HBox>
+        <HBox fx:id="dirGroupHBox">
+            <Text text="            &#x2937; "/>
+            <Text fx:id="dirGroupText" text="GroupDirectory"/>
+        </HBox>
+        <HBox>
+            <Text fx:id="dirTitleTextPadding" text="            "/>
+            <Text text="            &#x2937; "/>
+            <Text fx:id="dirTitleText" text="TitleDirectory"/>
+        </HBox>
 
-    <Text text="Add a Series to the database" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0" />
-
-    <Label text="Series Link" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-
-    <TextField fx:id="seriesLink" promptText=".../user/000000/series/000000" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-    <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="2">
-        <Button onAction="#handleParseButtonAction" text="Parse" />
+    </VBox>
+<!--    ROW 11-->
+    <HBox alignment="BOTTOM_RIGHT" GridPane.rowIndex="11" GridPane.columnIndex="1">
+        <Button fx:id="saveButton" text="Save Series to Database" onAction="#handleSaveButton"/>
     </HBox>
 
-    <Text fx:id="testText" text="test" GridPane.columnSpan="2" GridPane.rowIndex="3" />
    <columnConstraints>
-      <ColumnConstraints />
-      <ColumnConstraints />
+      <ColumnConstraints halignment="RIGHT" minWidth="100" prefWidth="100"/>
+      <ColumnConstraints halignment="LEFT" minWidth="250" prefWidth="300"/>
    </columnConstraints>
    <rowConstraints>
       <RowConstraints />
