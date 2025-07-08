@@ -9,8 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
@@ -28,31 +28,27 @@ public class AddSeriesController implements Initializable {
     private boolean parsed = false;
     private Image missingThumbnailImage;
 
-    @FXML protected Text parseButtonErrorText;
+    @FXML protected Text parseButtonReport;
     @FXML protected TextField seriesUrlField;
     @FXML protected Button parseButton;
 
-    @FXML protected Label dirGroupLabel;
+    @FXML protected GridPane parsedDetails;
+
     @FXML protected TextField dirGroupField;
     @FXML protected ComboBox<String> dirGroupComboBox;
-    @FXML protected CheckBox createNewGroupCheckBox;
-    @FXML protected Label dirGroupCheckLabel;
+    @FXML protected CheckBox dirGroupCheckBox;
+    @FXML protected CheckBox dirGroupUseArtistCheckBox;
 
-    @FXML protected Label dirTitleLabel;
     @FXML protected TextField dirTitleField;
-    @FXML protected CheckBox useDefaultTitleCheckBox;
-    @FXML protected Label dirTitleCheckLabel;
+    @FXML protected CheckBox dirTitleCheckBox;
+    @FXML protected CheckBox dirTitleUseArtistCheckBox;
 
-    @FXML protected Label artistLabel;
     @FXML protected Text artistText;
 
-    @FXML protected Label titleLabel;
     @FXML protected Text titleText;
 
     @FXML protected ImageView thumbnailImageView;
 
-    @FXML protected Label directoryDisplayLabel;
-    @FXML protected VBox directoryDisplay;
     @FXML protected Text dirLibraryText;
     @FXML protected HBox dirGroupHBox;
     @FXML protected Text dirGroupText;
@@ -66,12 +62,19 @@ public class AddSeriesController implements Initializable {
         ObservableList<String> groupNames = FXCollections.observableArrayList(broker.selectAllGroups());
         groupNames.add(NO_GROUP_DIRECTORY);
         dirGroupComboBox.setItems(groupNames);
-        dirGroupComboBox.getSelectionModel().selectFirst();
+        dirGroupComboBox.getSelectionModel().selectLast();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         seriesModel = new SeriesModel();
+        seriesModel.setPropertiesFromSeries(new Series());
+        Bindings.bindBidirectional(dirGroupCheckBox.selectedProperty(), dirGroupUseArtistCheckBox.disableProperty());
+        Bindings.bindBidirectional(dirGroupUseArtistCheckBox.selectedProperty(), dirGroupCheckBox.disableProperty());
+
+        Bindings.bindBidirectional(dirTitleCheckBox.selectedProperty(), dirTitleUseArtistCheckBox.disableProperty());
+        Bindings.bindBidirectional(dirTitleUseArtistCheckBox.selectedProperty(), dirTitleCheckBox.disableProperty());
+
         Bindings.bindBidirectional(dirGroupField.textProperty(), seriesModel.getDirectoryGroupProperty());
         Bindings.bindBidirectional(dirTitleField.textProperty(), seriesModel.getDirectoryTitleProperty());
 
@@ -95,9 +98,9 @@ public class AddSeriesController implements Initializable {
         toggleVisibilityOfDetails(false);
 
         dirGroupComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldvalue, newvalue)->{
-            if(!createNewGroupCheckBox.isSelected()){
+            if(!dirGroupCheckBox.isSelected()){
                 dirGroupText.setText(newvalue);
-                toggleGroupDirectoryDisplayVisibilityBasedOnComboBox();
+                hideGroupDirDisplayIfNoGroupDirIsSelected();
             }
         });
 
@@ -110,45 +113,72 @@ public class AddSeriesController implements Initializable {
 
     @FXML
     protected void handleParseButton(ActionEvent actionEvent) {
+        parseButton.setDisable(true);
         if(parsed) resetSeries();
         else parseSeries();
+        parseButton.setDisable(false);
     }
 
     @FXML
     protected void handleGroupCheckBox(ActionEvent actionEvent){
-        if(createNewGroupCheckBox.isSelected()){
-            dirGroupComboBox.setDisable(true);
-            dirGroupComboBox.setVisible(false);
-
-            dirGroupField.setDisable(false);
-            dirGroupField.setVisible(true);
-            Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
-            toggleGroupDirectoryDisplayVisibilityBasedOnComboBox();
-
+        if(dirGroupCheckBox.isSelected()){
+            toggleGroupComboBox(false);
         } else {
-            dirGroupComboBox.setDisable(false);
-            dirGroupComboBox.setVisible(true);
+            toggleGroupComboBox(true);
+        }
+    }
 
-            dirGroupField.setDisable(true);
-            dirGroupField.setVisible(false);
-            dirGroupHBox.setVisible(true);
+    private void toggleGroupComboBox(boolean isActive){
+        dirGroupComboBox.setDisable(!isActive);
+        dirGroupComboBox.setVisible(isActive);
+
+        dirGroupField.setDisable(isActive);
+        dirGroupField.setVisible(!isActive);
+
+        if(isActive){
             Bindings.unbindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
-            dirGroupText.setText(dirGroupComboBox.getValue());
-            toggleGroupDirectoryDisplayVisibilityBasedOnComboBox();
+            dirGroupComboBox.getSelectionModel().selectLast();
+            seriesModel.setDirectoryGroup(dirGroupComboBox.getValue());
+        } else {
+            Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
+        }
+        hideGroupDirDisplayIfNoGroupDirIsSelected();
+    }
+
+    @FXML
+    protected void handleGroupUseArtistCheckBox(ActionEvent actionEvent) {
+        if(dirGroupUseArtistCheckBox.isSelected()){
+            toggleGroupComboBox(false);
+            dirGroupField.setDisable(true);
+            seriesModel.setDirectoryGroup(seriesModel.getArtist());
+        } else {
+            toggleGroupComboBox(true);
         }
     }
     @FXML
     protected void handleTitleCheckBox(ActionEvent actionEvent){
-        if(useDefaultTitleCheckBox.isSelected()){
-            dirTitleField.setText(seriesModel.getTitle());
+        if(dirTitleCheckBox.isSelected()){
+            dirTitleField.setDisable(false);
+        } else {
+            seriesModel.setDirectoryTitle(seriesModel.getTitle());
+            dirTitleField.setDisable(true);
+        }
+    }
+    @FXML
+    protected void handleTitleUseArtistCheckBox(ActionEvent actionEvent) {
+        if(dirTitleUseArtistCheckBox.isSelected()){
+            seriesModel.setDirectoryTitle("["+seriesModel.getArtist()+"]"+seriesModel.getTitle());
             dirTitleField.setDisable(true);
         } else {
-            dirTitleField.setDisable(false);
+            seriesModel.setDirectoryTitle(seriesModel.getTitle());
+            dirTitleField.setDisable(true);
         }
     }
     @FXML
     protected void handleSaveButton(ActionEvent actionEvent) {
-        if(!createNewGroupCheckBox.isSelected()){
+        saveButton.disableProperty().unbind();
+        saveButton.setDisable(true);
+        if(!dirGroupCheckBox.isSelected()){
             String groupDirectory = dirGroupComboBox.getValue();
             if(groupDirectory.equals(NO_GROUP_DIRECTORY)){
                 groupDirectory = "";
@@ -166,10 +196,12 @@ public class AddSeriesController implements Initializable {
             alert.setContentText("Fail: This Series is already in the database!");
             alert.show();
         }
+        saveButton.setDisable(false);
+        saveButton.disableProperty().bind(seriesModel.getOkToSaveProperty().not());
     }
 
-    private void toggleGroupDirectoryDisplayVisibilityBasedOnComboBox(){
-        if(dirGroupComboBox.getValue().equals(NO_GROUP_DIRECTORY) && !createNewGroupCheckBox.isSelected()){
+    private void hideGroupDirDisplayIfNoGroupDirIsSelected(){
+        if(dirGroupComboBox.getValue().equals(NO_GROUP_DIRECTORY) && !dirGroupCheckBox.isSelected() && !dirGroupUseArtistCheckBox.isSelected()){
             dirGroupHBox.setVisible(false);
             dirGroupHBox.setManaged(false);
 
@@ -188,40 +220,49 @@ public class AddSeriesController implements Initializable {
 
     private void parseSeries(){
         try {
+            parseButtonReport.setText("Parsing...");
+            seriesUrlField.setDisable(true);
             String seriesURL = seriesUrlField.getText();
             Series series = Parser.parseSeries(seriesURL);
+            seriesUrlField.setText(series.getSeriesLink());
             seriesModel.setPropertiesFromSeries(series);
-            parsed = true;
-            parseButtonErrorText.setText("");
             parseButton.setText("Reset");
-            seriesUrlField.setDisable(true);
-
             try (InputStream inputStream = Downloader.getInputStreamFromImageURL(Parser.parseSeriesThumbnail())){
                 Image image = new Image(inputStream);
                 thumbnailImageView.setImage(image);
             } catch (URISyntaxException | IOException e) {
                 thumbnailImageView.setImage(missingThumbnailImage);
             }
+            dirGroupCheckBox.setSelected(false);
+            dirTitleCheckBox.setSelected(false);
+            dirGroupComboBox.getSelectionModel().selectLast();
             toggleDisabilityOfDetails(false);
             toggleVisibilityOfDetails(true);
+            hideGroupDirDisplayIfNoGroupDirIsSelected();
+            dirTitleField.setDisable(true);
+            parsed = true;
+            parseButtonReport.setText("");
         } catch (ParserException e) {
-            parseButtonErrorText.setText(e.getMessage());
+            parseButtonReport.setText(e.getMessage());
         }
     }
 
     private void resetSeries(){
-        parsed = false;
         parseButton.setText("Parse");
         seriesUrlField.setDisable(false);
         toggleDisabilityOfDetails(true);
         toggleVisibilityOfDetails(false);
+        parseButtonReport.setText("");
+        parsed = false;
     }
 
     private void toggleDisabilityOfDetails(boolean isDisabled){
-        createNewGroupCheckBox.setDisable(isDisabled);
+        dirGroupCheckBox.setDisable(isDisabled);
+        dirGroupUseArtistCheckBox.setDisable(isDisabled);
         dirTitleField.setDisable(isDisabled);
-        useDefaultTitleCheckBox.setDisable(isDisabled);
-        if(createNewGroupCheckBox.isSelected()){
+        dirTitleCheckBox.setDisable(isDisabled);
+        dirTitleUseArtistCheckBox.setDisable(isDisabled);
+        if(dirGroupCheckBox.isSelected()){
             dirGroupField.setDisable(isDisabled);
         } else {
             dirGroupComboBox.setDisable(isDisabled);
@@ -229,31 +270,13 @@ public class AddSeriesController implements Initializable {
     }
 
     private void toggleVisibilityOfDetails(boolean isVisible){
-        dirGroupLabel.setVisible(isVisible);
-        dirGroupField.setVisible(isVisible);
-        if(createNewGroupCheckBox.isSelected()){
+        parsedDetails.setVisible(isVisible);
+        parsedDetails.setManaged(isVisible);
+        if(dirGroupCheckBox.isSelected()){
             dirGroupField.setVisible(isVisible);
         } else {
             dirGroupComboBox.setVisible(isVisible);
         }
-        createNewGroupCheckBox.setVisible(isVisible);
-        dirGroupCheckLabel.setVisible(isVisible);
-
-        dirTitleLabel.setVisible(isVisible);
-        dirTitleField.setVisible(isVisible);
-        useDefaultTitleCheckBox.setVisible(isVisible);
-        dirTitleCheckLabel.setVisible(isVisible);
-
-        titleLabel.setVisible(isVisible);
-        titleText.setVisible(isVisible);
-        artistLabel.setVisible(isVisible);
-        artistText.setVisible(isVisible);
-
-        thumbnailImageView.setVisible(isVisible);
-
-        directoryDisplayLabel.setVisible(isVisible);
-        directoryDisplay.setVisible(isVisible);
-        saveButton.setVisible(isVisible);
     }
     private boolean isDataValid(){
         if(seriesModel.getDirectoryGroup().isBlank() ||

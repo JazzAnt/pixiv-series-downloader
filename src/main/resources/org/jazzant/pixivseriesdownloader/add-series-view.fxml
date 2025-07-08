@@ -5,78 +5,88 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.Group?>
 <?import javafx.scene.image.ImageView?>
-<GridPane minHeight="600" minWidth="400"
-          alignment="CENTER" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.AddSeriesController">
+<VBox minHeight="600" minWidth="500"
+          alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.AddSeriesController">
     <padding>
         <Insets bottom="10" left="15" right="15" top="15" />
     </padding>
-
-    <gridLinesVisible>true</gridLinesVisible>
-<!--    ROW 0-->
-    <HBox alignment="TOP_CENTER" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" >
+    <HBox alignment="TOP_CENTER">
         <Text text="Add a Series to the database"/>
     </HBox>
-<!--    ROW 1-->
-    <Label text="Series URL" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-    <TextField fx:id="seriesUrlField" promptText="www.pixiv.net/user/000000/series/000000" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-<!--    ROW 2-->
-    <HBox alignment="TOP_RIGHT" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+
+    <HBox alignment="CENTER">
+        <Label text="Series URL: "/>
+        <TextField fx:id="seriesUrlField" promptText="www.pixiv.net/user/0000000/series/0000000" minWidth="310"/>
+    </HBox>
+    <HBox alignment="TOP_RIGHT">
+        <padding>
+            <Insets top="10" right="10"/>
+        </padding>
         <Button fx:id="parseButton" text="Parse" onAction="#handleParseButton" minWidth="75"/>
     </HBox>
-<!--    ROW 3-->
-    <HBox alignment="TOP_CENTER" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
-        <Text fx:id="parseButtonErrorText"/>
+    <HBox alignment="TOP_RIGHT">
+        <Text fx:id="parseButtonReport" wrappingWidth="300"/>
     </HBox>
+
+    <GridPane fx:id="parsedDetails" alignment="TOP_CENTER" minWidth="400" hgap="10" vgap="5">
+        <padding>
+            <Insets top="20" right="5" bottom="10" left="5" />
+        </padding>
+<!--    ROW 0-->
+    <Label text="Group Directory" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <TextField fx:id="dirGroupField" promptText="Series Group Directory" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <ComboBox fx:id="dirGroupComboBox" minWidth="250" prefWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+<!--    ROW 1-->
+    <CheckBox fx:id="dirGroupUseArtistCheckBox" onAction="#handleGroupUseArtistCheckBox" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label text="Use Artist as Group" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+<!--    ROW 2-->
+        <CheckBox fx:id="dirGroupCheckBox" onAction="#handleGroupCheckBox" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label text="Input Group Manually" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+<!--    ROW 3-->
+    <Label text="Title Directory" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <TextField fx:id="dirTitleField" promptText="Series Title Directory" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 <!--    ROW 4-->
-    <Label fx:id="dirGroupLabel" text="Group Directory" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <TextField fx:id="dirGroupField" promptText="Series Group Directory" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-    <ComboBox fx:id="dirGroupComboBox" minWidth="250" prefWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <CheckBox fx:id="dirTitleUseArtistCheckBox" onAction="#handleTitleUseArtistCheckBox" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <Label text="Prefix Title with Artist" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 <!--    ROW 5-->
-    <CheckBox fx:id="createNewGroupCheckBox" onAction="#handleGroupCheckBox" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-    <Label fx:id="dirGroupCheckLabel" text="Create a new group" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    <CheckBox fx:id="dirTitleCheckBox" onAction="#handleTitleCheckBox" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <Label text="Input Title Manually" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 <!--    ROW 6-->
-    <Label fx:id="dirTitleLabel" text="Title Directory" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-    <TextField fx:id="dirTitleField" promptText="Series Title Directory" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    <Label text="Artist:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <Text fx:id="artistText" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 <!--    ROW 7-->
-    <CheckBox fx:id="useDefaultTitleCheckBox" onAction="#handleTitleCheckBox" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-    <Label fx:id="dirTitleCheckLabel" text="Use the default title" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    <Label text="Title:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+    <Text fx:id="titleText" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 <!--    ROW 8-->
-    <Label fx:id="artistLabel" text="Artist:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-    <Text fx:id="artistText" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
-<!--    ROW 9-->
-    <Label fx:id="titleLabel" text="Title:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-    <Text fx:id="titleText" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
-<!--    ROW 10-->
-    <HBox alignment="TOP_CENTER" GridPane.rowIndex="10" GridPane.columnIndex="0" GridPane.columnSpan="2">
+    <HBox alignment="TOP_CENTER" GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2">
         <ImageView fx:id="thumbnailImageView" fitHeight="137" fitWidth="261"/>
     </HBox>
-<!--    ROW 11-->
-    <Label fx:id="directoryDisplayLabel" text="Directory:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
-    <VBox fx:id="directoryDisplay" GridPane.rowIndex="11" GridPane.columnIndex="1">
+<!--    ROW 9-->
+    <Label text="Directory:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+    <VBox GridPane.rowIndex="9" GridPane.columnIndex="1">
         <HBox>
             <Text fx:id="dirLibraryText" text="Library"/>
         </HBox>
         <HBox fx:id="dirGroupHBox">
-            <Text text="            &#x2937; "/>
+            <Text text="          &#x2937; "/>
             <Text fx:id="dirGroupText" text="GroupDirectory"/>
         </HBox>
         <HBox>
-            <Text fx:id="dirTitleTextPadding" text="            "/>
-            <Text text="            &#x2937; "/>
+            <Text fx:id="dirTitleTextPadding" text="          "/>
+            <Text text="          &#x2937; "/>
             <Text fx:id="dirTitleText" text="TitleDirectory"/>
         </HBox>
 
     </VBox>
-<!--    ROW 12-->
-    <HBox alignment="BOTTOM_RIGHT" GridPane.rowIndex="12" GridPane.columnIndex="1">
+<!--    ROW 10-->
+    <HBox alignment="BOTTOM_RIGHT" GridPane.rowIndex="10" GridPane.columnIndex="1">
         <Button fx:id="saveButton" text="Save Series to Database" onAction="#handleSaveButton"/>
     </HBox>
 
    <columnConstraints>
       <ColumnConstraints halignment="RIGHT" minWidth="100" prefWidth="100"/>
-      <ColumnConstraints halignment="LEFT" minWidth="250" prefWidth="300"/>
+      <ColumnConstraints halignment="LEFT" minWidth="300" prefWidth="350"/>
    </columnConstraints>
    <rowConstraints>
       <RowConstraints />
@@ -85,4 +95,6 @@
       <RowConstraints />
    </rowConstraints>
 
-</GridPane>
+    </GridPane>
+
+</VBox>
