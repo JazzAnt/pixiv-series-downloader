@@ -155,11 +155,15 @@ public class Parser {
     public static Series parseSeries(String seriesURL)
             throws ParserSeriesDoesNotExistException{
         validateInitialization();
-        if(!Series.checkSeriesURLFormat(seriesURL)) throw new ParserException("The series's URL format is incorrect.");
+        if(!Series.checkSeriesURLFormat(seriesURL))
+            throw new ParserException("The series's URL format is incorrect.");
         driver.get(seriesURL);
         checkIfSeriesExists();
 
         Series series = new Series();
+        seriesURL = driver.getCurrentUrl();
+        if(seriesURL == null || !Series.checkSeriesURLFormat(seriesURL))
+            throw new ParserException("Something went wrong with the parser.");
         series.setSeriesIDAndArtistIDsFromSeriesURL(seriesURL);
         series.setArtist(parseSeriesArtist());
         series.setTitle(parseSeriesTitle());
