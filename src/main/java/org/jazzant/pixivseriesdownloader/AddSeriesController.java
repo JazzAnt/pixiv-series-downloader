@@ -7,12 +7,18 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class AddSeriesController implements Initializable {
@@ -20,6 +26,7 @@ public class AddSeriesController implements Initializable {
     private SeriesBroker broker;
     private SeriesModel seriesModel;
     private boolean parsed = false;
+    private Image missingThumbnailImage;
 
     @FXML protected Text parseButtonErrorText;
     @FXML protected TextField seriesUrlField;
@@ -41,6 +48,8 @@ public class AddSeriesController implements Initializable {
 
     @FXML protected Label titleLabel;
     @FXML protected Text titleText;
+
+    @FXML protected ImageView thumbnailImageView;
 
     @FXML protected Label directoryDisplayLabel;
     @FXML protected VBox directoryDisplay;
@@ -91,6 +100,12 @@ public class AddSeriesController implements Initializable {
                 toggleGroupDirectoryDisplayVisibilityBasedOnComboBox();
             }
         });
+
+        try{
+            missingThumbnailImage = new Image(Objects.requireNonNull(getClass().getResource("thumbnail_not_found.jpg")).openStream());
+        } catch (IOException e) {
+            missingThumbnailImage = null;
+        }
     }
 
     @FXML
@@ -180,6 +195,13 @@ public class AddSeriesController implements Initializable {
             parseButtonErrorText.setText("");
             parseButton.setText("Reset");
             seriesUrlField.setDisable(true);
+
+            try (InputStream inputStream = Downloader.getInputStreamFromImageURL(Parser.parseSeriesThumbnail())){
+                Image image = new Image(inputStream);
+                thumbnailImageView.setImage(image);
+            } catch (URISyntaxException | IOException e) {
+                thumbnailImageView.setImage(missingThumbnailImage);
+            }
             toggleDisabilityOfDetails(false);
             toggleVisibilityOfDetails(true);
         } catch (ParserException e) {
@@ -226,6 +248,8 @@ public class AddSeriesController implements Initializable {
         titleText.setVisible(isVisible);
         artistLabel.setVisible(isVisible);
         artistText.setVisible(isVisible);
+
+        thumbnailImageView.setVisible(isVisible);
 
         directoryDisplayLabel.setVisible(isVisible);
         directoryDisplay.setVisible(isVisible);

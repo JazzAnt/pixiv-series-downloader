@@ -18,7 +18,7 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-series-view.fxml"));
         Parent root = fxmlLoader.load();
 
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root);
 
 //        Image image = new Image("icon.png"); //searches from the src folder
 //        stage.getIcons().add(image);
