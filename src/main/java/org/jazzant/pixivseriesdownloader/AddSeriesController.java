@@ -142,6 +142,9 @@ public class AddSeriesController implements Initializable {
         }
         try {
             broker.createRecord(seriesModel.getSeries());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Successfully saved series to database");
+            alert.show();
         }
         catch (SeriesAlreadyInDatabaseException e){
             Alert alert = new Alert(Alert.AlertType.ERROR);
