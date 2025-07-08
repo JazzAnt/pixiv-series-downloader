@@ -33,6 +33,30 @@ public class Downloader{
     private Downloader(){}
 
     /**
+     * Returns the library directory (where everything will be downloaded).
+     * @return the directory of the download library.
+     */
+    public static String getLibraryDir() {
+        return libraryDir;
+    }
+
+    /**
+     * Returns the file format the downloaded chapters will be saved as.
+     * @return the file format.
+     */
+    public static SaveAs getFileFormat() {
+        return fileFormat;
+    }
+
+    /**
+     * Returns the filename format of the downloaded chapters.
+     * @return the filename format.
+     */
+    public static String getFilenameFormatter() {
+        return filenameFormatter;
+    }
+
+    /**
      * Set's the directory for all the file and chapter downloads. If unset, default is 'home/Library' where home is the
      * user's home directory (e.g. in Windows it's usually C:/Users/Username).
      * @param libraryDirectory the directory of your library.
