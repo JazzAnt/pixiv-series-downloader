@@ -6,21 +6,19 @@ import java.util.regex.Pattern;
 public class Series {
     private static final String PIXIV_URL = "www.pixiv.net";
     private static final String SERIES_URL_REGEX = "www\\.pixiv\\.net/user/(\\d+)/series/(\\d+)$";
-    private String directoryGroup;
-    private String directoryTitle;
-    private String title;
-    private String artist;
+    private String directoryGroup = "";
+    private String directoryTitle = "";
+    private String title = "";
+    private String artist = "";
     private SeriesStatus status = SeriesStatus.ONGOING;
     private int artistID;
     private int seriesID;
     private int latestChapterID;
 
     public boolean isValid(){
-        if(directoryGroup == null ||
-                directoryTitle == null || directoryTitle.isBlank() ||
-                title == null || title.isBlank() ||
-                artist == null || artist.isBlank() ||
-                status == null ||
+        if(directoryTitle.isBlank() ||
+                title.isBlank() ||
+                artist.isBlank() ||
                 artistID < 1 ||
                 seriesID < 1
         ) return false;
