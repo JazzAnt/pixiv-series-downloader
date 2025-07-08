@@ -29,7 +29,16 @@ public class Series {
     public static boolean checkSeriesURLFormat(String seriesURL){
         Pattern pattern = Pattern.compile(SERIES_URL_REGEX);
         Matcher matcher = pattern.matcher(seriesURL.trim());
-        return matcher.find();
+        if(matcher.find()){
+            try {
+                Integer.parseInt(matcher.group(1));
+                Integer.parseInt(matcher.group(2));
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return false;
     }
     public boolean setSeriesIDAndArtistIDsFromSeriesURL(String seriesURL){
         Pattern pattern = Pattern.compile(SERIES_URL_REGEX);
@@ -43,7 +52,7 @@ public class Series {
                 return false;
             }
         }
-        else return false;
+        return false;
     }
     public String getSeriesLink(){
         return PIXIV_URL + "/user/" + artistID + "/series/" + seriesID;
