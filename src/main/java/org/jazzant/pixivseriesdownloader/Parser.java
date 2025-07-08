@@ -25,9 +25,9 @@ public class Parser {
     private static WebDriverWait driverLongWait;
     private static boolean isLoggedIn;
     private static Point screenCenter;
-    private static String pixivUsername;
-    private static String pixivPassword;
-    private static int waitTime;
+    private static String pixivUsername = "";
+    private static String pixivPassword = "";
+    private static int waitTime = 10;
 
     /**
      * Static class, cannot be instantiated.
@@ -39,14 +39,16 @@ public class Parser {
      * haven't been called.
      */
     public static void initialize(){
+        initialize(true);
+    }
+
+    private static void initialize(boolean asHeadless){
         if(initialized) throw new ParserException("Parser can only be initialized once!");
-        pixivUsername = "";
-        pixivPassword = "";
-        waitTime = 10;
         isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--width=400");
         options.addArguments("--height=500");
+        if(asHeadless) options.addArguments("--headless");
         driver = new FirefoxDriver(options);
         window = driver.manage().window();
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
@@ -55,16 +57,16 @@ public class Parser {
         int x = screenSize.width / 2;
         int y = screenSize.height / 2;
         screenCenter = new Point(x, y);
-        windowMinimize();
         initialized = true;
+        if(!asHeadless) windowMinimize();
     }
 
     /**
-     * Closes the WebDriver.
+     * Quits the WebDriver.
      */
-    public static void close(){
+    public static void quit(){
         validateInitialization();
-        driver.close();
+        driver.quit();
         initialized = false;
     }
 
@@ -99,11 +101,9 @@ public class Parser {
     }
 
     /**
-     * Opens the login page. If the user has set both a username and a password then the Parser will fill both fields and
-     * attempt to automatically log-in. The screen will be brought to the front if the user hasn't set the username and
-     * password, or if the user has but the login fails either because one or both of the credentials is wrong or because
-     * a reCaptcha appears. In whichever case, if the login screen is brought to front the user will have to complete the
-     * login process by themselves.
+     * The driver attempts to log-in using the given username and password. If it fails for any reason besides reCAPTCHA
+     * it will simply return a boolean false. But if a reCAPTCHA is detected, this method will call loginPixivManually()
+     * to try and login with a non-headless browser.
      * @return boolean true if the login is successful and false otherwise.
      */
     public static boolean loginPixiv() {
@@ -115,14 +115,32 @@ public class Parser {
             isLoggedIn = waitForLoginShort();
             if(isLoggedIn) return true;
             if(detectReCAPTCHA()){
-                windowToFront();
-                isLoggedIn = waitForLoginLong();
+                return loginPixivManually();
             }
         }
-        if(!isLoggedIn) {
-            windowToFront();
-            isLoggedIn = waitForLoginLong();
+        return isLoggedIn;
+    }
+
+    /**
+     * Restarts the browser as a non-headless mode (note that the browser will remain headless for the rest of the session)
+     * and brings the login page to the front for the user to login manually. The browser will wait for the user to
+     * login for as long as the declared driverLongWait variable.
+     * If both the username and password has been previously set, the parser will still attempt to log-in automatically
+     * first, but will relegate control to the user if it fails for any reason.
+     * @return boolean true if the login is successful and false otherwise.
+     */
+    public static boolean loginPixivManually(){
+        quit();
+        initialize(false);
+        goToLoginPage();
+        if(enterUsernameField() && enterPasswordField()){
+            clickLoginButton();
+            isLoggedIn = waitForLoginShort();
+            if(isLoggedIn) return true;
         }
+        windowToFront();
+        isLoggedIn = waitForLoginLong();
+        windowMinimize();
         return isLoggedIn;
     }
 
