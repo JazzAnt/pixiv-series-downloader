@@ -4,8 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Series {
-    private static final String PIXIV_URL = "www.pixiv.net";
-    private static final String SERIES_URL_REGEX = "www\\.pixiv\\.net/user/(\\d+)/series/(\\d+)$";
+    private static final String PIXIV_URL = "https://www.pixiv.net";
+    private static final String SERIES_URL_REGEX = "^(http://|https://)www\\.pixiv\\.net/user/(\\d+)/series/(\\d+)$";
     private String directoryGroup = "";
     private String directoryTitle = "";
     private String title = "";

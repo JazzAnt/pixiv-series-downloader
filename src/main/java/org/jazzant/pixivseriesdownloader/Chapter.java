@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Chapter {
-    private static final String ARTWORK_URL_REGEX = "www\\.pixiv\\.net/?e?n?/artworks/([0-9]+)$";
+    private static final String ARTWORK_URL_REGEX = "^(http://|https://)www\\.pixiv\\.net/?e?n?/artworks/([0-9]+)$";
     private String title;
     private String uploadDate;
     private int pixivID;
