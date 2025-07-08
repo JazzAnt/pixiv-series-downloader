@@ -174,6 +174,16 @@ public class Parser {
         return series;
     }
 
+    public static String parseSeriesThumbnail(){
+        validateInitialization();
+        if(!inSeriesPage()) throw new ParserException("This method can only be called while the driver is in the series page.");
+        WebElement element = driver.findElement(By.id("__NEXT_DATA__"));
+        String scriptJSON = element.getAttribute("innerHTML");
+        assert scriptJSON != null;
+        String imageURL = scriptJSON.replaceAll(".*?image\":\"", "").replaceAll("\"}.*", "");
+        return imageURL;
+    }
+
     /**
      * Parses through an chapter page to find various details regarding the chapter, including the image download links.
      * @param chapterURL the URL of the chapter page. The one formatted something like 'www.pixiv.net/artworks/000000'.

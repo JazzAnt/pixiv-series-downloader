@@ -228,7 +228,7 @@ public class Downloader{
      * @throws URISyntaxException if the given URL is invalid.
      * @throws IOException if the attempt to open a connection fails.
      */
-    private static InputStream getInputStreamFromImageURL(String imageURL) throws URISyntaxException, IOException {
+    public static InputStream getInputStreamFromImageURL(String imageURL) throws URISyntaxException, IOException {
         URLConnection connection = new URI(imageURL).toURL().openConnection();
         connection.setRequestProperty("Referer", "https://www.pixiv.net");
         return connection.getInputStream();
