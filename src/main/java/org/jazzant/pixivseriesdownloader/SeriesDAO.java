@@ -13,8 +13,8 @@ public class SeriesDAO {
                 seriesDTO.getTitle(),
                 seriesDTO.getArtist(),
                 seriesDTO.getStatus(),
-                seriesDTO.getSeriesID(),
                 seriesDTO.getArtistID(),
+                seriesDTO.getSeriesID(),
                 seriesDTO.getLatestChapterID()
         );
         return result > 0;
