@@ -29,8 +29,8 @@ public class Series {
         Matcher matcher = pattern.matcher(seriesURL.trim());
         if(matcher.find()){
             try {
-                Integer.parseInt(matcher.group(1));
                 Integer.parseInt(matcher.group(2));
+                Integer.parseInt(matcher.group(3));
                 return true;
             } catch (NumberFormatException e) {
                 return false;
@@ -43,8 +43,8 @@ public class Series {
         Matcher matcher = pattern.matcher(seriesURL.trim());
         if(matcher.find()){
             try {
-                artistID = Integer.parseInt(matcher.group(1));
-                seriesID = Integer.parseInt(matcher.group(2));
+                artistID = Integer.parseInt(matcher.group(2));
+                seriesID = Integer.parseInt(matcher.group(3));
                 return true;
             } catch (NumberFormatException e) {
                 return false;
@@ -52,7 +52,7 @@ public class Series {
         }
         return false;
     }
-    public String getSeriesLink(){
+    public String getSeriesURL(){
         return PIXIV_URL + "/user/" + artistID + "/series/" + seriesID;
     }
 

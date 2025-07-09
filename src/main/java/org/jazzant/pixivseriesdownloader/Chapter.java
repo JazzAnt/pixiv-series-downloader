@@ -34,7 +34,7 @@ public class Chapter {
         Matcher matcher = pattern.matcher(chapterURL.trim());
         if(matcher.find()){
             try {
-                pixivID = Integer.parseInt(matcher.group(1));
+                pixivID = Integer.parseInt(matcher.group(2));
                 return true;
             } catch (NumberFormatException e) {
                 return false;
