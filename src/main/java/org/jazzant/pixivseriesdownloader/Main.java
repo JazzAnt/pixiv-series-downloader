@@ -1,9 +1,11 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -14,22 +16,21 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parser.initialize();
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-series-view.fxml"));
+        stage.setOnCloseRequest(windowEvent -> {
+            Parser.quit();
+            Platform.exit();
+        });
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Parent root = fxmlLoader.load();
-
         Scene scene = new Scene(root);
-
-//        Image image = new Image("icon.png"); //searches from the src folder
-//        stage.getIcons().add(image);
-
-        AddSeriesController addSeriesController = fxmlLoader.getController();
-        addSeriesController.setBroker(broker);
 
         stage.setTitle("Pixiv Series Downloader");
         stage.setScene(scene);
-        stage.setOnCloseRequest(event->Parser.quit());
         stage.show();
+    }
+
+    private void openAddSeriesWindow(){
 
     }
 }
