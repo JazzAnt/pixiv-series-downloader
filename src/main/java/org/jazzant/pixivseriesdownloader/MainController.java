@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,6 +18,10 @@ public class MainController implements Initializable {
     private final SeriesBroker broker = new SeriesBroker();
     @FXML
     protected Button addSeriesButton;
+    @FXML
+    protected Button loginButton;
+    @FXML
+    protected Text loginDisplay;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -43,6 +48,35 @@ public class MainController implements Initializable {
             alert.setContentText("Something went wrong: " + e.getMessage());
             alert.show();
             addSeriesButton.setDisable(false);
+        }
+    }
+
+    @FXML
+    private void openLoginWindow(){
+        loginButton.setDisable(true);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+
+            stage.setTitle("Login View");
+            stage.setOnCloseRequest(windowEvent -> {
+                if(Parser.isLoggedIn()){
+                    loginButton.setText("Logged In To Pixiv");
+                    loginButton.setVisible(false);
+                    loginDisplay.setVisible(true);
+                } else {
+                    loginButton.setDisable(false);
+                }
+            });
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong: " + e.getMessage());
+            alert.show();
+            loginButton.setDisable(false);
         }
     }
 }

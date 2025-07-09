@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.jazzant.pixivseriesdownloader.MainController"
@@ -17,4 +18,6 @@
     </padding>
 
     <Button fx:id="addSeriesButton" onAction="#openAddSeriesWindow" text="Add New Series"/>
+    <Button fx:id="loginButton" onAction="#openLoginWindow" text="Login"/>
+    <Text fx:id="loginDisplay" text="You're Logged In" visible="false"/>
 </VBox>

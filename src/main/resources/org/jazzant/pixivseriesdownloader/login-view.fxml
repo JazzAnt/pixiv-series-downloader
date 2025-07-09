@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<VBox fx:id="scenePane" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.jazzant.pixivseriesdownloader.LoginController"
+      alignment="TOP_CENTER"
+      prefHeight="250.0" prefWidth="300.0">
+    <padding>
+        <Insets top="15" right="15" bottom="10" left="15"/>
+    </padding>
+    <HBox alignment="TOP_CENTER">
+        <padding>
+            <Insets bottom="15"/>
+        </padding>
+        <Text text="Login to Pixiv"/>
+    </HBox>
+    <HBox alignment="CENTER" prefWidth="270">
+        <Label text="Username " prefWidth="70" alignment="CENTER_RIGHT"/>
+        <TextField fx:id="usernameField" promptText="Email Address or Pixiv ID" prefWidth="200"/>
+    </HBox>
+    <HBox alignment="CENTER" prefWidth="270">
+        <padding>
+            <Insets top="5"/>
+        </padding>
+        <Label text="Password " prefWidth="70" alignment="CENTER_RIGHT"/>
+        <PasswordField fx:id="passwordField" prefWidth="200"/>
+    </HBox>
+    <HBox alignment="BOTTOM_RIGHT">
+        <padding>
+            <Insets top="10" right="5"/>
+        </padding>
+        <Label text="Save Login Credentials (not functional) "/>
+        <CheckBox fx:id="saveCredentialCheckBox"/>
+    </HBox>
+    <HBox alignment="BOTTOM_RIGHT">
+        <padding>
+            <Insets top="15"/>
+        </padding>
+        <Button fx:id="loginButton" onAction="#handleLoginButton" text="Login"/>
+        <Label text="     "/>
+    </HBox>
+    <HBox alignment="BOTTOM_RIGHT">
+        <padding>
+            <Insets top="15"/>
+        </padding>
+        <Button fx:id="loginManuallyButton" onAction="#handleLoginManuallyButton" text="Login Manually"/>
+        <Label text=" (?)"/>
+    </HBox>
+</VBox>
