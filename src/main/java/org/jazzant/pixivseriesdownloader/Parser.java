@@ -53,6 +53,14 @@ public class Parser {
     }
 
     /**
+     * Checks if the Parser is logged in to Pixiv.
+     * @return true if it's logged in. False if not.
+     */
+    public static boolean isLoggedIn(){
+        return isLoggedIn;
+    }
+
+    /**
      * Initializes the parser, creating the WebDriver and settings.
      * @param asHeadless if true then the browser is created in headless mode
      * @throws ParserException if the Parser is already initialized.
@@ -113,9 +121,10 @@ public class Parser {
 
     /**
      * The driver attempts to log-in using the given username and password. If it fails for any reason besides reCAPTCHA
-     * it will simply return a boolean false. But if a reCAPTCHA is detected, this method will call loginPixivManually()
-     * to try and login with a non-headless browser.
+     * it will simply return a boolean false. But if a reCAPTCHA is detected, this method will throw an exception to
+     * alert that the failure is specifically caused by a recaptcha.
      * @return boolean true if the login is successful and false otherwise.
+     * @throws ParserReCaptchaException if the login fails due to the appearance of reCAPTCHA.
      */
     public static boolean loginPixiv() {
         validateInitialization();
@@ -126,7 +135,7 @@ public class Parser {
             isLoggedIn = waitForLoginShort();
             if(isLoggedIn) return true;
             if(detectReCAPTCHA()){
-                return loginPixivManually();
+                throw new ParserReCaptchaException("Login Failed due to ReCaptcha.");
             }
         }
         return isLoggedIn;
