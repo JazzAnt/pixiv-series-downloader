@@ -23,7 +23,7 @@
         <padding>
             <Insets top="10" right="10"/>
         </padding>
-        <Button fx:id="parseButton" text="Parse" onAction="#handleParseButton" minWidth="75"/>
+        <Button fx:id="parseButton" text="Parse" onAction="#handleParseOrResetButton" minWidth="75"/>
     </HBox>
     <HBox alignment="TOP_RIGHT">
         <Text fx:id="parseButtonReport" wrappingWidth="300"/>

@@ -13,20 +13,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class AddSeriesController implements Initializable {
     private final String NO_GROUP_DIRECTORY = "{no group directory}";
+    private final SeriesModel seriesModel = new SeriesModel();
     private SeriesBroker broker;
-    private SeriesModel seriesModel;
     private boolean parsed = false;
     private Image missingThumbnailImage;
 
@@ -69,7 +66,6 @@ public class AddSeriesController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        seriesModel = new SeriesModel();
         seriesModel.setPropertiesFromSeries(new Series());
         Bindings.bindBidirectional(dirGroupCheckBox.selectedProperty(), dirGroupUseArtistCheckBox.disableProperty());
         Bindings.bindBidirectional(dirGroupUseArtistCheckBox.selectedProperty(), dirGroupCheckBox.disableProperty());
@@ -115,10 +111,10 @@ public class AddSeriesController implements Initializable {
     }
 
     @FXML
-    protected void handleParseButton(ActionEvent actionEvent) {
+    protected void handleParseOrResetButton(ActionEvent actionEvent) {
         parseButton.setDisable(true);
         if(parsed) resetSeries();
-        else parseSeries();
+        else handleParseButton();
         parseButton.setDisable(false);
     }
 
@@ -236,21 +232,14 @@ public class AddSeriesController implements Initializable {
         }
     }
 
-    private void parseSeries(){
-        try {
-            parseButtonReport.setText("Parsing...");
-            seriesUrlField.setDisable(true);
-            String seriesURL = seriesUrlField.getText();
-            Series series = Parser.parseSeries(seriesURL);
-            seriesUrlField.setText(series.getSeriesLink());
-            seriesModel.setPropertiesFromSeries(series);
-            parseButton.setText("Reset");
-            try (InputStream inputStream = Downloader.getInputStreamFromImageURL(Parser.parseSeriesThumbnail())){
-                Image image = new Image(inputStream);
-                thumbnailImageView.setImage(image);
-            } catch (URISyntaxException | IOException e) {
-                thumbnailImageView.setImage(missingThumbnailImage);
-            }
+    private void handleParseButton(){
+        parseButton.setDisable(true);
+        parseButton.setText("Parsing...");
+        seriesUrlField.setDisable(true);
+        final String seriesURL = seriesUrlField.getText();
+        parseSeries(seriesURL, seriesModel,
+                ()->{
+            parseThumbnail();
             dirGroupCheckBox.setSelected(false);
             dirTitleCheckBox.setSelected(false);
             dirGroupComboBox.getSelectionModel().selectLast();
@@ -260,10 +249,51 @@ public class AddSeriesController implements Initializable {
             dirTitleField.setDisable(true);
             parsed = true;
             parseButtonReport.setText("");
-        } catch (ParserException e) {
-            parseButtonReport.setText(e.getMessage());
+            parseButton.setText("Reset");
+            parseButton.setDisable(false);
+                },
+                ()->{
             seriesUrlField.setDisable(false);
-        }
+            parseButton.setText("Parse");
+            parseButton.setDisable(false);
+                });
+    }
+
+    private void parseSeries(String seriesURL, SeriesModel seriesModel, Runnable onSucceed, Runnable onFailure) {
+        Task<Series> task = new Task<Series>() {
+            @Override
+            protected Series call() throws Exception {
+                return Parser.parseSeries(seriesURL);
+            }
+        };
+        task.setOnSucceeded(event -> {
+            seriesModel.setPropertiesFromSeries(task.getValue());
+            onSucceed.run();
+        });
+        task.setOnFailed(event -> {
+            parseButtonReport.setText(task.getException().getMessage());
+            onFailure.run();
+        });
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
+    private void parseThumbnail(){
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                InputStream inputStream = Downloader.getInputStreamFromImageURL(Parser.parseSeriesThumbnail());
+                Image image = new Image(inputStream);
+                thumbnailImageView.setImage(image);
+                inputStream.close();
+                return null;
+            }
+        };
+        task.setOnFailed(event->{
+            thumbnailImageView.setImage(missingThumbnailImage);
+        });
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void resetSeries(){
