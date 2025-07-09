@@ -25,8 +25,6 @@ public class Parser {
     private static WebDriverWait driverWait;
     private static WebDriverWait driverLongWait;
     private static boolean isLoggedIn;
-    private static String pixivUsername = "";
-    private static String pixivPassword = "";
     private static int waitTime = 10;
 
     static {
@@ -90,23 +88,6 @@ public class Parser {
     }
 
     /**
-     * Set's the email/username of the user's pixiv account.
-     * @param username the user's pixiv account username/email.
-     */
-    public static void setPixivUsername(String username){
-        validateInitialization();
-        pixivUsername = username;
-    }
-
-    /**
-     * Sets the password of the user's pixiv account.
-     * @param password the user's pixiv account password.
-     */
-    public static void setPixivPassword(String password){
-        validateInitialization();
-        pixivPassword = password;
-    }
-    /**
      * Sets the amount of wait time the driver will wait for various operation attempts (such as waiting for
      * a webpage or web element to load) before giving up.
      * @param driverWaitTime the amount of wait time in seconds (Default is 10 seconds)
@@ -123,14 +104,16 @@ public class Parser {
      * The driver attempts to log-in using the given username and password. If it fails for any reason besides reCAPTCHA
      * it will simply return a boolean false. But if a reCAPTCHA is detected, this method will throw an exception to
      * alert that the failure is specifically caused by a recaptcha.
+     * @param pixivUsername the email or pixiv ID of the user's pixiv account.
+     * @param pixivPassword the password of the user's pixiv account.
      * @return boolean true if the login is successful and false otherwise.
      * @throws ParserReCaptchaException if the login fails due to the appearance of reCAPTCHA.
      */
-    public static boolean loginPixiv() {
+    public static boolean loginPixiv(String pixivUsername, String pixivPassword) {
         validateInitialization();
         if(isLoggedIn) throw new ParserException("The user is already logged in.");
         goToLoginPage();
-        if(enterUsernameField() && enterPasswordField()) {
+        if(enterUsernameField(pixivUsername) && enterPasswordField(pixivPassword)) {
             clickLoginButton();
             isLoggedIn = waitForLoginShort();
             if(isLoggedIn) return true;
@@ -153,11 +136,6 @@ public class Parser {
         quit();
         initialize(false);
         goToLoginPage();
-        if(enterUsernameField() && enterPasswordField()){
-            clickLoginButton();
-            isLoggedIn = waitForLoginShort();
-            if(isLoggedIn) return true;
-        }
         windowToFront();
         isLoggedIn = waitForLoginLong();
         windowMinimize();
@@ -484,7 +462,7 @@ public class Parser {
      * Fills in the username field if the username has been set in the Parser.
      * @return true if the username field has been successfully filled.
      */
-    private static boolean enterUsernameField(){
+    private static boolean enterUsernameField(String pixivUsername){
         if(pixivUsername.isBlank()) return false;
         driver.findElements(By.tagName("fieldset")).get(0)
                 .findElement(By.tagName("input"))
@@ -496,7 +474,7 @@ public class Parser {
      * Fills in the password field if the password has been set in the Parser.
      * @return true if the password field has been successfully filled.
      */
-    private static boolean enterPasswordField(){
+    private static boolean enterPasswordField(String pixivPassword){
         if(pixivPassword.isBlank()) return false;
         driver.findElements(By.tagName("fieldset")).get(1)
                 .findElement(By.tagName("input"))
