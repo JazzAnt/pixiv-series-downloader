@@ -19,15 +19,23 @@ import java.util.Objects;
  */
 public class Parser {
     private static boolean initialized = false;
+    private static final Point screenPosition;
     private static WebDriver driver;
     private static WebDriver.Window window;
     private static WebDriverWait driverWait;
     private static WebDriverWait driverLongWait;
     private static boolean isLoggedIn;
-    private static Point screenCenter;
     private static String pixivUsername = "";
     private static String pixivPassword = "";
     private static int waitTime = 10;
+
+    static {
+        initialize();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = screenSize.width / 3;
+        int y = screenSize.height / 3;
+        screenPosition = new Point(x, y);
+    }
 
     /**
      * Static class, cannot be instantiated.
@@ -35,15 +43,22 @@ public class Parser {
     private Parser(){}
 
     /**
-     * Initializes the Parser, creating the WebDriver and settings. Every other public method will fail if this method
-     * haven't been called.
+     * Initializes the Parser in headless mode, creating the WebDriver and settings.
+     * Note that the Parser class statically calls initialize() upon the class being loaded
+     * so there should be no need to call this method unless quit() had been called.
+     * @throws ParserException if the browser is already initialized.
      */
-    public static void initialize(){
+    public static void initialize() throws ParserException {
         initialize(true);
     }
 
-    private static void initialize(boolean asHeadless){
-        if(initialized) throw new ParserException("Parser can only be initialized once!");
+    /**
+     * Initializes the parser, creating the WebDriver and settings.
+     * @param asHeadless if true then the browser is created in headless mode
+     * @throws ParserException if the Parser is already initialized.
+     */
+    private static void initialize(boolean asHeadless) throws ParserException {
+        if(initialized) throw new ParserException("Parser is already initialized.");
         isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--width=400");
@@ -53,10 +68,6 @@ public class Parser {
         window = driver.manage().window();
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width / 2;
-        int y = screenSize.height / 2;
-        screenCenter = new Point(x, y);
         initialized = true;
         if(!asHeadless) windowMinimize();
     }
@@ -553,7 +564,7 @@ public class Parser {
      */
     private static void windowToFront(){
         window.minimize();
-        window.setPosition(screenCenter);
+        window.setPosition(screenPosition);
     }
 
     /**
