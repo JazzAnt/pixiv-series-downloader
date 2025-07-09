@@ -52,6 +52,6 @@
             <Insets top="15"/>
         </padding>
         <Button fx:id="loginManuallyButton" onAction="#handleLoginManuallyButton" text="Login Manually"/>
-        <Label text=" (?)"/>
+        <Label fx:id="loginManuallyLabel" text=" (?)"/>
     </HBox>
 </VBox>
