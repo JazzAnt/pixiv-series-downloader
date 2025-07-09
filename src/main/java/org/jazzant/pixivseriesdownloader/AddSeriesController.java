@@ -3,6 +3,7 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +21,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class AddSeriesController implements Initializable {
     private final String NO_GROUP_DIRECTORY = "{no group directory}";
@@ -100,6 +102,7 @@ public class AddSeriesController implements Initializable {
         dirGroupComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldvalue, newvalue)->{
             if(!dirGroupCheckBox.isSelected()){
                 dirGroupText.setText(newvalue);
+                seriesModel.setDirectoryGroup(newvalue);
                 hideGroupDirDisplayIfNoGroupDirIsSelected();
             }
         });
@@ -136,11 +139,11 @@ public class AddSeriesController implements Initializable {
         dirGroupField.setVisible(!isActive);
 
         if(isActive){
-            Bindings.unbindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
+//            Bindings.unbindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
             dirGroupComboBox.getSelectionModel().selectLast();
             seriesModel.setDirectoryGroup(dirGroupComboBox.getValue());
-        } else {
-            Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
+//        } else {
+//            Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
         }
         hideGroupDirDisplayIfNoGroupDirIsSelected();
     }
@@ -178,44 +181,59 @@ public class AddSeriesController implements Initializable {
     protected void handleSaveButton(ActionEvent actionEvent) {
         saveButton.disableProperty().unbind();
         saveButton.setDisable(true);
-        if(!dirGroupCheckBox.isSelected()){
-            String groupDirectory = dirGroupComboBox.getValue();
-            if(groupDirectory.equals(NO_GROUP_DIRECTORY)){
-                groupDirectory = "";
+        String saveButtonText = saveButton.getText();
+        saveButton.setText("Saving...");
+        final Series series = seriesModel.getSeries();
+        if(series.getDirectoryGroup().equals(NO_GROUP_DIRECTORY))
+            series.setDirectoryGroup("");
+        saveSeries(series, ()->{
+            saveButton.setText(saveButtonText);
+            saveButton.disableProperty().bind(seriesModel.getOkToSaveProperty().not());
+        });
+    }
+
+    private void saveSeries(Series series, Runnable onSaveFinished){
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return broker.createRecord(series);
             }
-            seriesModel.setDirectoryGroup(groupDirectory);
-        }
-        try {
-            broker.createRecord(seriesModel.getSeries());
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Successfully saved series to database");
-            alert.show();
-        }
-        catch (SeriesAlreadyInDatabaseException e){
+        };
+        task.setOnSucceeded(event->{
+            if(task.getValue()){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setContentText("Success: Series Saved into the Database");
+                alert.show();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Fail: Something went wrong with saving the series to the database");
+                alert.show();
+            }
+            onSaveFinished.run();
+        });
+        task.setOnFailed(event->{
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Fail: This Series is already in the database!");
+            alert.setContentText(task.getException().getMessage());
             alert.show();
-        }
-        saveButton.setDisable(false);
-        saveButton.disableProperty().bind(seriesModel.getOkToSaveProperty().not());
+            onSaveFinished.run();
+        });
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void hideGroupDirDisplayIfNoGroupDirIsSelected(){
         if(dirGroupComboBox.getValue().equals(NO_GROUP_DIRECTORY) && !dirGroupCheckBox.isSelected() && !dirGroupUseArtistCheckBox.isSelected()){
             dirGroupHBox.setVisible(false);
             dirGroupHBox.setManaged(false);
-
             dirTitleTextPadding.setVisible(false);
             dirTitleTextPadding.setManaged(false);
         }
         else {
             dirGroupHBox.setManaged(true);
             dirGroupHBox.setVisible(true);
-
             dirTitleTextPadding.setManaged(true);
             dirTitleTextPadding.setVisible(true);
         }
-
     }
 
     private void parseSeries(){
