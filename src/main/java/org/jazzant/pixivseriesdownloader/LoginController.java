@@ -57,9 +57,9 @@ public class LoginController implements Initializable {
     private void login(boolean loginManually){
         toggleLoginButtonsDisability(true);
         if(loginManually){
-            loginAutomatically(this::handleLoginAttempt);
-        } else {
             loginManually(this::handleLoginAttempt);
+        } else {
+            loginAutomatically(this::handleLoginAttempt);
         }
     }
 
