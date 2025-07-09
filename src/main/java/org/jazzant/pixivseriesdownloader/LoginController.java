@@ -2,6 +2,7 @@ package org.jazzant.pixivseriesdownloader;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -45,20 +46,26 @@ public class LoginController implements Initializable {
 
     @FXML
     protected void handleLoginButton(){
+        login(false);
+    }
+
+    @FXML
+    protected void handleLoginManuallyButton(){
+        login(true);
+    }
+
+    private void login(boolean loginManually){
         toggleLoginButtonsDisability(true);
-        Parser.setPixivUsername(usernameField.getText());
-        Parser.setPixivPassword(passwordField.getText());
-        boolean successfulLogin = false;
-        try{
-            successfulLogin = Parser.loginPixiv();
-        } catch (ParserReCaptchaException e){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Login Failed due to appearance of ReCaptcha\n" +
-                    "Retry after a while or try using 'Login Manually'");
-            alert.show();
-            toggleLoginButtonsDisability(false);
+        if(loginManually){
+            loginAutomatically(this::handleLoginAttempt);
+        } else {
+            loginManually(this::handleLoginAttempt);
         }
-        if(successfulLogin){
+    }
+
+    private void handleLoginAttempt(){
+        if(Parser.isLoggedIn()){
+            if(saveCredentialCheckBox.isSelected()) saveCredentials();
             closeWindow();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -68,21 +75,42 @@ public class LoginController implements Initializable {
         }
     }
 
-    @FXML
-    protected void handleLoginManuallyButton(){
-        toggleLoginButtonsDisability(true);
-        Parser.setPixivUsername(usernameField.getText());
-        Parser.setPixivPassword(passwordField.getText());
-        boolean successfulLogin = false;
-        successfulLogin = Parser.loginPixivManually();
-        if(successfulLogin){
-            closeWindow();
-        } else {
+    private void loginAutomatically(Runnable onLoginAttemptFinished){
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                String username = usernameField.getText().trim();
+                String password = passwordField.getText().trim();
+                Parser.loginPixiv(username, password);
+                return null;
+            }
+        };
+        task.setOnSucceeded(event->{
+            onLoginAttemptFinished.run();
+        });
+        task.setOnFailed(event->{
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Login Unsuccessful");
+            alert.setContentText(task.getException().getMessage());
             alert.show();
-            toggleLoginButtonsDisability(false);
-        }
+            onLoginAttemptFinished.run();
+        });
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
+    private void loginManually(Runnable onLoginAttemptFinished){
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                Parser.loginPixivManually();
+                return null;
+            }
+        };
+        task.setOnSucceeded(event->{
+            onLoginAttemptFinished.run();
+        });
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void toggleLoginButtonsDisability(boolean isDisabled){
@@ -97,12 +125,15 @@ public class LoginController implements Initializable {
         }
     }
 
-    private void closeWindow(){
-        if(Parser.isLoggedIn() && saveCredentialCheckBox.isSelected()){
+    private void saveCredentials(){
+        if(isCredentialsInputted()){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setContentText("TODO: replace this with saving credentials");
             alert.show();
         }
+    }
+
+    private void closeWindow(){
         Stage stage = (Stage) scenePane.getScene().getWindow();
         stage.close();
     }
