@@ -92,6 +92,9 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             Scene scene = new Scene(root);
 
+            DatabaseViewerController controller = fxmlLoader.getController();
+            controller.populateTree(broker.selectAllGroups(), broker.selectAll());
+
             stage.setTitle("Database View");
             stage.setOnCloseRequest(windowEvent -> {
                 databaseButton.setDisable(false);
