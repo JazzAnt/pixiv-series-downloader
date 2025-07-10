@@ -25,7 +25,7 @@ public class SeriesBroker {
         series.setDirectoryTitle(seriesDTO.getDirectoryTitle());
         series.setTitle(seriesDTO.getTitle());
         series.setArtist(seriesDTO.getArtist());
-        series.setStatus(SeriesStatus.getStatusFromCode(seriesDTO.getSeriesID()));
+        series.setStatus(SeriesStatus.getStatusFromCode(seriesDTO.getStatus()));
         series.setArtistID(seriesDTO.getArtistID());
         series.setSeriesID(seriesDTO.getSeriesID());
         series.setLatestChapterID(seriesDTO.getLatestChapterID());
