@@ -31,7 +31,7 @@ public class SeriesDatabase {
                 + Column.SERIES_ID + " INTEGER PRIMARY KEY, "
                 + Column.ARTIST_ID + " INTEGER NOT NULL, "
                 + Column.GROUP_DIRECTORY + " NVARCHAR(100) NOT NULL, "
-                + Column.TITLE_DIRECTORY + " NVARCHAR(100) NOT NULL, "
+                + Column.TITLE_DIRECTORY + " NVARCHAR(100) UNIQUE NOT NULL, "
                 + Column.TITLE + " NVARCHAR(100) NOT NULL, "
                 + Column.ARTIST + " NVARCHAR(100) NOT NULL, "
                 + Column.STATUS + " INTEGER NOT NULL, "
@@ -48,6 +48,7 @@ public class SeriesDatabase {
     public int createRecord(String GroupDirectory, String TitleDirectory, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
         if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
+        if(titleDirectoryExists(TitleDirectory)) throw new TitleDirectoryAlreadyExistsException(TitleDirectory);
         String sql = "INSERT INTO " + TABLE_NAME + " (" +
                 Column.GROUP_DIRECTORY + ", " +
                 Column.TITLE_DIRECTORY + ", " +
@@ -85,6 +86,22 @@ public class SeriesDatabase {
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1, SeriesId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            result = resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    public boolean titleDirectoryExists(String titleDirectory){
+        boolean result = false;
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + Column.TITLE_DIRECTORY + " = ?) " +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, titleDirectory);
             ResultSet resultSet = preparedStatement.executeQuery();
             result = resultSet.getBoolean(1);
         } catch (SQLException e) {
