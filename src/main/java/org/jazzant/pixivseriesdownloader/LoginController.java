@@ -92,7 +92,11 @@ public class LoginController implements Initializable {
         });
         task.setOnFailed(event->{
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText(task.getException().getMessage());
+            if(task.getException() instanceof ParserReCaptchaException){
+                alert.setContentText("Login failed due to reCAPTCHA. \nTry again after a while or use manual login.");
+            } else {
+                alert.setContentText(task.getException().getMessage());
+            }
             alert.show();
             onLoginAttemptFinished.run();
         });
