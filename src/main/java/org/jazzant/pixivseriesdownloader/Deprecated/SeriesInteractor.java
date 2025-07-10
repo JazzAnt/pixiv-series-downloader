@@ -1,9 +1,11 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.beans.binding.Bindings;
 import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
-
-import javax.imageio.spi.ServiceRegistry;
+import org.jazzant.pixivseriesdownloader.Series;
+import org.jazzant.pixivseriesdownloader.SeriesBroker;
+import org.jazzant.pixivseriesdownloader.SeriesModel;
+import org.jazzant.pixivseriesdownloader.SeriesStatus;
 
 public class SeriesInteractor {
     private final SeriesModel model;
@@ -59,11 +61,11 @@ public class SeriesInteractor {
 
     public void parseSeries() {
         Series series = new Series();
-
-        Parser.setSeries(series);
-        series.setSeriesLink(model.getSeriesLink());
-        Parser.goToSeries();
-        Parser.parseSeriesDetails();
+//
+//        Parser.setSeries(series);
+//        series.setSeriesLink(model.getSeriesLink());
+//        Parser.goToSeries();
+//        Parser.parseSeriesDetails();
 
         model.setDirectoryTitle(series.getTitle());
         model.setTitle(series.getTitle());

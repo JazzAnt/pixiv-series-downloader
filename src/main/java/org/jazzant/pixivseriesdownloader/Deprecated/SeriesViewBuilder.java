@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.util.Builder;
 import javafx.util.converter.NumberStringConverter;
+import org.jazzant.pixivseriesdownloader.SeriesModel;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -72,8 +73,9 @@ public class SeriesViewBuilder implements Builder<Region> {
 
     private Node seriesLinkField(){
         return new HBox(5,
-                promptLabel("Series Link"),
-                boundTextField(model.getSeriesLinkProperty())
+                promptLabel("Series Link")
+//                ,
+//                boundTextField(model.getSeriesLinkProperty())
         );
     }
     private Node groupDirField(){

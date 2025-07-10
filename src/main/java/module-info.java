@@ -9,4 +9,6 @@ module org.jazzant.pixivseriesdownloader {
 
     opens org.jazzant.pixivseriesdownloader to javafx.fxml;
     exports org.jazzant.pixivseriesdownloader;
+    exports org.jazzant.pixivseriesdownloader.Deprecated;
+    opens org.jazzant.pixivseriesdownloader.Deprecated to javafx.fxml;
 }

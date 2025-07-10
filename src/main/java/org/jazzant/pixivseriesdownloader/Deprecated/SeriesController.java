@@ -1,8 +1,9 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
+import org.jazzant.pixivseriesdownloader.SeriesModel;
 
 
 public class SeriesController {

@@ -1,8 +1,9 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.jazzant.pixivseriesdownloader.Parser;
 
 public class MainApplication extends Application {
 
