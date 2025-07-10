@@ -1,7 +1,7 @@
 package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.beans.binding.Bindings;
-import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
+import org.jazzant.pixivseriesdownloader.SeriesAlreadyInDatabaseException;
 import org.jazzant.pixivseriesdownloader.Series;
 import org.jazzant.pixivseriesdownloader.SeriesBroker;
 import org.jazzant.pixivseriesdownloader.SeriesModel;

@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader.Exceptions;
+package org.jazzant.pixivseriesdownloader;
 
 public class SeriesAlreadyInDatabaseException extends RuntimeException {
     public SeriesAlreadyInDatabaseException(String seriesId) {

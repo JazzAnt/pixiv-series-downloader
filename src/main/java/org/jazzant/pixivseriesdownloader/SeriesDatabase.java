@@ -1,6 +1,5 @@
 package org.jazzant.pixivseriesdownloader;
 
-import org.jazzant.pixivseriesdownloader.Exceptions.SeriesAlreadyInDatabaseException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,7 +120,8 @@ public class SeriesDatabase {
 
     public ArrayList<String> selectAllGroups(){
         ArrayList<String> groups = new ArrayList<>();
-        String sql = "SELECT \"" + Column.GROUP_DIRECTORY + "\" FROM " + TABLE_NAME;
+        String sql = "SELECT DISTINCT " + Column.GROUP_DIRECTORY + " FROM " + TABLE_NAME
+                + " WHERE TRIM(" + Column.GROUP_DIRECTORY + ") != ''";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql)){
