@@ -55,11 +55,14 @@ public class LoginController implements Initializable {
     }
 
     private void login(boolean loginManually){
-        toggleLoginButtonsDisability(true);
+        loginButton.disableProperty().unbind();
+        toggleElementsDisability(true);
         if(loginManually){
             loginManually(this::handleLoginAttempt);
         } else {
-            loginAutomatically(this::handleLoginAttempt);
+            final String username = usernameField.getText().trim();
+            final String password = passwordField.getText().trim();
+            loginAutomatically(username, password, this::handleLoginAttempt);
         }
     }
 
@@ -71,16 +74,15 @@ public class LoginController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Login Unsuccessful");
             alert.show();
-            toggleLoginButtonsDisability(false);
+            toggleElementsDisability(false);
+            loginButton.disableProperty().bind(credentialsFilledProperty.not());
         }
     }
 
-    private void loginAutomatically(Runnable onLoginAttemptFinished){
+    private void loginAutomatically(String username, String password, Runnable onLoginAttemptFinished){
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                String username = usernameField.getText().trim();
-                String password = passwordField.getText().trim();
                 Parser.loginPixiv(username, password);
                 return null;
             }
@@ -113,16 +115,11 @@ public class LoginController implements Initializable {
         thread.start();
     }
 
-    private void toggleLoginButtonsDisability(boolean isDisabled){
-        if(isDisabled){
-            loginButton.disableProperty().unbind();
-            loginButton.setDisable(true);
-            loginManuallyButton.setDisable(true);
-        } else {
-            loginButton.setDisable(false);
-            loginManuallyButton.setDisable(false);
-            loginButton.disableProperty().bind(credentialsFilledProperty.not());
-        }
+    private void toggleElementsDisability(boolean isDisabled){
+        usernameField.setDisable(isDisabled);
+        passwordField.setDisable(isDisabled);
+        loginButton.setDisable(isDisabled);
+        loginManuallyButton.setDisable(isDisabled);
     }
 
     private void saveCredentials(){
