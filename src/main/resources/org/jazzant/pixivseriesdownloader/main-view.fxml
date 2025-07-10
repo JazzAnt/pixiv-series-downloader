@@ -18,6 +18,7 @@
     </padding>
 
     <Button fx:id="addSeriesButton" onAction="#openAddSeriesWindow" text="Add New Series"/>
+    <Button fx:id="databaseButton" onAction="#openDatabaseViewerWindow" text="View the Database"/>
     <Button fx:id="loginButton" onAction="#openLoginWindow" text="Login"/>
     <Text fx:id="loginDisplay" text="You're Logged In" visible="false"/>
 </VBox>

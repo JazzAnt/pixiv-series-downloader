@@ -1,5 +1,6 @@
 package org.jazzant.pixivseriesdownloader;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,6 +17,8 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private final SeriesBroker broker = new SeriesBroker();
+    @FXML
+    protected Button databaseButton;
     @FXML
     protected Button addSeriesButton;
     @FXML
@@ -77,6 +80,29 @@ public class MainController implements Initializable {
             alert.setContentText("Something went wrong: " + e.getMessage());
             alert.show();
             loginButton.setDisable(false);
+        }
+    }
+
+    @FXML
+    public void openDatabaseViewerWindow(ActionEvent actionEvent) {
+        databaseButton.setDisable(true);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("database-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+
+            stage.setTitle("Database View");
+            stage.setOnCloseRequest(windowEvent -> {
+                databaseButton.setDisable(false);
+            });
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong: " + e.getMessage());
+            alert.show();
+            databaseButton.setDisable(false);
         }
     }
 }
