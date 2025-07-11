@@ -15,8 +15,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainController implements Initializable {
-    private final SeriesBroker broker = new SeriesBroker();
+public class MainController {
+    private SeriesBroker broker;
+    private Parser parser;
     @FXML
     protected Button databaseButton;
     @FXML
@@ -26,8 +27,11 @@ public class MainController implements Initializable {
     @FXML
     protected Text loginDisplay;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void setBroker(SeriesBroker broker){
+        this.broker = broker;
+    }
+    public void setParser(Parser parser){
+        this.parser = parser;
     }
 
     @FXML
@@ -41,6 +45,7 @@ public class MainController implements Initializable {
 
             AddSeriesController addSeriesController = fxmlLoader.getController();
             addSeriesController.setBroker(broker);
+            addSeriesController.setParser(parser);
 
             stage.setTitle("Add Series View");
             stage.setOnCloseRequest(windowEvent -> {addSeriesButton.setDisable(false);});
@@ -63,9 +68,12 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             Scene scene = new Scene(root);
 
+            LoginController controller = fxmlLoader.getController();
+            controller.setParser(parser);
+
             stage.setTitle("Login View");
             stage.setOnCloseRequest(windowEvent -> {
-                if(Parser.isLoggedIn()){
+                if(parser.isLoggedIn()){
                     loginButton.setText("Logged In To Pixiv");
                     loginButton.setVisible(false);
                     loginDisplay.setVisible(true);

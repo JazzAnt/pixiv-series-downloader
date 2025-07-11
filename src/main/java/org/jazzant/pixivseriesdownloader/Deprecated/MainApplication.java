@@ -9,7 +9,7 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parser.initialize();
+//        Parser.initialize();
         stage.setScene(new Scene(
                 new SeriesController().getView()
         ));

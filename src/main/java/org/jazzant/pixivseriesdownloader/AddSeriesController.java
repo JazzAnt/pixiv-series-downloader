@@ -19,13 +19,16 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class AddSeriesController implements Initializable {
     private final String NO_GROUP_DIRECTORY = "{no group directory}";
     private final SeriesModel seriesModel = new SeriesModel();
-    private SeriesBroker broker;
     private boolean parsed = false;
     private Image missingThumbnailImage;
+
+    private SeriesBroker broker;
+    private Parser parser;
 
     @FXML protected Text parseButtonReport;
     @FXML protected TextField seriesUrlField;
@@ -63,6 +66,12 @@ public class AddSeriesController implements Initializable {
         dirGroupComboBox.setItems(groupNames);
         dirGroupComboBox.getSelectionModel().selectLast();
     }
+
+    public void setParser(Parser parser){
+        this.parser = parser;
+    }
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -104,7 +113,8 @@ public class AddSeriesController implements Initializable {
         });
 
         try{
-            missingThumbnailImage = new Image(Objects.requireNonNull(getClass().getResource("thumbnail_not_found.jpg")).openStream());
+            missingThumbnailImage = new Image(Objects.requireNonNull(
+                    getClass().getResource("thumbnail_not_found.jpg")).openStream());
         } catch (IOException e) {
             missingThumbnailImage = null;
         }
@@ -135,11 +145,8 @@ public class AddSeriesController implements Initializable {
         dirGroupField.setVisible(!isActive);
 
         if(isActive){
-//            Bindings.unbindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
             dirGroupComboBox.getSelectionModel().selectLast();
             seriesModel.setDirectoryGroup(dirGroupComboBox.getValue());
-//        } else {
-//            Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
         }
         hideGroupDirDisplayIfNoGroupDirIsSelected();
     }
@@ -189,7 +196,7 @@ public class AddSeriesController implements Initializable {
     }
 
     private void saveSeries(Series series, Runnable onSaveFinished){
-        Task<Boolean> task = new Task<Boolean>() {
+        Task<Boolean> task = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 return broker.createRecord(series);
@@ -218,7 +225,9 @@ public class AddSeriesController implements Initializable {
     }
 
     private void hideGroupDirDisplayIfNoGroupDirIsSelected(){
-        if(dirGroupComboBox.getValue().equals(NO_GROUP_DIRECTORY) && !dirGroupCheckBox.isSelected() && !dirGroupUseArtistCheckBox.isSelected()){
+        if(dirGroupComboBox.getValue().equals(NO_GROUP_DIRECTORY)
+                && !dirGroupCheckBox.isSelected()
+                && !dirGroupUseArtistCheckBox.isSelected()){
             dirGroupHBox.setVisible(false);
             dirGroupHBox.setManaged(false);
             dirTitleTextPadding.setVisible(false);
@@ -263,7 +272,7 @@ public class AddSeriesController implements Initializable {
         Task<Series> task = new Task<Series>() {
             @Override
             protected Series call() throws Exception {
-                return Parser.parseSeries(seriesURL);
+                return parser.parseSeries(seriesURL);
             }
         };
         task.setOnSucceeded(event -> {
@@ -282,7 +291,7 @@ public class AddSeriesController implements Initializable {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                InputStream inputStream = Downloader.getInputStreamFromImageURL(Parser.parseSeriesThumbnail());
+                InputStream inputStream = Downloader.getInputStreamFromImageURL(parser.parseSeriesThumbnail());
                 Image image = new Image(inputStream);
                 thumbnailImageView.setImage(image);
                 inputStream.close();

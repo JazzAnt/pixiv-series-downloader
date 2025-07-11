@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
+    private Parser parser;
     private BooleanBinding credentialsFilledProperty;
     @FXML
     protected VBox scenePane;
@@ -44,6 +45,10 @@ public class LoginController implements Initializable {
         loginButton.disableProperty().bind(credentialsFilledProperty.not());
     }
 
+    public void setParser(Parser parser){
+        this.parser = parser;
+    }
+
     @FXML
     protected void handleLoginButton(){
         login(false);
@@ -67,7 +72,7 @@ public class LoginController implements Initializable {
     }
 
     private void handleLoginAttempt(){
-        if(Parser.isLoggedIn()){
+        if(parser.isLoggedIn()){
             if(saveCredentialCheckBox.isSelected()) saveCredentials();
             closeWindow();
         } else {
@@ -83,7 +88,7 @@ public class LoginController implements Initializable {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                Parser.loginPixiv(username, password);
+                parser.loginPixiv(username, password);
                 return null;
             }
         };
@@ -108,7 +113,7 @@ public class LoginController implements Initializable {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                Parser.loginPixivManually();
+                parser.loginPixivManually();
                 return null;
             }
         };

@@ -15,19 +15,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Static class that uses a Selenium WebDriver to parse through the pixiv URLs.
+ * Class that uses a Selenium WebDriver to parse through pixiv URLs.
  */
 public class Parser {
-    private static boolean initialized = false;
-    private static final Point screenPosition;
-    private static WebDriver driver;
-    private static WebDriver.Window window;
-    private static WebDriverWait driverWait;
-    private static WebDriverWait driverLongWait;
-    private static boolean isLoggedIn;
-    private static int waitTime = 10;
+    private boolean initialized = false;
+    private final Point screenPosition;
+    private WebDriver driver;
+    private WebDriver.Window window;
+    private WebDriverWait driverWait;
+    private WebDriverWait driverLongWait;
+    private boolean isLoggedIn;
+    private int waitTime = 10;
 
-    static {
+    /**
+     * Upon being instantiated, automatically calls initialize() to set-up the web driver.
+     */
+    public Parser(){
         initialize();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width / 3;
@@ -36,17 +39,12 @@ public class Parser {
     }
 
     /**
-     * Static class, cannot be instantiated.
-     */
-    private Parser(){}
-
-    /**
      * Initializes the Parser in headless mode, creating the WebDriver and settings.
-     * Note that the Parser class statically calls initialize() upon the class being loaded
+     * Note that the Parser class calls initialize() upon the class being initialized
      * so there should be no need to call this method unless quit() had been called.
      * @throws ParserException if the browser is already initialized.
      */
-    public static void initialize() throws ParserException {
+    public void initialize() throws ParserException {
         initialize(true);
     }
 
@@ -54,7 +52,7 @@ public class Parser {
      * Checks if the Parser is logged in to Pixiv.
      * @return true if it's logged in. False if not.
      */
-    public static boolean isLoggedIn(){
+    public boolean isLoggedIn(){
         return isLoggedIn;
     }
 
@@ -63,7 +61,7 @@ public class Parser {
      * @param asHeadless if true then the browser is created in headless mode
      * @throws ParserException if the Parser is already initialized.
      */
-    private static void initialize(boolean asHeadless) throws ParserException {
+    private void initialize(boolean asHeadless) throws ParserException {
         if(initialized) throw new ParserException("Parser is already initialized.");
         isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
@@ -81,7 +79,7 @@ public class Parser {
     /**
      * Quits the WebDriver.
      */
-    public static void quit(){
+    public void quit(){
         validateInitialization();
         driver.quit();
         initialized = false;
@@ -92,7 +90,7 @@ public class Parser {
      * a webpage or web element to load) before giving up.
      * @param driverWaitTime the amount of wait time in seconds (Default is 10 seconds)
      */
-    public static void setWaitTime(int driverWaitTime){
+    public void setWaitTime(int driverWaitTime){
         validateInitialization();
         if(driverWaitTime<0) driverWaitTime = 0;
         waitTime = driverWaitTime;
@@ -109,7 +107,7 @@ public class Parser {
      * @return boolean true if the login is successful and false otherwise.
      * @throws ParserReCaptchaException if the login fails due to the appearance of reCAPTCHA.
      */
-    public static boolean loginPixiv(String pixivUsername, String pixivPassword) {
+    public boolean loginPixiv(String pixivUsername, String pixivPassword) {
         validateInitialization();
         if(isLoggedIn) throw new ParserException("The user is already logged in.");
         goToLoginPage();
@@ -132,7 +130,7 @@ public class Parser {
      * first, but will relegate control to the user if it fails for any reason.
      * @return boolean true if the login is successful and false otherwise.
      */
-    public static boolean loginPixivManually(){
+    public boolean loginPixivManually(){
         quit();
         initialize(false);
         goToLoginPage();
@@ -150,7 +148,7 @@ public class Parser {
      * @throws ParserSeriesDoesNotExistException if the Parser can't find the series in the given URL, either because the URL
      * is wrong or because the series has been deleted.
      */
-    public static Series parseSeries(String seriesURL)
+    public Series parseSeries(String seriesURL)
             throws ParserSeriesDoesNotExistException{
         validateInitialization();
         if(!Series.checkSeriesURLFormat(seriesURL))
@@ -172,7 +170,7 @@ public class Parser {
         return series;
     }
 
-    public static String parseSeriesThumbnail(){
+    public String parseSeriesThumbnail(){
         validateInitialization();
         if(!inSeriesPage()) throw new ParserException("This method can only be called while the driver is in the series page.");
         WebElement element = driver.findElement(By.id("__NEXT_DATA__"));
@@ -191,7 +189,7 @@ public class Parser {
      * @throws ParserMutedArtworkException if the chapter is blocked because it contained a muted (blacklisted) tag by the
      * user's pixiv account.
      */
-    public static Chapter parseChapter(String chapterURL)
+    public Chapter parseChapter(String chapterURL)
             throws ParserSensitiveArtworkException, ParserMutedArtworkException{
         validateInitialization();
         if(!Chapter.checkChapterURLFormat(chapterURL)) throw new ParserException("The chapter's URL format is incorrect.");
@@ -213,7 +211,7 @@ public class Parser {
      * Checks if the parser is currently in the latest chapter.
      * @return true if it's the latest chapter, and false if not.
      */
-    public static boolean isLatestChapter(){
+    public boolean isLatestChapter(){
         validateInitialization();
         if(inSeriesPage()) return false;
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
@@ -226,7 +224,7 @@ public class Parser {
      * Parses the next chapter's URL, or the first chapter's URL if the Parser is currently in the series page.
      * @return the next chapter's URL.
      */
-    public static String getNextChapterURL(){
+    public String getNextChapterURL(){
         validateInitialization();
         String nextChapterLink;
         String PIXIV_URL = "https://www.pixiv.net";
@@ -258,7 +256,7 @@ public class Parser {
      * Checks if the driver is currently in the series page.
      * @return true if it is.
      */
-    private static boolean inSeriesPage(){
+    private boolean inSeriesPage(){
         return Series.checkSeriesURLFormat(Objects.requireNonNull(driver.getCurrentUrl()));
     }
 
@@ -266,7 +264,7 @@ public class Parser {
      * Checks if the series exists, throwing an exception if it doesn't. Must be called while the Parser is in the series page.
      * @throws ParserSeriesDoesNotExistException
      */
-    private static void checkIfSeriesExists(){
+    private void checkIfSeriesExists(){
         if(!inSeriesPage()) throw new ParserException("This method can only be called while the driver is in the series page.");
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         List<WebElement> tempList = driver.findElements(By.className("gtm-manga-series-first-story"));
@@ -279,7 +277,7 @@ public class Parser {
      * Parses the series title.
      * @return the series title.
      */
-    private static String parseSeriesTitle(){
+    private String parseSeriesTitle(){
         return driver
                 .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[5]/div[1]/div/div[1]/main/div[last()]/section/div/div[1]/div[1]"))
                 .getText();
@@ -289,7 +287,7 @@ public class Parser {
      * Parses the series artist.
      * @return the series artist.
      */
-    private static String parseSeriesArtist(){
+    private String parseSeriesArtist(){
         return driver
                 .findElement(By.xpath("//div[contains(@class, 'gtm-manga-series-profile')]/div/div/a/div"))
                 .getText();
@@ -302,7 +300,7 @@ public class Parser {
     /**
      * Checks if the parser is currently in an artwork page, throwing an exception if it isn't.
      */
-    private static void checkIfInArtworkPage(){
+    private void checkIfInArtworkPage(){
         if(!Chapter.checkChapterURLFormat(Objects.requireNonNull(driver.getCurrentUrl()))) throw new ParserException("This method can only be called while the driver is in an artwork page");
     }
 
@@ -311,7 +309,7 @@ public class Parser {
      * throwing an exception if it does.
      * @throws ParserSensitiveArtworkException
      */
-    private static void checkIfChapterIsSensitive() throws ParserSensitiveArtworkException{
+    private void checkIfChapterIsSensitive() throws ParserSensitiveArtworkException{
         checkIfInArtworkPage();
         List<WebElement> tempList = driver.findElements(By.tagName("pixiv-icon"));
         if(Objects.equals(tempList.getLast().getDomAttribute("name"), "24/SensitiveHide")
@@ -324,7 +322,7 @@ public class Parser {
      * throwing an exception if it does.
      * @throws ParserMutedArtworkException
      */
-    private static void checkIfChapterIsMuted() throws ParserMutedArtworkException{
+    private void checkIfChapterIsMuted() throws ParserMutedArtworkException{
         if(!isLoggedIn) return;
         checkIfInArtworkPage();
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
@@ -338,7 +336,7 @@ public class Parser {
      * Parses the chapter title.
      * @return the chapter title.
      */
-    private static String parseChapterTitle(){
+    private String parseChapterTitle(){
         return driver.findElement(By.tagName("h1")).getText();
     }
 
@@ -346,7 +344,7 @@ public class Parser {
      * Parses the chapter pixiv ID.
      * @return the chapter pixiv ID.
      */
-    private static int parseChapterID(){
+    private int parseChapterID(){
         String[] tempArray = driver.getCurrentUrl().split("/");
         return Integer.parseInt(tempArray[tempArray.length-1]);
     }
@@ -355,7 +353,7 @@ public class Parser {
      * Parses the chapter upload date.
      * @return the chapter upload date.
      */
-    private static String parseChapterUploadDate(){
+    private String parseChapterUploadDate(){
         return Objects.requireNonNull(
                         driver.findElement(By.tagName("time"))
                                 .getDomAttribute("datetime"))
@@ -367,7 +365,7 @@ public class Parser {
      * parses the chapter number (it's numeric order in the series).
      * @return the chapter number.
      */
-    private static int parseChapterNumber(){
+    private int parseChapterNumber(){
         String[] tempArray;
         if(isLoggedIn){
             tempArray = driver
@@ -388,7 +386,7 @@ public class Parser {
      * Parses the chapter page count.
      * @return the chapter page count.
      */
-    private static int parseChapterPageCount(){
+    private int parseChapterPageCount(){
         int chapterPageAmount;
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         List<WebElement> tempList = driver.findElements(By.className("gtm-manga-viewer-open-preview"));
@@ -413,7 +411,7 @@ public class Parser {
      * @return an arraylist of image URLs
      * @throws InvalidArgumentException if given a page amount less than 1.
      */
-    private static ArrayList<String> parseChapterImageURLs(int chapterPageAmount){
+    private ArrayList<String> parseChapterImageURLs(int chapterPageAmount){
         if(chapterPageAmount < 1) throw new InvalidArgumentException("The page amount can't be lower than 1.");
         ArrayList<String> imageLinks = new ArrayList<>();
         String temp;
@@ -454,7 +452,7 @@ public class Parser {
     /**
      * Goes to the login page.
      */
-    private static void goToLoginPage(){
+    private void goToLoginPage(){
         driver.get("https://accounts.pixiv.net/login");
     }
 
@@ -462,7 +460,7 @@ public class Parser {
      * Fills in the username field if the username has been set in the Parser.
      * @return true if the username field has been successfully filled.
      */
-    private static boolean enterUsernameField(String pixivUsername){
+    private boolean enterUsernameField(String pixivUsername){
         if(pixivUsername.isBlank()) return false;
         driver.findElements(By.tagName("fieldset")).get(0)
                 .findElement(By.tagName("input"))
@@ -474,7 +472,7 @@ public class Parser {
      * Fills in the password field if the password has been set in the Parser.
      * @return true if the password field has been successfully filled.
      */
-    private static boolean enterPasswordField(String pixivPassword){
+    private boolean enterPasswordField(String pixivPassword){
         if(pixivPassword.isBlank()) return false;
         driver.findElements(By.tagName("fieldset")).get(1)
                 .findElement(By.tagName("input"))
@@ -485,7 +483,7 @@ public class Parser {
     /**
      * Clicks the login button.
      */
-    private static void clickLoginButton(){
+    private void clickLoginButton(){
         driver.findElement(By.id("app-mount-point"))
                 .findElements(By.tagName("button")).get(5)
                 .click();
@@ -495,7 +493,7 @@ public class Parser {
      * Wait for a successful login. Waits for as long as the waitTime variable in seconds.
      * @return true if within the wait time the login is successful.
      */
-    private static boolean waitForLoginShort(){
+    private boolean waitForLoginShort(){
         try {
             driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
             return true;
@@ -510,7 +508,7 @@ public class Parser {
      * long it is.
      * @return true if within the wait time the login is successful.
      */
-    private static boolean waitForLoginLong(){
+    private boolean waitForLoginLong(){
         try {
             driverLongWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
             return true;
@@ -524,7 +522,7 @@ public class Parser {
      * Detects if a reCAPTCHA is present on the screen.
      * @return true if there is a reCAPTCHA.
      */
-    private static boolean detectReCAPTCHA(){
+    private boolean detectReCAPTCHA(){
         List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
         for(WebElement iframe : iframes){
             if(iframe.getDomAttribute("title") != null && iframe.getDomAttribute("title").equals("reCAPTCHA")){
@@ -542,14 +540,14 @@ public class Parser {
     /**
      * Minimizes the driver window.
      */
-    private static void windowMinimize(){
+    private void windowMinimize(){
         window.minimize();
     }
 
     /**
      * Brings the driver window to the front of the tabs in order to bring attention to it to the user.
      */
-    private static void windowToFront(){
+    private void windowToFront(){
         window.minimize();
         window.setPosition(screenPosition);
     }
@@ -559,7 +557,7 @@ public class Parser {
      * public method except initialize() in order to make sure that none of them are called without the Parser being
      * initialized.
      */
-    private static void validateInitialization(){
+    private void validateInitialization(){
         if(!initialized) throw new ParserNotInitializedException(
                 "The Parser has not been initialized. Please run Parser.initialize() before calling this method."
         );
