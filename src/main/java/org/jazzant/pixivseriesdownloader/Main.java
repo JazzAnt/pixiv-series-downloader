@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.io.IOException;
 public class Main extends Application {
     private final SeriesBroker broker = new SeriesBroker();
     private final Parser parser = new Parser();
+    private final Downloader downloader = new Downloader();
     public static void main(String[] args) {launch(args);}
 
     @Override
@@ -33,9 +33,5 @@ public class Main extends Application {
         stage.setTitle("Pixiv Series Downloader");
         stage.setScene(scene);
         stage.show();
-    }
-
-    private void openAddSeriesWindow(){
-
     }
 }

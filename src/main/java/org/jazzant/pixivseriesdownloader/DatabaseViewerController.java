@@ -33,8 +33,8 @@ public class DatabaseViewerController implements Initializable {
         }
     }
 
-    public void populateTree(ArrayList<String> groupList, ArrayList<Series> seriesList){
-        TreeItem<String> root = new TreeItem<>(Downloader.getLibraryDir());
+    public void populateTree(String libraryName, ArrayList<String> groupList, ArrayList<Series> seriesList){
+        TreeItem<String> root = new TreeItem<>(libraryName);
 
         for(String group : groupList){
             root.getChildren().add(new TreeItem<>(group));

@@ -3,7 +3,6 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -12,12 +11,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class MainController {
     private SeriesBroker broker;
     private Parser parser;
+    private Downloader downloader;
     @FXML
     protected Button databaseButton;
     @FXML
@@ -33,6 +31,9 @@ public class MainController {
     public void setParser(Parser parser){
         this.parser = parser;
     }
+    public void setDownloader(Downloader downloader){
+        this.downloader = downloader;
+    }
 
     @FXML
     private void openAddSeriesWindow(){
@@ -46,9 +47,12 @@ public class MainController {
             AddSeriesController addSeriesController = fxmlLoader.getController();
             addSeriesController.setBroker(broker);
             addSeriesController.setParser(parser);
+            addSeriesController.setLibraryDirectoryText(downloader.getLibraryDir());
 
             stage.setTitle("Add Series View");
-            stage.setOnCloseRequest(windowEvent -> {addSeriesButton.setDisable(false);});
+            stage.setOnCloseRequest(windowEvent -> {
+                addSeriesButton.setDisable(false);
+            });
             stage.setScene(scene);
             stage.show();
         } catch (IOException e){
@@ -101,7 +105,7 @@ public class MainController {
             Scene scene = new Scene(root);
 
             DatabaseViewerController controller = fxmlLoader.getController();
-            controller.populateTree(broker.selectAllGroups(), broker.selectAll());
+            controller.populateTree(downloader.getLibraryDir(), broker.selectAllGroups(), broker.selectAll());
 
             stage.setTitle("Database View");
             stage.setOnCloseRequest(windowEvent -> {

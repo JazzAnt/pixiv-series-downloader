@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class AddSeriesController implements Initializable {
     private final String NO_GROUP_DIRECTORY = "{no group directory}";
@@ -71,7 +70,9 @@ public class AddSeriesController implements Initializable {
         this.parser = parser;
     }
 
-
+    public void setLibraryDirectoryText(String libraryDirectory){
+        dirLibraryText.setText(libraryDirectory);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -100,7 +101,7 @@ public class AddSeriesController implements Initializable {
                 seriesModel.getSeriesIdProperty()));
         saveButton.disableProperty().bind(seriesModel.getOkToSaveProperty().not());
 
-        dirLibraryText.setText(Downloader.getLibraryDir());
+        dirLibraryText.setText("Library");
         toggleDisabilityOfDetails(true);
         toggleVisibilityOfDetails(false);
 
@@ -291,7 +292,8 @@ public class AddSeriesController implements Initializable {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                InputStream inputStream = Downloader.getInputStreamFromImageURL(parser.parseSeriesThumbnail());
+                String seriesThumbnailUrl = parser.parseSeriesThumbnail();
+                InputStream inputStream = ImageURLUtils.getInputStreamFromImageURL(seriesThumbnailUrl);
                 Image image = new Image(inputStream);
                 thumbnailImageView.setImage(image);
                 inputStream.close();
