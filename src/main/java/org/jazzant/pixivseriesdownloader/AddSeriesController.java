@@ -89,6 +89,7 @@ public class AddSeriesController implements Initializable {
         Bindings.bindBidirectional(titleText.textProperty(), seriesModel.getTitleProperty());
         Bindings.bindBidirectional(artistText.textProperty(), seriesModel.getArtistProperty());
 
+        Bindings.bindBidirectional(dirGroupText.textProperty(), seriesModel.getDirectoryGroupProperty());
         Bindings.bindBidirectional(dirTitleText.textProperty(), seriesModel.getDirectoryTitleProperty());
 
         seriesModel.getOkToSaveProperty().bind(Bindings.createBooleanBinding(this::isDataValid,
