@@ -3,6 +3,7 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
@@ -11,6 +12,9 @@ import javafx.scene.text.Text;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -44,6 +48,23 @@ public class DatabaseViewerController implements Initializable {
             StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(selection, null);
+        }
+    }
+
+    @FXML
+    public void openLinkInBrowser(){
+        if(selectedSeries == null) return;
+        if(!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Your computer doesn't support opening links to browsers");
+            alert.show();
+        }
+        try{
+            Desktop.getDesktop().browse(new URI(selectedSeries.getSeriesURL()));
+        } catch (IOException | URISyntaxException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong with trying to open link with browser:\n" + e.getMessage());
+            alert.show();
         }
     }
 
