@@ -3,9 +3,10 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,7 +17,11 @@ public class DatabaseViewerController implements Initializable {
     private SeriesBroker broker;
     private Series selectedSeries;
 
-    @FXML protected Label testingLabel;
+    @FXML protected GridPane detailsView;
+    @FXML protected Text titleTxt;
+    @FXML protected Text artistTxt;
+    @FXML protected Text statusTxt;
+    @FXML protected Text linkTxt;
     @FXML
     protected TreeView<SeriesTreeItem> treeView;
 
@@ -33,7 +38,17 @@ public class DatabaseViewerController implements Initializable {
     public void selectItem(){
         TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
         if(item != null && item.getValue().isSeries()) {
-            testingLabel.setText(item.getValue().getSeries().getTitle());
+            Series series = item.getValue().getSeries();
+            detailsView.setVisible(true);
+            titleTxt.setText(series.getTitle());
+            artistTxt.setText(series.getArtist());
+            statusTxt.setText(series.getStatus().toString());
+            linkTxt.setText(series.getSeriesURL());
+            selectedSeries = series;
+        }
+        else {
+            detailsView.setVisible(false);
+            selectedSeries = null;
         }
     }
 

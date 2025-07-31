@@ -3,11 +3,31 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.chart.BarChart?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DatabaseViewerController">
    <center>
       <TreeView fx:id="treeView" onContextMenuRequested="#selectItem" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <Label fx:id="testingLabel" text="Label" BorderPane.alignment="CENTER" />
+      <GridPane fx:id="detailsView" vgap="5" hgap="5" visible="false">
+         <padding>
+            <Insets top="5" right="10" bottom="5" left="15"/>
+         </padding>
+         <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_RIGHT">
+            <Label text="Title :"/></HBox>
+         <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="CENTER_RIGHT">
+            <Label text="Artist :"/></HBox>
+         <HBox GridPane.columnIndex="0" GridPane.rowIndex="2" alignment="CENTER_RIGHT">
+            <Label text="Status :"/></HBox>
+         <HBox GridPane.columnIndex="0" GridPane.rowIndex="3" alignment="CENTER_RIGHT">
+            <Label text="Link :"/></HBox>
+
+         <Text fx:id="titleTxt" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+         <Text fx:id="artistTxt" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+         <Text fx:id="statusTxt" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+         <Text fx:id="linkTxt" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+      </GridPane>
    </bottom>
 </BorderPane>
