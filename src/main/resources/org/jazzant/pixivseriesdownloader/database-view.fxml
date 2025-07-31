@@ -28,6 +28,8 @@
          <Text fx:id="artistTxt" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
          <Text fx:id="statusTxt" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
          <Text fx:id="linkTxt" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+         <Button GridPane.columnIndex="1" GridPane.rowIndex="4"
+                 onAction="#copyLinkToClipboard" text="Copy Link to Clipboard"/>
       </GridPane>
    </bottom>
 </BorderPane>

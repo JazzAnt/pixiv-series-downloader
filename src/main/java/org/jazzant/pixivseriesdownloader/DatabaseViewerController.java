@@ -8,6 +8,9 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -33,6 +36,15 @@ public class DatabaseViewerController implements Initializable {
                 Platform.runLater(() -> treeView.getSelectionModel().clearSelection());
             }
         });
+    }
+
+    @FXML
+    public void copyLinkToClipboard(){
+        if(selectedSeries != null) {
+            StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(selection, null);
+        }
     }
 
     public void selectItem(){
