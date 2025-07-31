@@ -105,7 +105,9 @@ public class MainController {
             Scene scene = new Scene(root);
 
             DatabaseViewerController controller = fxmlLoader.getController();
-            controller.populateTree(downloader.getLibraryDir(), broker.selectAllGroups(), broker.selectAll());
+            controller.setLibraryName(downloader.getLibraryDir());
+            controller.setBroker(broker);
+            controller.populateTree();
 
             stage.setTitle("Database View");
             stage.setOnCloseRequest(windowEvent -> {

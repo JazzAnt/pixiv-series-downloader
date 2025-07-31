@@ -29,6 +29,7 @@ public class Main extends Application {
         MainController controller = fxmlLoader.getController();
         controller.setBroker(broker);
         controller.setParser(parser);
+        controller.setDownloader(downloader);
 
         stage.setTitle("Pixiv Series Downloader");
         stage.setScene(scene);
