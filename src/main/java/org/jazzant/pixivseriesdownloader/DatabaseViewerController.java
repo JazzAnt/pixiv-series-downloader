@@ -29,6 +29,8 @@ public class DatabaseViewerController implements Initializable {
     private String libraryName;
     private SeriesBroker broker;
     private Series selectedSeries;
+    private ArrayList<Series> seriesList;
+    private ArrayList<String> groupList;
 
     @FXML protected TreeView<SeriesTreeItem> treeView;
     @FXML protected TableView<Series> tableView;
@@ -42,7 +44,6 @@ public class DatabaseViewerController implements Initializable {
     @FXML protected Text linkTxt;
 
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -50,6 +51,11 @@ public class DatabaseViewerController implements Initializable {
                 Platform.runLater(() -> treeView.getSelectionModel().clearSelection());
             }
         });
+    }
+
+    public void fetchSeriesFromDatabase(){
+        seriesList = broker.selectAll();
+        groupList = broker.selectAllGroups();
     }
 
     @FXML
@@ -109,8 +115,9 @@ public class DatabaseViewerController implements Initializable {
         };
         task.setOnSucceeded(event-> {
             if(task.getValue()){
-                populateDBViewers();
+                seriesList.remove(selectedSeries);
                 deselectSeries();
+                populateDBViewers();
             }
             else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -144,9 +151,11 @@ public class DatabaseViewerController implements Initializable {
         };
         task.setOnSucceeded(event-> {
             if(task.getValue()){
-                populateDBViewers();
+                int index = seriesList.indexOf(series);
                 series.setStatus(status);
+                seriesList.set(index, series);
                 selectSeries(series);
+                populateDBViewers();
             }
             else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -169,7 +178,6 @@ public class DatabaseViewerController implements Initializable {
         if(item == null || !item.getValue().isSeries()) return;
         Series series = item.getValue().getSeries();
         selectSeries(series);
-
     }
 
     public void selectSeries(Series series){
@@ -199,13 +207,11 @@ public class DatabaseViewerController implements Initializable {
     }
 
     public void populateDBViewers(){
-        ArrayList<Series> seriesList = broker.selectAll();
-        populateTree(seriesList);
-        populateTable(seriesList);
+        populateTree();
+        populateTable();
     }
 
-    public void populateTree(ArrayList<Series> seriesList){
-        ArrayList<String> groupList = broker.selectAllGroups();
+    public void populateTree(){
         TreeItem<SeriesTreeItem> root = new TreeItem<>(new SeriesTreeItem(libraryName));
 
         for(String group : groupList){
@@ -224,12 +230,14 @@ public class DatabaseViewerController implements Initializable {
                 }
             }
         }
+        root.setExpanded(true);
         treeView.setRoot(root);
     }
 
-    public void populateTable(ArrayList<Series> seriesList){
+    public void populateTable(){
         ObservableList<Series> list = FXCollections.observableArrayList(seriesList);
         tableView.setItems(list);
+        tableView.refresh();
     }
 
     public void setupTableColumns(){

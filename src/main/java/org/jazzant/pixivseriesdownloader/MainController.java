@@ -107,6 +107,7 @@ public class MainController {
             DatabaseViewerController controller = fxmlLoader.getController();
             controller.setLibraryName(downloader.getLibraryDir());
             controller.setBroker(broker);
+            controller.fetchSeriesFromDatabase();
             controller.populateDBViewers();
             controller.setupTableColumns();
 
