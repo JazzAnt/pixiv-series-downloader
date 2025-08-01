@@ -1,6 +1,10 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Callback;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -33,6 +38,7 @@ public class DatabaseViewerController implements Initializable {
     @FXML protected Text linkTxt;
     @FXML
     protected TreeView<SeriesTreeItem> treeView;
+    @FXML protected TableView<Series> tableView;
 
 
     @Override
@@ -160,5 +166,56 @@ public class DatabaseViewerController implements Initializable {
             }
         }
         treeView.setRoot(root);
+    }
+
+    public void populateTable(){
+        ObservableList<Series> list = FXCollections.observableArrayList(broker.selectAll());
+        tableView.setItems(list);
+    }
+
+    public void setupTableColumns(){
+        TableColumn<Series, String> groupColumn = new TableColumn<>("Group");
+        groupColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
+                String group = series.getValue().getDirectoryGroup();
+                if(group.isBlank()) group = "{no group directory}";
+                return new ReadOnlyObjectWrapper<>(group);
+            }
+        });
+
+        TableColumn<Series, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
+                return new ReadOnlyObjectWrapper<>(series.getValue().getTitle());
+            }
+        });
+
+        TableColumn<Series, String> artistColumn = new TableColumn<>("Artist");
+        artistColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
+                return new ReadOnlyObjectWrapper<>(series.getValue().getArtist());
+            }
+        });
+
+        TableColumn<Series, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
+                return new ReadOnlyObjectWrapper<>(series.getValue().getStatus().toString());
+            }
+        });
+
+        TableColumn<Series, String> linkColumn = new TableColumn<>("Pixiv Link");
+        linkColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
+                return new ReadOnlyObjectWrapper<>(series.getValue().getSeriesURL());
+            }
+        });
+
+        tableView.getColumns().setAll(groupColumn, titleColumn, artistColumn, statusColumn, linkColumn);
     }
 }

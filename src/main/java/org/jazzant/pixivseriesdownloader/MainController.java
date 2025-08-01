@@ -109,6 +109,9 @@ public class MainController {
             controller.setBroker(broker);
             controller.populateTree();
 
+            controller.populateTable();
+            controller.setupTableColumns();
+
             stage.setTitle("Database View");
             stage.setOnCloseRequest(windowEvent -> {
                 databaseButton.setDisable(false);
