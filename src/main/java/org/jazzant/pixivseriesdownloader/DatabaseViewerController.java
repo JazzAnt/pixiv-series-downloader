@@ -43,7 +43,6 @@ public class DatabaseViewerController implements Initializable {
     @FXML protected Text statusTxt;
     @FXML protected Text linkTxt;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -53,151 +52,9 @@ public class DatabaseViewerController implements Initializable {
         });
     }
 
-    public void fetchSeriesFromDatabase(){
-        seriesList = broker.selectAll();
-        groupList = broker.selectAllGroups();
-    }
-
-    @FXML
-    public void toggleView(){
-        tableView.setVisible(!tableView.isVisible());
-        tableView.setManaged(!tableView.isManaged());
-        treeView.setVisible(!treeView.isVisible());
-        treeView.setManaged(!treeView.isManaged());
-        if(tableView.isManaged()) toggleButton.setText("Table View");
-        else toggleButton.setText("Tree View");
-        populateDBViewers();
-    }
-
-    @FXML
-    public void copyLinkToClipboard(){
-        if(selectedSeries == null) return;
-        StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(selection, null);
-    }
-
-    @FXML
-    public void openLinkInBrowser(){
-        if(selectedSeries == null) return;
-        if(!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Your computer doesn't support opening links to browsers");
-            alert.show();
-        }
-        try{
-            Desktop.getDesktop().browse(new URI(selectedSeries.getSeriesURL()));
-        } catch (IOException | URISyntaxException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Something went wrong with trying to open link with browser:\n" + e.getMessage());
-            alert.show();
-        }
-    }
-
-    @FXML
-    public void handleDeleteSeries(){
-        if(selectedSeries == null) return;
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setContentText("Are you sure you want to delete「" + selectedSeries.getTitle() + "」from the database?\n" +
-                "(this won't delete the files in the library folder)");
-        alert.showAndWait()
-                .filter(response -> response == ButtonType.OK)
-                .ifPresent(response -> {
-                    deleteSeries(selectedSeries.getSeriesID());
-                });
-    }
-
-    private void deleteSeries(int seriesId){
-        Task<Boolean> task = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                return broker.deleteRecord(seriesId);
-            }
-        };
-        task.setOnSucceeded(event-> {
-            if(task.getValue()){
-                seriesList.remove(selectedSeries);
-                deselectSeries();
-                populateDBViewers();
-            }
-            else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Something went wrong with deleting the series");
-                alert.show();
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.start();
-    }
-
-    @FXML
-    public void handleUpdateStatus(){
-        if(selectedSeries == null) return;
-        SeriesStatus[] status = {SeriesStatus.ONGOING, SeriesStatus.COMPLETED, SeriesStatus.HIATUS, SeriesStatus.PAUSED, SeriesStatus.DELETED};
-        ChoiceDialog<SeriesStatus> dialog = new ChoiceDialog<>(selectedSeries.getStatus(), status);
-        dialog.setContentText("Change the status of the series to:");
-        dialog.setHeaderText("Change Series Status");
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    updateStatus(selectedSeries, response);
-                });
-    }
-
-    private void updateStatus(Series series, SeriesStatus status){
-        Task<Boolean> task = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                return broker.updateRecordStatus(series.getSeriesID(), status);
-            }
-        };
-        task.setOnSucceeded(event-> {
-            if(task.getValue()){
-                int index = seriesList.indexOf(series);
-                series.setStatus(status);
-                seriesList.set(index, series);
-                selectSeries(series);
-                populateDBViewers();
-            }
-            else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Something went wrong with updating the series");
-                alert.show();
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.start();
-    }
-
-    public void selectTableItem(){
-        if(tableView.getSelectionModel().isEmpty()) return;
-        Series series = tableView.getSelectionModel().getSelectedItem();
-        selectSeries(series);
-    }
-
-    public void selectTreeItem(){
-        TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
-        if(item == null || !item.getValue().isSeries()) return;
-        Series series = item.getValue().getSeries();
-        selectSeries(series);
-    }
-
-    public void selectSeries(Series series){
-        detailsView.setVisible(true);
-        buttonsView.setVisible(true);
-
-        titleTxt.setText(series.getTitle());
-        artistTxt.setText(series.getArtist());
-        statusTxt.setText(series.getStatus().toString());
-        linkTxt.setText(series.getSeriesURL());
-        selectedSeries = series;
-    }
-
-    public void deselectSeries(){
-        detailsView.setVisible(false);
-        buttonsView.setVisible(false);
-
-        selectedSeries = null;
-    }
+    /*
+     * Initialize stuff (things that should only be called once)
+     */
 
     public void setLibraryName(String libraryName){
         this.libraryName = libraryName;
@@ -207,38 +64,9 @@ public class DatabaseViewerController implements Initializable {
         this.broker = broker;
     }
 
-    public void populateDBViewers(){
-        if(treeView.isManaged()) populateTree();
-        else populateTable();
-    }
-
-    public void populateTree(){
-        TreeItem<SeriesTreeItem> root = new TreeItem<>(new SeriesTreeItem(libraryName));
-
-        for(String group : groupList){
-            root.getChildren().add(new TreeItem<>(new SeriesTreeItem(group)));
-        }
-
-        for(Series series : seriesList){
-            if(series.getDirectoryGroup().isBlank()){
-                root.getChildren().add(new TreeItem<>(new SeriesTreeItem(series)));
-                continue;
-            }
-            for(TreeItem<SeriesTreeItem> group : root.getChildren()){
-                if(group.getValue().toString().equals(series.getDirectoryGroup())){
-                    group.getChildren().add(new TreeItem<>(new SeriesTreeItem(series)));
-                    break;
-                }
-            }
-        }
-        root.setExpanded(true);
-        treeView.setRoot(root);
-    }
-
-    public void populateTable(){
-        ObservableList<Series> list = FXCollections.observableArrayList(seriesList);
-        tableView.setItems(list);
-        tableView.refresh();
+    public void fetchSeriesFromDatabase(){
+        seriesList = broker.selectAll();
+        groupList = broker.selectAllGroups();
     }
 
     public void setupTableColumns(){
@@ -278,4 +106,202 @@ public class DatabaseViewerController implements Initializable {
 
         tableView.getColumns().setAll(groupColumn, titleColumn, artistColumn, statusColumn);
     }
+
+    public void populateDBViewers(){
+        populateTree();
+        populateTable();
+    }
+
+    /*
+     * Toggle between view
+     */
+
+    @FXML
+    public void toggleView(){
+        tableView.setVisible(!tableView.isVisible());
+        tableView.setManaged(!tableView.isManaged());
+        treeView.setVisible(!treeView.isVisible());
+        treeView.setManaged(!treeView.isManaged());
+        if(tableView.isManaged()) toggleButton.setText("Table View");
+        else toggleButton.setText("Tree View");
+        updateDBViewers();
+    }
+
+    public void updateDBViewers(){
+        if(treeView.isManaged()) populateTree();
+        else tableView.refresh();
+    }
+
+    /*
+     * Table Stuff
+     */
+
+    public void populateTable(){
+        ObservableList<Series> list = FXCollections.observableArrayList(seriesList);
+        tableView.setItems(list);
+        tableView.refresh();
+    }
+
+    public void selectTableItem(){
+        if(tableView.getSelectionModel().isEmpty()) return;
+        Series series = tableView.getSelectionModel().getSelectedItem();
+        selectSeries(series);
+    }
+
+    /*
+     * Tree Stuff
+     */
+
+    public void populateTree(){
+        TreeItem<SeriesTreeItem> root = new TreeItem<>(new SeriesTreeItem(libraryName));
+
+        for(String group : groupList){
+            root.getChildren().add(new TreeItem<>(new SeriesTreeItem(group)));
+        }
+
+        for(Series series : seriesList){
+            if(series.getDirectoryGroup().isBlank()){
+                root.getChildren().add(new TreeItem<>(new SeriesTreeItem(series)));
+                continue;
+            }
+            for(TreeItem<SeriesTreeItem> group : root.getChildren()){
+                if(group.getValue().toString().equals(series.getDirectoryGroup())){
+                    group.getChildren().add(new TreeItem<>(new SeriesTreeItem(series)));
+                    break;
+                }
+            }
+        }
+        root.setExpanded(true);
+        treeView.setRoot(root);
+    }
+
+    public void selectTreeItem(){
+        TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
+        if(item == null || !item.getValue().isSeries()) return;
+        Series series = item.getValue().getSeries();
+        selectSeries(series);
+    }
+
+    /*
+     * General Shared Methods (Should not be view specific)
+     */
+
+    public void selectSeries(Series series){
+        detailsView.setVisible(true);
+        buttonsView.setVisible(true);
+
+        titleTxt.setText(series.getTitle());
+        artistTxt.setText(series.getArtist());
+        statusTxt.setText(series.getStatus().toString());
+        linkTxt.setText(series.getSeriesURL());
+        selectedSeries = series;
+    }
+
+    public void deselectSeries(){
+        detailsView.setVisible(false);
+        buttonsView.setVisible(false);
+
+        selectedSeries = null;
+    }
+
+    @FXML
+    public void handleDeleteSeries(){
+        if(selectedSeries == null) return;
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setContentText("Are you sure you want to delete「" + selectedSeries.getTitle() + "」from the database?\n" +
+                "(this won't delete the files in the library folder)");
+        alert.showAndWait()
+                .filter(response -> response == ButtonType.OK)
+                .ifPresent(response -> {
+                    deleteSeries(selectedSeries.getSeriesID());
+                });
+    }
+
+    private void deleteSeries(int seriesId){
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return broker.deleteRecord(seriesId);
+            }
+        };
+        task.setOnSucceeded(event-> {
+            if(task.getValue()){
+                seriesList.remove(selectedSeries);
+                deselectSeries();
+                updateDBViewers();
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Something went wrong with deleting the series");
+                alert.show();
+            }
+        });
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
+    @FXML
+    public void handleUpdateStatus(){
+        if(selectedSeries == null) return;
+        SeriesStatus[] status = {SeriesStatus.ONGOING, SeriesStatus.COMPLETED, SeriesStatus.HIATUS, SeriesStatus.PAUSED, SeriesStatus.DELETED};
+        ChoiceDialog<SeriesStatus> dialog = new ChoiceDialog<>(selectedSeries.getStatus(), status);
+        dialog.setContentText("Change the status of the series to:");
+        dialog.setHeaderText("Change Series Status");
+        dialog.showAndWait()
+                .ifPresent(response -> {
+                    updateStatus(selectedSeries, response);
+                });
+    }
+
+    private void updateStatus(Series series, SeriesStatus status){
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return broker.updateRecordStatus(series.getSeriesID(), status);
+            }
+        };
+        task.setOnSucceeded(event-> {
+            if(task.getValue()){
+                int index = seriesList.indexOf(series);
+                series.setStatus(status);
+                seriesList.set(index, series);
+                selectSeries(series);
+                updateDBViewers();
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Something went wrong with updating the series");
+                alert.show();
+            }
+        });
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
+    @FXML
+    public void copyLinkToClipboard(){
+        if(selectedSeries == null) return;
+        StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, null);
+    }
+
+    @FXML
+    public void openLinkInBrowser(){
+        if(selectedSeries == null) return;
+        if(!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Your computer doesn't support opening links to browsers");
+            alert.show();
+        }
+        try{
+            Desktop.getDesktop().browse(new URI(selectedSeries.getSeriesURL()));
+        } catch (IOException | URISyntaxException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong with trying to open link with browser:\n" + e.getMessage());
+            alert.show();
+        }
+    }
+
+
 }

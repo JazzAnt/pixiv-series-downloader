@@ -108,8 +108,8 @@ public class MainController {
             controller.setLibraryName(downloader.getLibraryDir());
             controller.setBroker(broker);
             controller.fetchSeriesFromDatabase();
-            controller.populateDBViewers();
             controller.setupTableColumns();
+            controller.populateDBViewers();
 
             stage.setTitle("Database View");
             stage.setHeight(450);
