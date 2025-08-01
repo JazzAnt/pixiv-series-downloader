@@ -66,6 +66,7 @@ public class DatabaseViewerController implements Initializable {
         treeView.setManaged(!treeView.isManaged());
         if(tableView.isManaged()) toggleButton.setText("Table View");
         else toggleButton.setText("Tree View");
+        populateDBViewers();
     }
 
     @FXML
@@ -207,8 +208,8 @@ public class DatabaseViewerController implements Initializable {
     }
 
     public void populateDBViewers(){
-        populateTree();
-        populateTable();
+        if(treeView.isManaged()) populateTree();
+        else populateTable();
     }
 
     public void populateTree(){
