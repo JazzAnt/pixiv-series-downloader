@@ -96,7 +96,7 @@ public class DatabaseViewerController implements Initializable {
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> {
                     if(broker.deleteRecord(selectedSeries.getSeriesID())){
-                        populateTree();
+                        populateDBViewers();
                     }
                     else {
                         Alert alert1 = new Alert(Alert.AlertType.ERROR);
@@ -116,7 +116,7 @@ public class DatabaseViewerController implements Initializable {
         dialog.showAndWait()
                 .ifPresent(response -> {
                     if(broker.updateRecordStatus(selectedSeries.getSeriesID(), response)){
-                        populateTree();
+                        populateDBViewers();
                     }
                     else {
                         Alert alert1 = new Alert(Alert.AlertType.ERROR);
@@ -129,6 +129,18 @@ public class DatabaseViewerController implements Initializable {
     public void selectTableItem(){
         if(tableView.getSelectionModel().isEmpty()) return;
         Series series = tableView.getSelectionModel().getSelectedItem();
+        selectSeries(series);
+    }
+
+    public void selectTreeItem(){
+        TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
+        if(item == null || !item.getValue().isSeries()) return;
+        Series series = item.getValue().getSeries();
+        selectSeries(series);
+
+    }
+
+    public void selectSeries(Series series){
         detailsView.setVisible(true);
         buttonsView.setVisible(true);
 
@@ -139,21 +151,6 @@ public class DatabaseViewerController implements Initializable {
         selectedSeries = series;
     }
 
-    public void selectTreeItem(){
-        TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
-        if(item != null && item.getValue().isSeries()) {
-            Series series = item.getValue().getSeries();
-            detailsView.setVisible(true);
-            buttonsView.setVisible(true);
-
-            titleTxt.setText(series.getTitle());
-            artistTxt.setText(series.getArtist());
-            statusTxt.setText(series.getStatus().toString());
-            linkTxt.setText(series.getSeriesURL());
-            selectedSeries = series;
-        }
-    }
-
     public void setLibraryName(String libraryName){
         this.libraryName = libraryName;
     }
@@ -162,10 +159,14 @@ public class DatabaseViewerController implements Initializable {
         this.broker = broker;
     }
 
-    public void populateTree(){
-        ArrayList<String> groupList = broker.selectAllGroups();
+    public void populateDBViewers(){
         ArrayList<Series> seriesList = broker.selectAll();
+        populateTree(seriesList);
+        populateTable(seriesList);
+    }
 
+    public void populateTree(ArrayList<Series> seriesList){
+        ArrayList<String> groupList = broker.selectAllGroups();
         TreeItem<SeriesTreeItem> root = new TreeItem<>(new SeriesTreeItem(libraryName));
 
         for(String group : groupList){
@@ -187,8 +188,8 @@ public class DatabaseViewerController implements Initializable {
         treeView.setRoot(root);
     }
 
-    public void populateTable(){
-        ObservableList<Series> list = FXCollections.observableArrayList(broker.selectAll());
+    public void populateTable(ArrayList<Series> seriesList){
+        ObservableList<Series> list = FXCollections.observableArrayList(seriesList);
         tableView.setItems(list);
     }
 
@@ -198,7 +199,7 @@ public class DatabaseViewerController implements Initializable {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
                 String group = series.getValue().getDirectoryGroup();
-                if(group.isBlank()) group = "{no group directory}";
+                if(group.isBlank()) group = "{no group}";
                 return new ReadOnlyObjectWrapper<>(group);
             }
         });
