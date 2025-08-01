@@ -74,7 +74,7 @@ public class DatabaseViewerController implements Initializable {
     public void deleteSeries(){
         if(selectedSeries == null) return;
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setContentText("Are you sure you want to delete " + selectedSeries.getTitle() + "from the database?\n" +
+        alert.setContentText("Are you sure you want to delete「" + selectedSeries.getTitle() + "」from the database?\n" +
                 "(this won't delete the files in the library folder)");
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
@@ -95,6 +95,8 @@ public class DatabaseViewerController implements Initializable {
         if(item != null && item.getValue().isSeries()) {
             Series series = item.getValue().getSeries();
             detailsView.setVisible(true);
+            buttonsView.setVisible(true);
+
             titleTxt.setText(series.getTitle());
             artistTxt.setText(series.getArtist());
             statusTxt.setText(series.getStatus().toString());
@@ -103,6 +105,7 @@ public class DatabaseViewerController implements Initializable {
         }
         else {
             detailsView.setVisible(false);
+            buttonsView.setVisible(false);
             selectedSeries = null;
         }
     }

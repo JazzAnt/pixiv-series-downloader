@@ -5,14 +5,18 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.chart.BarChart?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DatabaseViewerController">
    <center>
       <TreeView fx:id="treeView" onContextMenuRequested="#selectItem" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
-      <VBox fx:id="buttonsView">
-         <Button text="Delete" onAction="#deleteSeries"/>
+      <VBox fx:id="buttonsView" spacing="10" visible="false">
+         <padding>
+            <Insets top="5" right="5" bottom="5" left="10"/>
+         </padding>
+         <Button onAction="#copyLinkToClipboard" text="Copy Series Link to Clipboard"/>
+         <Button onAction="#openLinkInBrowser" text="Open Series in Browser"/>
+         <Button text="Delete Series" onAction="#deleteSeries"/>
       </VBox>
    </right>
    <bottom>
@@ -33,10 +37,6 @@
          <Text fx:id="artistTxt" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
          <Text fx:id="statusTxt" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
          <Text fx:id="linkTxt" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-         <HBox GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="5">
-            <Button onAction="#copyLinkToClipboard" text="Copy Link to Clipboard"/>
-            <Button onAction="#openLinkInBrowser" text="Open Link in Browser"/>
-         </HBox>
       </GridPane>
    </bottom>
 </BorderPane>
