@@ -27,10 +27,10 @@
          <padding>
             <Insets top="5" right="5" bottom="5" left="10"/>
          </padding>
-         <Button onAction="#changeStatus" text="Change Series Status"/>
+         <Button onAction="#handleUpdateStatus" text="Change Series Status"/>
          <Button onAction="#copyLinkToClipboard" text="Copy Series Link to Clipboard"/>
          <Button onAction="#openLinkInBrowser" text="Open Series in Browser"/>
-         <Button text="Delete Series" onAction="#deleteSeries"/>
+         <Button text="Delete Series" onAction="#handleDeleteSeries"/>
       </VBox>
    </right>
    <bottom>

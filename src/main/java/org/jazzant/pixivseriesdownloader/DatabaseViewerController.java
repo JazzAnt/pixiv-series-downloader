@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -87,7 +88,7 @@ public class DatabaseViewerController implements Initializable {
     }
 
     @FXML
-    public void deleteSeries(){
+    public void handleDeleteSeries(){
         if(selectedSeries == null) return;
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setContentText("Are you sure you want to delete「" + selectedSeries.getTitle() + "」from the database?\n" +
@@ -95,19 +96,34 @@ public class DatabaseViewerController implements Initializable {
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> {
-                    if(broker.deleteRecord(selectedSeries.getSeriesID())){
-                        populateDBViewers();
-                    }
-                    else {
-                        Alert alert1 = new Alert(Alert.AlertType.ERROR);
-                        alert1.setContentText("Something went wrong with deleting the series");
-                        alert1.show();
-                    }
+                    deleteSeries(selectedSeries.getSeriesID());
                 });
     }
 
+    private void deleteSeries(int seriesId){
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return broker.deleteRecord(seriesId);
+            }
+        };
+        task.setOnSucceeded(event-> {
+            if(task.getValue()){
+                populateDBViewers();
+                deselectSeries();
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Something went wrong with deleting the series");
+                alert.show();
+            }
+        });
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
     @FXML
-    public void changeStatus(){
+    public void handleUpdateStatus(){
         if(selectedSeries == null) return;
         SeriesStatus[] status = {SeriesStatus.ONGOING, SeriesStatus.COMPLETED, SeriesStatus.HIATUS, SeriesStatus.PAUSED, SeriesStatus.DELETED};
         ChoiceDialog<SeriesStatus> dialog = new ChoiceDialog<>(selectedSeries.getStatus(), status);
@@ -115,15 +131,31 @@ public class DatabaseViewerController implements Initializable {
         dialog.setHeaderText("Change Series Status");
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if(broker.updateRecordStatus(selectedSeries.getSeriesID(), response)){
-                        populateDBViewers();
-                    }
-                    else {
-                        Alert alert1 = new Alert(Alert.AlertType.ERROR);
-                        alert1.setContentText("Something went wrong with updating the series");
-                        alert1.show();
-                    }
+                    updateStatus(selectedSeries, response);
                 });
+    }
+
+    private void updateStatus(Series series, SeriesStatus status){
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return broker.updateRecordStatus(series.getSeriesID(), status);
+            }
+        };
+        task.setOnSucceeded(event-> {
+            if(task.getValue()){
+                populateDBViewers();
+                series.setStatus(status);
+                selectSeries(series);
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Something went wrong with updating the series");
+                alert.show();
+            }
+        });
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     public void selectTableItem(){
@@ -149,6 +181,13 @@ public class DatabaseViewerController implements Initializable {
         statusTxt.setText(series.getStatus().toString());
         linkTxt.setText(series.getSeriesURL());
         selectedSeries = series;
+    }
+
+    public void deselectSeries(){
+        detailsView.setVisible(false);
+        buttonsView.setVisible(false);
+
+        selectedSeries = null;
     }
 
     public void setLibraryName(String libraryName){
