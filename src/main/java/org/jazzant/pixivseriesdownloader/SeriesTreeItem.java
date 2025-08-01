@@ -26,6 +26,6 @@ public class SeriesTreeItem {
         if(series == null){
             return directoryGroup;
         }
-        return series.getDirectoryTitle();
+        return series.getDirectoryTitle() + " (" + series.getStatus() + ")";
     }
 }
