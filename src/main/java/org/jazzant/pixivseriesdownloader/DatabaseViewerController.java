@@ -1,12 +1,10 @@
 package org.jazzant.pixivseriesdownloader;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -14,6 +12,7 @@ import javafx.scene.text.Text;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.beans.EventHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -85,6 +84,26 @@ public class DatabaseViewerController implements Initializable {
                     else {
                         Alert alert1 = new Alert(Alert.AlertType.ERROR);
                         alert1.setContentText("Something went wrong with deleting the series");
+                        alert1.show();
+                    }
+                });
+    }
+
+    @FXML
+    public void changeStatus(){
+        if(selectedSeries == null) return;
+        SeriesStatus[] status = {SeriesStatus.ONGOING, SeriesStatus.COMPLETED, SeriesStatus.HIATUS, SeriesStatus.PAUSED, SeriesStatus.DELETED};
+        ChoiceDialog<SeriesStatus> dialog = new ChoiceDialog<>(selectedSeries.getStatus(), status);
+        dialog.setContentText("Change the status of the series to:");
+        dialog.setHeaderText("Change Series Status");
+        dialog.showAndWait()
+                .ifPresent(response -> {
+                    if(broker.updateRecordStatus(selectedSeries.getSeriesID(), response)){
+                        populateTree();
+                    }
+                    else {
+                        Alert alert1 = new Alert(Alert.AlertType.ERROR);
+                        alert1.setContentText("Something went wrong with updating the series");
                         alert1.show();
                     }
                 });
