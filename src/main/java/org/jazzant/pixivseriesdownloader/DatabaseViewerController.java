@@ -4,9 +4,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.awt.*;
@@ -24,6 +26,7 @@ public class DatabaseViewerController implements Initializable {
     private SeriesBroker broker;
     private Series selectedSeries;
 
+    @FXML protected VBox buttonsView;
     @FXML protected GridPane detailsView;
     @FXML protected Text titleTxt;
     @FXML protected Text artistTxt;
@@ -44,11 +47,10 @@ public class DatabaseViewerController implements Initializable {
 
     @FXML
     public void copyLinkToClipboard(){
-        if(selectedSeries != null) {
-            StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(selection, null);
-        }
+        if(selectedSeries == null) return;
+        StringSelection selection = new StringSelection(selectedSeries.getSeriesURL());
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, null);
     }
 
     @FXML
@@ -66,6 +68,26 @@ public class DatabaseViewerController implements Initializable {
             alert.setContentText("Something went wrong with trying to open link with browser:\n" + e.getMessage());
             alert.show();
         }
+    }
+
+    @FXML
+    public void deleteSeries(){
+        if(selectedSeries == null) return;
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setContentText("Are you sure you want to delete " + selectedSeries.getTitle() + "from the database?\n" +
+                "(this won't delete the files in the library folder)");
+        alert.showAndWait()
+                .filter(response -> response == ButtonType.OK)
+                .ifPresent(response -> {
+                    if(broker.deleteRecord(selectedSeries.getSeriesID())){
+                        populateTree();
+                    }
+                    else {
+                        Alert alert1 = new Alert(Alert.AlertType.ERROR);
+                        alert1.setContentText("Something went wrong with deleting the series");
+                        alert1.show();
+                    }
+                });
     }
 
     public void selectItem(){

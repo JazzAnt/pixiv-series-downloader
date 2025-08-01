@@ -10,6 +10,11 @@
    <center>
       <TreeView fx:id="treeView" onContextMenuRequested="#selectItem" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
+   <right>
+      <VBox fx:id="buttonsView">
+         <Button text="Delete" onAction="#deleteSeries"/>
+      </VBox>
+   </right>
    <bottom>
       <GridPane fx:id="detailsView" vgap="5" hgap="5" visible="false">
          <padding>
