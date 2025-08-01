@@ -113,6 +113,8 @@ public class MainController {
             controller.setupTableColumns();
 
             stage.setTitle("Database View");
+            stage.setHeight(450);
+            stage.setWidth(950);
             stage.setOnCloseRequest(windowEvent -> {
                 databaseButton.setDisable(false);
             });

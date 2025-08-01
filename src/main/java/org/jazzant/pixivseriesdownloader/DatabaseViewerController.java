@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -28,15 +29,17 @@ public class DatabaseViewerController implements Initializable {
     private SeriesBroker broker;
     private Series selectedSeries;
 
+    @FXML protected TreeView<SeriesTreeItem> treeView;
+    @FXML protected TableView<Series> tableView;
+    @FXML protected Button toggleButton;
+
     @FXML protected VBox buttonsView;
     @FXML protected GridPane detailsView;
     @FXML protected Text titleTxt;
     @FXML protected Text artistTxt;
     @FXML protected Text statusTxt;
     @FXML protected Text linkTxt;
-    @FXML
-    protected TreeView<SeriesTreeItem> treeView;
-    @FXML protected TableView<Series> tableView;
+
 
 
     @Override
@@ -46,6 +49,16 @@ public class DatabaseViewerController implements Initializable {
                 Platform.runLater(() -> treeView.getSelectionModel().clearSelection());
             }
         });
+    }
+
+    @FXML
+    public void toggleView(){
+        tableView.setVisible(!tableView.isVisible());
+        tableView.setManaged(!tableView.isManaged());
+        treeView.setVisible(!treeView.isVisible());
+        treeView.setManaged(!treeView.isManaged());
+        if(tableView.isManaged()) toggleButton.setText("Table View");
+        else toggleButton.setText("Tree View");
     }
 
     @FXML
@@ -214,14 +227,6 @@ public class DatabaseViewerController implements Initializable {
             }
         });
 
-        TableColumn<Series, String> linkColumn = new TableColumn<>("Pixiv Link");
-        linkColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Series, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Series, String> series) {
-                return new ReadOnlyObjectWrapper<>(series.getValue().getSeriesURL());
-            }
-        });
-
-        tableView.getColumns().setAll(groupColumn, titleColumn, artistColumn, statusColumn, linkColumn);
+        tableView.getColumns().setAll(groupColumn, titleColumn, artistColumn, statusColumn);
     }
 }

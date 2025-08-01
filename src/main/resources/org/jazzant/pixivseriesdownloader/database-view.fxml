@@ -7,10 +7,20 @@
 <?import javafx.scene.text.Text?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DatabaseViewerController">
    <top>
-      <TableView fx:id="tableView" onContextMenuRequested="#selectTableItem" onMouseClicked="#selectTableItem"/>
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <padding>
+            <Insets top="5" right="5" bottom="5" left="15"/>
+         </padding>
+         <Label text="View Model:"/>
+         <Button fx:id="toggleButton" text="Table View" onAction="#toggleView"/>
+      </HBox>
+
    </top>
    <center>
-      <TreeView fx:id="treeView" onContextMenuRequested="#selectTreeItem" onMouseClicked="#selectTreeItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <VBox>
+         <TableView fx:id="tableView" onContextMenuRequested="#selectTableItem" onMouseClicked="#selectTableItem" prefHeight="400.0" prefWidth="500.0"/>
+         <TreeView visible="false" managed="false" fx:id="treeView" onContextMenuRequested="#selectTreeItem" onMouseClicked="#selectTreeItem" prefHeight="400.0" prefWidth="500.0" BorderPane.alignment="CENTER" />
+      </VBox>
    </center>
    <right>
       <VBox fx:id="buttonsView" spacing="10" visible="false">
