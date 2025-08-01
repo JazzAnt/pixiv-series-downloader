@@ -7,10 +7,10 @@
 <?import javafx.scene.text.Text?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DatabaseViewerController">
    <top>
-      <TableView fx:id="tableView"/>
+      <TableView fx:id="tableView" onContextMenuRequested="#selectTableItem" onMouseClicked="#selectTableItem"/>
    </top>
    <center>
-      <TreeView fx:id="treeView" onContextMenuRequested="#selectItem" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <TreeView fx:id="treeView" onContextMenuRequested="#selectTreeItem" onMouseClicked="#selectTreeItem" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
       <VBox fx:id="buttonsView" spacing="10" visible="false">

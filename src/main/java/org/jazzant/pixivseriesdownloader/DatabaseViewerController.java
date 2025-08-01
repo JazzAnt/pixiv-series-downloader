@@ -5,7 +5,6 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -17,7 +16,6 @@ import javafx.util.Callback;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.beans.EventHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -115,7 +113,20 @@ public class DatabaseViewerController implements Initializable {
                 });
     }
 
-    public void selectItem(){
+    public void selectTableItem(){
+        if(tableView.getSelectionModel().isEmpty()) return;
+        Series series = tableView.getSelectionModel().getSelectedItem();
+        detailsView.setVisible(true);
+        buttonsView.setVisible(true);
+
+        titleTxt.setText(series.getTitle());
+        artistTxt.setText(series.getArtist());
+        statusTxt.setText(series.getStatus().toString());
+        linkTxt.setText(series.getSeriesURL());
+        selectedSeries = series;
+    }
+
+    public void selectTreeItem(){
         TreeItem<SeriesTreeItem> item = treeView.getSelectionModel().getSelectedItem();
         if(item != null && item.getValue().isSeries()) {
             Series series = item.getValue().getSeries();
@@ -127,11 +138,6 @@ public class DatabaseViewerController implements Initializable {
             statusTxt.setText(series.getStatus().toString());
             linkTxt.setText(series.getSeriesURL());
             selectedSeries = series;
-        }
-        else {
-            detailsView.setVisible(false);
-            buttonsView.setVisible(false);
-            selectedSeries = null;
         }
     }
 
