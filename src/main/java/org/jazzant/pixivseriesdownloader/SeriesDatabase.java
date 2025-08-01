@@ -171,8 +171,8 @@ public class SeriesDatabase {
 
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setInt(1, seriesId);
-            statement.setInt(2, status);
+            statement.setInt(1, status);
+            statement.setInt(2, seriesId);
             return statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
