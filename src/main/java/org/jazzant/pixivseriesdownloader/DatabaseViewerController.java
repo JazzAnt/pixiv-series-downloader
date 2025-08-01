@@ -29,8 +29,8 @@ public class DatabaseViewerController implements Initializable {
     private String libraryName;
     private SeriesBroker broker;
     private Series selectedSeries;
+    private TreeItem<SeriesTreeItem> selectedTreeItem;
     private ArrayList<Series> seriesList;
-    private ArrayList<String> groupList;
 
     @FXML protected TreeView<SeriesTreeItem> treeView;
     @FXML protected TableView<Series> tableView;
@@ -66,7 +66,6 @@ public class DatabaseViewerController implements Initializable {
 
     public void fetchSeriesFromDatabase(){
         seriesList = broker.selectAll();
-        groupList = broker.selectAllGroups();
     }
 
     public void setupTableColumns(){
@@ -107,11 +106,6 @@ public class DatabaseViewerController implements Initializable {
         tableView.getColumns().setAll(groupColumn, titleColumn, artistColumn, statusColumn);
     }
 
-    public void populateDBViewers(){
-        populateTree();
-        populateTable();
-    }
-
     /*
      * Toggle between view
      */
@@ -122,14 +116,24 @@ public class DatabaseViewerController implements Initializable {
         tableView.setManaged(!tableView.isManaged());
         treeView.setVisible(!treeView.isVisible());
         treeView.setManaged(!treeView.isManaged());
-        if(tableView.isManaged()) toggleButton.setText("Table View");
-        else toggleButton.setText("Tree View");
-        updateDBViewers();
+        if(isCurrentlyTableView()) {
+            toggleButton.setText("Table View");
+            populateTable();
+        }
+        else {
+            toggleButton.setText("Tree View");
+            populateTree();
+        }
+        refreshDBViewers();
     }
 
-    public void updateDBViewers(){
-        if(treeView.isManaged()) populateTree();
-        else tableView.refresh();
+    public boolean isCurrentlyTableView(){
+        return tableView.isManaged();
+    }
+
+    public void refreshDBViewers(){
+        if(isCurrentlyTableView()) tableView.refresh();
+        else treeView.refresh();
     }
 
     /*
@@ -139,7 +143,6 @@ public class DatabaseViewerController implements Initializable {
     public void populateTable(){
         ObservableList<Series> list = FXCollections.observableArrayList(seriesList);
         tableView.setItems(list);
-        tableView.refresh();
     }
 
     public void selectTableItem(){
@@ -155,7 +158,7 @@ public class DatabaseViewerController implements Initializable {
     public void populateTree(){
         TreeItem<SeriesTreeItem> root = new TreeItem<>(new SeriesTreeItem(libraryName));
 
-        for(String group : groupList){
+        for(String group : broker.selectAllGroups()){
             root.getChildren().add(new TreeItem<>(new SeriesTreeItem(group)));
         }
 
@@ -180,6 +183,22 @@ public class DatabaseViewerController implements Initializable {
         if(item == null || !item.getValue().isSeries()) return;
         Series series = item.getValue().getSeries();
         selectSeries(series);
+        selectedTreeItem = item;
+    }
+
+    public void updateSelectedTreeItemStatus(Series updatedSeries){
+        selectedTreeItem.getValue().setSeries(updatedSeries);
+        treeView.refresh();
+    }
+
+    public void removeSelectedTreeItem(){
+        TreeItem<SeriesTreeItem> groupNode = selectedTreeItem.getParent();
+        groupNode.getChildren().remove(selectedTreeItem);
+        if(groupNode.isLeaf()){
+            groupNode.getParent().getChildren().remove(groupNode);
+        }
+        selectedTreeItem = null;
+        treeView.refresh();
     }
 
     /*
@@ -228,7 +247,8 @@ public class DatabaseViewerController implements Initializable {
             if(task.getValue()){
                 seriesList.remove(selectedSeries);
                 deselectSeries();
-                updateDBViewers();
+                if(!isCurrentlyTableView()) removeSelectedTreeItem();
+                refreshDBViewers();
             }
             else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -266,7 +286,8 @@ public class DatabaseViewerController implements Initializable {
                 series.setStatus(status);
                 seriesList.set(index, series);
                 selectSeries(series);
-                updateDBViewers();
+                if(!isCurrentlyTableView()) updateSelectedTreeItemStatus(series);
+                refreshDBViewers();
             }
             else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

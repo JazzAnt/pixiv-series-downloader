@@ -109,7 +109,7 @@ public class MainController {
             controller.setBroker(broker);
             controller.fetchSeriesFromDatabase();
             controller.setupTableColumns();
-            controller.populateDBViewers();
+            controller.populateTable();
 
             stage.setTitle("Database View");
             stage.setHeight(450);

@@ -16,6 +16,10 @@ public class SeriesTreeItem {
         return series;
     }
 
+    public void setSeries(Series series) {
+        this.series = series;
+    }
+
     public boolean isSeries(){
         if(series == null) return false;
         return true;
