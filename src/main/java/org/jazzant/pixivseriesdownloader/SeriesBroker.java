@@ -21,7 +21,7 @@ public class SeriesBroker {
 
     public boolean deleteRecord(int seriesId){return dao.deleteRecord(seriesId);}
 
-    public boolean deleteRecord(int seriesId, SeriesStatus status){
+    public boolean updateRecordStatus(int seriesId, SeriesStatus status){
         return dao.updateRecordStatus(seriesId, status.getCode());
     }
 
