@@ -150,4 +150,17 @@ public class SeriesDatabase {
         }
         return groups;
     }
+
+    public int deleteRecord(int seriesId){
+        String sql = "DELETE " +
+                "FROM " + TABLE_NAME + " " +
+                "WHERE " + Column.SERIES_ID + "=?";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setInt(1, seriesId);
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

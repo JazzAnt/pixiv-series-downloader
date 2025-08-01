@@ -20,6 +20,8 @@ public class SeriesDAO {
         return result > 0;
     }
 
+    public boolean deleteRecord(int seriesId){return database.deleteRecord(seriesId) > 0;}
+
     public ArrayList<SeriesDTO> selectAll(){
         return database.selectAll();
     }
