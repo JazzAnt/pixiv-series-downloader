@@ -21,6 +21,10 @@ public class SeriesBroker {
 
     public boolean deleteRecord(int seriesId){return dao.deleteRecord(seriesId);}
 
+    public boolean deleteRecord(int seriesId, SeriesStatus status){
+        return dao.updateRecordStatus(seriesId, status.getCode());
+    }
+
     private Series createSeriesFromDTO(SeriesDTO seriesDTO){
         Series series = new Series();
         series.setDirectoryGroup(seriesDTO.getDirectoryGroup());

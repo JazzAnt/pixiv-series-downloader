@@ -163,4 +163,19 @@ public class SeriesDatabase {
             throw new RuntimeException(e);
         }
     }
+
+    public int updateRecordStatus(int seriesId, int status){
+        String sql = "UPDATE " + TABLE_NAME + " " +
+                "SET " + Column.STATUS + "=?" + " " +
+                "WHERE " + Column.SERIES_ID + "=?";
+
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setInt(1, seriesId);
+            statement.setInt(2, status);
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

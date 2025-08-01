@@ -22,9 +22,9 @@ public class SeriesDAO {
 
     public boolean deleteRecord(int seriesId){return database.deleteRecord(seriesId) > 0;}
 
-    public ArrayList<SeriesDTO> selectAll(){
-        return database.selectAll();
-    }
+    public boolean updateRecordStatus(int seriesId, int status){return database.updateRecordStatus(seriesId, status) > 0;}
+
+    public ArrayList<SeriesDTO> selectAll(){return database.selectAll();}
 
     public ArrayList<String> selectAllGroups(){
         return database.selectAllGroups();
