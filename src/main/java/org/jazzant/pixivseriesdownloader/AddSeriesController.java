@@ -252,7 +252,9 @@ public class AddSeriesController implements Initializable {
                 ()->{
             parseThumbnail();
             dirGroupCheckBox.setSelected(false);
+            dirGroupUseArtistCheckBox.setSelected(false);
             dirTitleCheckBox.setSelected(false);
+            dirTitleUseArtistCheckBox.setSelected(false);
             dirGroupComboBox.getSelectionModel().selectLast();
             toggleDisabilityOfDetails(false);
             toggleVisibilityOfDetails(true);
@@ -279,6 +281,7 @@ public class AddSeriesController implements Initializable {
         };
         task.setOnSucceeded(event -> {
             seriesModel.setPropertiesFromSeries(task.getValue());
+            seriesModel.setDirectoryGroup(NO_GROUP_DIRECTORY);
             onSucceed.run();
         });
         task.setOnFailed(event -> {
