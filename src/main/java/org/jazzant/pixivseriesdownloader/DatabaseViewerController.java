@@ -246,8 +246,9 @@ public class DatabaseViewerController implements Initializable {
         task.setOnSucceeded(event-> {
             if(task.getValue()){
                 seriesList.remove(selectedSeries);
-                deselectSeries();
+                if(isCurrentlyTableView()) tableView.getItems().remove(selectedSeries);
                 if(!isCurrentlyTableView()) removeSelectedTreeItem();
+                deselectSeries();
                 refreshDBViewers();
             }
             else {
