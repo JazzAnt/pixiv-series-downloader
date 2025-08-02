@@ -1,4 +1,5 @@
 PixivSeriesDownloader.db
+app.config
 src/main/java/org/jazzant/pixivseriesdownloader/test.java
 
 ##############################
