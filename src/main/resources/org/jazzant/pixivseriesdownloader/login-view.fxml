@@ -37,7 +37,7 @@
         <padding>
             <Insets top="10" right="5"/>
         </padding>
-        <Label text="Save Login Credentials (not functional) "/>
+        <Label text="Save Login Credentials"/>
         <CheckBox fx:id="saveCredentialCheckBox"/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">

@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 public class LoginController implements Initializable {
     private Parser parser;
     private BooleanBinding credentialsFilledProperty;
+    private ConfigManager configManager;
     @FXML
     protected VBox scenePane;
     @FXML
@@ -48,6 +49,7 @@ public class LoginController implements Initializable {
     public void setParser(Parser parser){
         this.parser = parser;
     }
+    public void setConfigManager(ConfigManager configManager) {this.configManager = configManager;}
 
     @FXML
     protected void handleLoginButton(){
@@ -133,10 +135,17 @@ public class LoginController implements Initializable {
 
     private void saveCredentials(){
         if(isCredentialsInputted()){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("TODO: replace this with saving credentials");
-            alert.show();
+            configManager.setProperty(configManager.KEY_PIXIV_USERNAME, usernameField.getText().trim());
+            configManager.setProperty(configManager.KEY_PIXIV_PASSWORD, passwordField.getText().trim());
         }
+    }
+
+    public void getSavedCredentials(){
+        String username = configManager.getProperty(configManager.KEY_PIXIV_USERNAME);
+        String password = configManager.getProperty(configManager.KEY_PIXIV_PASSWORD);
+        if(username == null || password == null) return;
+        usernameField.setText(username);
+        passwordField.setText(password);
     }
 
     private void closeWindow(){

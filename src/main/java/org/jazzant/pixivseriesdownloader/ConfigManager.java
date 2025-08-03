@@ -10,6 +10,8 @@ public class ConfigManager {
     private final String CONFIG_FILENAME = "app.config";
     public final String KEY_LIBRARY = "LIBRARY";
     public final String KEY_SAVEAS = "SAVEAS";
+    public final String KEY_PIXIV_USERNAME = "USERNAME";
+    public final String KEY_PIXIV_PASSWORD = "PASSWORD";
 
     public String getProperty(String key) {
         Properties properties = new Properties();

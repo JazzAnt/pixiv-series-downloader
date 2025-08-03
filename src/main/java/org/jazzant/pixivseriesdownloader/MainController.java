@@ -76,6 +76,8 @@ public class MainController {
 
             LoginController controller = fxmlLoader.getController();
             controller.setParser(parser);
+            controller.setConfigManager(configManager);
+            controller.getSavedCredentials();
 
             stage.setTitle("Login View");
             stage.setOnCloseRequest(windowEvent -> {
