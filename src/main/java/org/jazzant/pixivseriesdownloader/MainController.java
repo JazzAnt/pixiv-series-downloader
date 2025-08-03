@@ -140,6 +140,7 @@ public class MainController {
         controller.setConfigManager(configManager);
         controller.setLibrary(downloader.getLibraryDir());
         controller.setComboBoxSelection(downloader.getFileFormat());
+        controller.checkForLoginCredentials();
         controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
                 "If you want to change the library directory or file format, you'll need to either manually move the files " +
                 "or redownload everything.");
