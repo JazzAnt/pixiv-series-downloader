@@ -25,7 +25,11 @@ public class LoginController implements Initializable {
     @FXML
     protected PasswordField passwordField;
     @FXML
+    protected Label saveCredentialLabel;
+    @FXML
     protected CheckBox saveCredentialCheckBox;
+    @FXML
+    protected Button removeCredentialButton;
     @FXML
     protected Button loginButton;
     @FXML
@@ -146,6 +150,24 @@ public class LoginController implements Initializable {
         if(username == null || password == null) return;
         usernameField.setText(username);
         passwordField.setText(password);
+        toggleSaveCredentialsVisibility(false);
+    }
+
+    @FXML
+    protected void handleRemoveCredentialsButton(){
+        configManager.removeProperty(configManager.KEY_PIXIV_USERNAME);
+        configManager.removeProperty(configManager.KEY_PIXIV_PASSWORD);
+        toggleSaveCredentialsVisibility(true);
+    }
+
+    private void toggleSaveCredentialsVisibility(boolean isVisible){
+        saveCredentialCheckBox.setVisible(isVisible);
+        saveCredentialCheckBox.setManaged(isVisible);
+        saveCredentialLabel.setVisible(isVisible);
+        saveCredentialLabel.setManaged(isVisible);
+
+        removeCredentialButton.setVisible(!isVisible);
+        removeCredentialButton.setManaged(!isVisible);
     }
 
     private void closeWindow(){

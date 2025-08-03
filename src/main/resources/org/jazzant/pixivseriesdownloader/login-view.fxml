@@ -37,8 +37,9 @@
         <padding>
             <Insets top="10" right="5"/>
         </padding>
-        <Label text="Save Login Credentials"/>
+        <Label fx:id="saveCredentialLabel" text="Save Login Credentials"/>
         <CheckBox fx:id="saveCredentialCheckBox"/>
+        <Button fx:id="removeCredentialButton" text="Remove Saved Credentials" onAction="#handleRemoveCredentialsButton" managed="false"/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
