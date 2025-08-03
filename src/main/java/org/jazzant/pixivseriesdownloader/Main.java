@@ -19,7 +19,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        if(!configManager.configExists()) createConfig();
+        if(!configManager.configIsValid()) createConfig();
 
         String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
         SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
