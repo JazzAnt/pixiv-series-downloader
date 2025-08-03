@@ -25,6 +25,9 @@
         <Label text="Save Series As" prefWidth="120" alignment="CENTER_RIGHT"/>
         <ComboBox fx:id="saveComboBox" prefWidth="200"/>
     </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Button fx:id="removeCredentialsButton" text="Remove Saved Pixiv Login Credentials" onAction="#handleRemoveCredentialsButton" visible="false" managed="false"/>
+    </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
             <Insets top="15" right="5" bottom="5" left="5"/>

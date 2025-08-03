@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -34,6 +35,8 @@ public class ConfigController implements Initializable {
     protected TextField libraryField;
     @FXML
     protected ComboBox<SaveAs> saveComboBox;
+    @FXML
+    protected Button removeCredentialsButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -55,6 +58,24 @@ public class ConfigController implements Initializable {
         else {
             libraryField.setText(directory.getAbsolutePath());
         }
+    }
+
+    @FXML
+    protected void handleRemoveCredentialsButton(){
+        configManager.removeProperty(configManager.KEY_PIXIV_USERNAME);
+        configManager.removeProperty(configManager.KEY_PIXIV_PASSWORD);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText("Login Credentials Removed");
+        alert.show();
+        removeCredentialsButton.setManaged(false);
+        removeCredentialsButton.setVisible(false);
+    }
+
+    public void checkForLoginCredentials(){
+        if(configManager.getProperty(configManager.KEY_PIXIV_USERNAME) == null &&
+           configManager.getProperty(configManager.KEY_PIXIV_PASSWORD) == null) return;
+        removeCredentialsButton.setVisible(true);
+        removeCredentialsButton.setManaged(true);
     }
 
     @FXML
