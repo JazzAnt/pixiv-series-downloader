@@ -16,6 +16,7 @@ public class MainController {
     private SeriesBroker broker;
     private Parser parser;
     private Downloader downloader;
+    private ConfigManager configManager;
     @FXML
     protected Button databaseButton;
     @FXML
@@ -34,6 +35,7 @@ public class MainController {
     public void setDownloader(Downloader downloader){
         this.downloader = downloader;
     }
+    public void setConfigManager(ConfigManager configManager) {this.configManager = configManager;}
 
     @FXML
     private void openAddSeriesWindow(){
@@ -125,5 +127,27 @@ public class MainController {
             alert.show();
             databaseButton.setDisable(false);
         }
+    }
+
+    @FXML
+    protected void openConfigWindow() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("config-view.fxml"));
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        ConfigController controller = loader.getController();
+        controller.setConfigManager(configManager);
+        controller.setLibrary(downloader.getLibraryDir());
+        controller.setComboBoxSelection(downloader.getFileFormat());
+        controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
+                "If you want to change the library directory or file format, you'll need to either manually move the files " +
+                "or redownload everything.");
+
+        controller.setOnSaveMessage("Reminder: you'll need to either manually move the existing files or redownload everything");
+
+        Stage stage = new Stage();
+
+        stage.setTitle("First Time User Configuration");
+        stage.setScene(scene);
+        stage.showAndWait();
     }
 }
