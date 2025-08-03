@@ -34,6 +34,17 @@ public class ConfigManager {
         }
     }
 
+    public void removeProperty(String key){
+        Properties properties = new Properties();
+        try(FileInputStream inputStream = new FileInputStream(CONFIG_FILENAME)){
+            properties.load(inputStream);
+            properties.remove(key);
+            properties.store(new FileOutputStream(CONFIG_FILENAME), null);
+        } catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public void createConfigFile() throws IOException {
         File file = new File(CONFIG_FILENAME);
         file.createNewFile();
