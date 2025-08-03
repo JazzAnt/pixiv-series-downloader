@@ -23,6 +23,8 @@ import java.util.ResourceBundle;
 
 public class ConfigController implements Initializable {
     private ConfigManager configManager;
+    private String onSaveMessage;
+    private boolean onSaveAlert = false;
 
     @FXML
     protected VBox scenePane;
@@ -70,8 +72,21 @@ public class ConfigController implements Initializable {
 
         configManager.setProperty(configManager.KEY_LIBRARY, libraryDirectory);
         configManager.setProperty(configManager.KEY_SAVEAS, saveComboBox.getValue().toString());
+
+        if(onSaveAlert){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText(onSaveMessage);
+            alert.show();
+            onSaveAlert = false;
+        }
+
         Stage stage = (Stage) scenePane.getScene().getWindow();
         stage.close();
+    }
+
+    public void setOnSaveMessage(String onSaveMessage){
+        this.onSaveMessage = onSaveMessage;
+        onSaveAlert = true;
     }
 
     public void setConfigManager(ConfigManager manager){
