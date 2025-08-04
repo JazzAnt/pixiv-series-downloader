@@ -104,6 +104,66 @@ public class SeriesDatabase {
         }
     }
 
+    public boolean valueCombinationExists(String value1, Column column1, String value2, Column column2){
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column1 + " = ? AND " + column2 + " =?)" +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, value1);
+            preparedStatement.setString(2, value2);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean valueCombinationExists(int value1, Column column1, String value2, Column column2){
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column1 + " = ? AND " + column2 + " =?)" +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1, value1);
+            preparedStatement.setString(2, value2);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean valueCombinationExists(String value1, Column column1, int value2, Column column2){
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column1 + " = ? AND " + column2 + " =?)" +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, value1);
+            preparedStatement.setInt(2, value2);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean valueCombinationExists(int value1, Column column1, int value2, Column column2){
+        String sql = "SELECT CASE WHEN EXISTS " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column1 + " = ? AND " + column2 + " =?)" +
+                "THEN 1 ELSE 0 END";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1, value1);
+            preparedStatement.setInt(2, value2);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ArrayList<SeriesDTO> selectAll(){
         ArrayList<SeriesDTO> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM " + TABLE_NAME;
