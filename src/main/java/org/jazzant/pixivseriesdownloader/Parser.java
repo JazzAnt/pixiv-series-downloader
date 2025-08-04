@@ -141,12 +141,31 @@ public class Parser {
     }
 
     /**
+     * Go to the series link and check if the series exists.The ParseSeries already has its own check for a series' existence,
+     * so this method is more for the downloader to check if a previously valid series has since been deleted.
+     * @param seriesURL the url of the series.
+     * @return true if the series exists, and false otherwise.
+     * @throws ParserException if the series' URL format is incorrect.
+     */
+    public boolean seriesExists(String seriesURL){
+        validateInitialization();
+        if(!Series.checkSeriesURLFormat(seriesURL))
+            throw new ParserException("The series's URL format is incorrect.");
+        try{
+            driver.get(seriesURL);
+            checkIfSeriesExists();
+            return true;
+        } catch (ParserSeriesDoesNotExistException _){
+            return false;
+        }
+    }
+
+
+    /**
      * Parses through the series page to find various details regarding the series.
      * @param seriesURL the URL of the series page. The one formatted something like 'www.pixiv.net/user/00000/series/00000'.
      * @return a Series object containing the details of the parsed series. The group and title directories and by default
-     * set as the series artist and title, the series status as ONGOIGN, and the latestChapterID as 0.
-     * @throws ParserSeriesDoesNotExistException if the Parser can't find the series in the given URL, either because the URL
-     * is wrong or because the series has been deleted.
+     * set as the series artist and title, the series status as ONGOING, and the latestChapterID as 0.
      */
     public Series parseSeries(String seriesURL)
             throws ParserSeriesDoesNotExistException{
@@ -181,6 +200,16 @@ public class Parser {
     }
 
     /**
+     * Go to the chapter in the given URL.
+     * @param chapterURL the chapter's URL.
+     */
+    public void goToChapter(String chapterURL){
+        validateInitialization();
+        if(!Chapter.checkChapterURLFormat(chapterURL)) throw new ParserException("The chapter's URL format is incorrect.");
+        driver.get(chapterURL);
+    }
+
+    /**
      * Parses through an chapter page to find various details regarding the chapter, including the image download links.
      * @param chapterURL the URL of the chapter page. The one formatted something like 'www.pixiv.net/artworks/000000'.
      * @return a Chapter object containing the details of the parsed chapter.
@@ -191,9 +220,7 @@ public class Parser {
      */
     public Chapter parseChapter(String chapterURL)
             throws ParserSensitiveArtworkException, ParserMutedArtworkException{
-        validateInitialization();
-        if(!Chapter.checkChapterURLFormat(chapterURL)) throw new ParserException("The chapter's URL format is incorrect.");
-        driver.get(chapterURL);
+        goToChapter(chapterURL);
         checkIfChapterIsSensitive();
         checkIfChapterIsMuted();
 
