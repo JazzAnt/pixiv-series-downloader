@@ -8,22 +8,33 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.jazzant.pixivseriesdownloader.ConfigController"
-      prefHeight="250.0" prefWidth="400.0" spacing="5"
+      prefHeight="250.0" prefWidth="500.0" spacing="5"
       fx:id="scenePane">
     <padding>
         <Insets top="15" right="5" bottom="10" left="5"/>
     </padding>
     <HBox alignment="CENTER" spacing="5">
-        <Text fx:id="infoText" wrappingWidth="300"/>
+        <Text fx:id="infoText" wrappingWidth="350"/>
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Library Location" prefWidth="120" alignment="CENTER_RIGHT"/>
-        <TextField fx:id="libraryField" prefWidth="200"/>
-        <Button text="*" onAction="#directoryPicker"/>
+        <Label text="Library Location" prefWidth="150" alignment="CENTER_RIGHT"/>
+        <TextField fx:id="libraryField" prefWidth="250"/>
+        <Button text="Select" onAction="#directoryPicker"/>
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Save Series As" prefWidth="120" alignment="CENTER_RIGHT"/>
-        <ComboBox fx:id="saveComboBox" prefWidth="200"/>
+        <Label text="Save Series As" prefWidth="150" alignment="CENTER_RIGHT"/>
+        <ComboBox fx:id="saveComboBox" prefWidth="250"/>
+    </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="Chapter File Format(*)" prefWidth="150" alignment="CENTER_RIGHT"/>
+        <TextField fx:id="filenameFormatField" prefWidth="250"/>
+        <Button text="Default" onAction="#setFilenameFormatToDefault"/>
+    </HBox>
+    <HBox alignment="CENTER_RIGHT" spacing="5">
+        <Text wrappingWidth="350" text="(*) Filename Format MUST contain either {chapter_id} or {chapter_number}"/>
+    </HBox>
+    <HBox alignment="CENTER_RIGHT" spacing="5">
+        <Text wrappingWidth="350" text="Available keywords are: {series_title}, {artist}, {series_id}, {artist_id}, {chapter_number}, {chapter_title}, {chapter_id}, {upload_date}, {page_amount}"/>
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
         <Button fx:id="removeCredentialsButton" text="Remove Saved Pixiv Login Credentials" onAction="#handleRemoveCredentialsButton" visible="false" managed="false"/>

@@ -10,6 +10,7 @@ public class ConfigManager {
     private final String CONFIG_FILENAME = "app.config";
     public final String KEY_LIBRARY = "LIBRARY";
     public final String KEY_SAVEAS = "SAVEAS";
+    public final String KEY_FILENAME_FORMAT = "FILENAMEFORMAT";
     public final String KEY_PIXIV_USERNAME = "USERNAME";
     public final String KEY_PIXIV_PASSWORD = "PASSWORD";
 
@@ -54,6 +55,7 @@ public class ConfigManager {
         if(!configExists()) return false;
         if(!libraryValueIsValid()) return false;
         if(!saveAsValueIsValid()) return false;
+        if(!filenameFormatValueIsValid()) return false;
 
         return true;
     }
@@ -84,4 +86,14 @@ public class ConfigManager {
         return true;
     }
 
+    private boolean filenameFormatValueIsValid(){
+        String filenameFormat = getProperty(KEY_FILENAME_FORMAT);
+        if(filenameFormat == null) return false;
+
+        return filenameFormatIsValid(filenameFormat);
+    }
+
+    public boolean filenameFormatIsValid(String filenameFormat){
+        return filenameFormat.contains("{chapter_id}") || filenameFormat.contains("{chapter_number}");
+    }
 }

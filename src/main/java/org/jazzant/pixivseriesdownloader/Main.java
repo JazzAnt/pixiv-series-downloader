@@ -23,8 +23,10 @@ public class Main extends Application {
 
         String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
         SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
+        String filenameFormat = configManager.getProperty(configManager.KEY_FILENAME_FORMAT);
         downloader.setLibraryDir(libraryDir);
         downloader.setFileFormat(saveAs);
+        downloader.setFilenameFormat(filenameFormat);
 
         stage.setOnCloseRequest(windowEvent -> {
             parser.quit();
@@ -58,6 +60,7 @@ public class Main extends Application {
                 "Please enter the following settings for the program to work. " +
                 "(these settings can be changed later but they won't change " +
                 "any existing files you've already downloaded)");
+        controller.setFilenameFormatToDefault();
 
         Stage stage = new Stage();
         stage.setOnCloseRequest(windowEvent -> {

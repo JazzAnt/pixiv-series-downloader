@@ -36,6 +36,8 @@ public class ConfigController implements Initializable {
     @FXML
     protected ComboBox<SaveAs> saveComboBox;
     @FXML
+    protected TextField filenameFormatField;
+    @FXML
     protected Button removeCredentialsButton;
 
     @Override
@@ -71,6 +73,11 @@ public class ConfigController implements Initializable {
         removeCredentialsButton.setVisible(false);
     }
 
+    @FXML
+    public void setFilenameFormatToDefault(){
+        filenameFormatField.setText("Chapter{chapter_number}_{chapter_title}");
+    }
+
     public void checkForLoginCredentials(){
         if(configManager.getProperty(configManager.KEY_PIXIV_USERNAME) == null &&
            configManager.getProperty(configManager.KEY_PIXIV_PASSWORD) == null) return;
@@ -81,6 +88,8 @@ public class ConfigController implements Initializable {
     @FXML
     protected void saveConfig(){
         String libraryDirectory = libraryField.getText().trim();
+        String saveAs = saveComboBox.getValue().toString();
+        String filenameFormat = filenameFormatField.getText().trim();
 
         Path path = Paths.get(libraryDirectory);
 
@@ -91,8 +100,16 @@ public class ConfigController implements Initializable {
             return;
         }
 
+        if(!configManager.filenameFormatIsValid(filenameFormat)){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Invalid Filename Format! Filename Format MUST contain either {chapter_id} or {chapter_number}.");
+            alert.show();
+            return;
+        }
+
         configManager.setProperty(configManager.KEY_LIBRARY, libraryDirectory);
-        configManager.setProperty(configManager.KEY_SAVEAS, saveComboBox.getValue().toString());
+        configManager.setProperty(configManager.KEY_SAVEAS, saveAs);
+        configManager.setProperty(configManager.KEY_FILENAME_FORMAT, filenameFormat);
 
         if(onSaveAlert){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
