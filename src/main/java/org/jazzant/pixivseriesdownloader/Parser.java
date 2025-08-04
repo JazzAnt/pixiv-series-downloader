@@ -141,6 +141,17 @@ public class Parser {
     }
 
     /**
+     * Go to the series in the given URL.
+     * @param seriesURL the series' URL.
+     */
+    public void goToSeries(String seriesURL){
+        validateInitialization();
+        if(!Series.checkSeriesURLFormat(seriesURL))
+            throw new ParserException("The series's URL format is incorrect.");
+        driver.get(seriesURL);
+    }
+
+    /**
      * Go to the series link and check if the series exists.The ParseSeries already has its own check for a series' existence,
      * so this method is more for the downloader to check if a previously valid series has since been deleted.
      * @param seriesURL the url of the series.
@@ -148,11 +159,8 @@ public class Parser {
      * @throws ParserException if the series' URL format is incorrect.
      */
     public boolean seriesExists(String seriesURL){
-        validateInitialization();
-        if(!Series.checkSeriesURLFormat(seriesURL))
-            throw new ParserException("The series's URL format is incorrect.");
+        goToSeries(seriesURL);
         try{
-            driver.get(seriesURL);
             checkIfSeriesExists();
             return true;
         } catch (ParserSeriesDoesNotExistException _){
@@ -169,10 +177,7 @@ public class Parser {
      */
     public Series parseSeries(String seriesURL)
             throws ParserSeriesDoesNotExistException{
-        validateInitialization();
-        if(!Series.checkSeriesURLFormat(seriesURL))
-            throw new ParserException("The series's URL format is incorrect.");
-        driver.get(seriesURL);
+        goToSeries(seriesURL);
         checkIfSeriesExists();
 
         Series series = new Series();
@@ -195,8 +200,7 @@ public class Parser {
         WebElement element = driver.findElement(By.id("__NEXT_DATA__"));
         String scriptJSON = element.getAttribute("innerHTML");
         assert scriptJSON != null;
-        String imageURL = scriptJSON.replaceAll(".*?image\":\"", "").replaceAll("\"}.*", "");
-        return imageURL;
+        return scriptJSON.replaceAll(".*?image\":\"", "").replaceAll("\"}.*", "");
     }
 
     /**
