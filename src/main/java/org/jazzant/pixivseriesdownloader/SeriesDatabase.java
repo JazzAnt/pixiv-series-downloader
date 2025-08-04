@@ -47,8 +47,6 @@ public class SeriesDatabase {
 
     public int createRecord(String GroupDirectory, String TitleDirectory, String Title, String Artist,
                              int Status, int ArtistId, int SeriesId, int LatestChapterId){
-        if(seriesExists(SeriesId)) throw new SeriesAlreadyInDatabaseException(SeriesId);
-        if(titleDirectoryExists(TitleDirectory)) throw new TitleDirectoryAlreadyExistsException(TitleDirectory);
         String sql = "INSERT INTO " + TABLE_NAME + " (" +
                 Column.GROUP_DIRECTORY + ", " +
                 Column.TITLE_DIRECTORY + ", " +
@@ -78,36 +76,32 @@ public class SeriesDatabase {
         }
     }
 
-    public boolean seriesExists(int SeriesId){
-        boolean result = false;
+    public boolean valueExists(int value, Column column){
         String sql = "SELECT CASE WHEN EXISTS " +
-                "(SELECT * FROM " + TABLE_NAME + " WHERE " + Column.SERIES_ID + " = ?) " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column + " = ?) " +
                 "THEN 1 ELSE 0 END";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setInt(1, SeriesId);
+            preparedStatement.setInt(1, value);
             ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getBoolean(1);
+            return resultSet.getBoolean(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return result;
     }
 
-    public boolean titleDirectoryExists(String titleDirectory){
-        boolean result = false;
+    public boolean valueExists(String value, Column column){
         String sql = "SELECT CASE WHEN EXISTS " +
-                "(SELECT * FROM " + TABLE_NAME + " WHERE " + Column.TITLE_DIRECTORY + " = ?) " +
+                "(SELECT * FROM " + TABLE_NAME + " WHERE " + column + " = ?) " +
                 "THEN 1 ELSE 0 END";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1, titleDirectory);
+            preparedStatement.setString(1, value);
             ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getBoolean(1);
+            return resultSet.getBoolean(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return result;
     }
 
     public ArrayList<SeriesDTO> selectAll(){
