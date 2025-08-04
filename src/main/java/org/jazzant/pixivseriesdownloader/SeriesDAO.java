@@ -77,6 +77,16 @@ public class SeriesDAO {
 
     public ArrayList<SeriesDTO> selectAll(){return database.selectAll();}
 
+    public ArrayList<SeriesDTO> selectAllWhere(int value, Column column){
+        checkIfColumnAcceptsInt(column);
+        return database.selectAllWhere(value, column);
+    }
+
+    public ArrayList<SeriesDTO> selectAllWhere(String value, Column column){
+        checkIfColumnAcceptsString(column);
+        return database.selectAllWhere(value, column);
+    }
+
     public ArrayList<String> selectAllValuesOfAColumn(Column column){
         return database.selectAllValuesOfAColumn(column);
     }

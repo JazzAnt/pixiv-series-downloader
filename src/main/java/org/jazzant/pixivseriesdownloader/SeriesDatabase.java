@@ -189,6 +189,60 @@ public class SeriesDatabase {
         return seriesList;
     }
 
+    public ArrayList<SeriesDTO> selectAllWhere(int value, Column column){
+        ArrayList<SeriesDTO> seriesList = new ArrayList<>();
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + column + " = ?";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setInt(1, value);
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()){
+                SeriesDTO seriesDTO = new SeriesDTO(
+                        resultSet.getString(Column.GROUP_DIRECTORY.getColumnName()),
+                        resultSet.getString(Column.TITLE_DIRECTORY.getColumnName()),
+                        resultSet.getString(Column.TITLE.getColumnName()),
+                        resultSet.getString(Column.ARTIST.getColumnName()),
+                        resultSet.getInt(Column.STATUS.getColumnName()),
+                        resultSet.getInt(Column.ARTIST_ID.getColumnName()),
+                        resultSet.getInt(Column.SERIES_ID.getColumnName()),
+                        resultSet.getInt(Column.LATEST_CHAPTER_ID.getColumnName())
+                );
+                seriesList.add(seriesDTO);
+            }
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
+
+    public ArrayList<SeriesDTO> selectAllWhere(String value, Column column){
+        ArrayList<SeriesDTO> seriesList = new ArrayList<>();
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + column + " = ?";
+        try(Connection connection = DriverManager.getConnection(databaseUrl);
+            PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1, value);
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()){
+                SeriesDTO seriesDTO = new SeriesDTO(
+                        resultSet.getString(Column.GROUP_DIRECTORY.getColumnName()),
+                        resultSet.getString(Column.TITLE_DIRECTORY.getColumnName()),
+                        resultSet.getString(Column.TITLE.getColumnName()),
+                        resultSet.getString(Column.ARTIST.getColumnName()),
+                        resultSet.getInt(Column.STATUS.getColumnName()),
+                        resultSet.getInt(Column.ARTIST_ID.getColumnName()),
+                        resultSet.getInt(Column.SERIES_ID.getColumnName()),
+                        resultSet.getInt(Column.LATEST_CHAPTER_ID.getColumnName())
+                );
+                seriesList.add(seriesDTO);
+            }
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
+
     public ArrayList<String> selectAllValuesOfAColumn(Column column){
         ArrayList<String> groups = new ArrayList<>();
         String sql = "SELECT DISTINCT " + column + " FROM " + TABLE_NAME
