@@ -152,5 +152,12 @@ public class MainController {
         stage.setTitle("First Time User Configuration");
         stage.setScene(scene);
         stage.showAndWait();
+
+        String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
+        SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
+        String filenameFormat = configManager.getProperty(configManager.KEY_FILENAME_FORMAT);
+        downloader.setLibraryDir(libraryDir);
+        downloader.setFileFormat(saveAs);
+        downloader.setFilenameFormat(filenameFormat);
     }
 }
