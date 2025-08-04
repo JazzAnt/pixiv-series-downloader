@@ -165,11 +165,6 @@ public class SeriesDatabase {
     }
 
     public int updateRecord(int seriesId, Column column, int newValue){
-        if(column.equals(Column.SERIES_ID))
-            throw new DatabaseException("Series ID cannot be modified as it is the primary key");
-        if (column.equals(Column.TITLE) || column.equals(Column.ARTIST) || column.equals(Column.GROUP_DIRECTORY) || column.equals(Column.TITLE_DIRECTORY))
-            throw new DatabaseException("This Database Column only accepts String values");
-
         String sql = "UPDATE " + TABLE_NAME + " " +
                 "SET " + column + "=?" + " " +
                 "WHERE " + Column.SERIES_ID + "=?";
@@ -185,11 +180,6 @@ public class SeriesDatabase {
     }
 
     public int updateRecord(int seriesId, Column column, String newValue){
-        if(column.equals(Column.SERIES_ID))
-            throw new DatabaseException("Series ID cannot be modified as it is the primary key");
-        if (column.equals(Column.ARTIST_ID) || column.equals(Column.STATUS) || column.equals(Column.LATEST_CHAPTER_ID))
-            throw new DatabaseException("This Database Column only accepts integer values");
-
         String sql = "UPDATE " + TABLE_NAME + " " +
                 "SET " + column + "=?" + " " +
                 "WHERE " + Column.SERIES_ID + "=?";

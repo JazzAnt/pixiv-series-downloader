@@ -9,7 +9,7 @@ public class SeriesBroker {
         return dao.createRecord(createDTOFromSeries(series));
     }
 
-    public ArrayList<String> selectAllGroups(){return dao.selectAllGroups();}
+    public ArrayList<String> selectAllGroups(){return dao.selectAllValuesOfAColumn(Column.GROUP_DIRECTORY);}
 
     public ArrayList<Series> selectAll(){
         ArrayList<Series> seriesList = new ArrayList<>();
@@ -22,7 +22,7 @@ public class SeriesBroker {
     public boolean deleteRecord(int seriesId){return dao.deleteRecord(seriesId);}
 
     public boolean updateRecordStatus(int seriesId, SeriesStatus status){
-        return dao.updateRecordStatus(seriesId, status.getCode());
+        return dao.updateRecord(seriesId, Column.STATUS, status.getCode());
     }
 
     private Series createSeriesFromDTO(SeriesDTO seriesDTO){
