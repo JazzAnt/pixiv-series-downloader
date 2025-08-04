@@ -55,6 +55,9 @@ public class Series {
     public String getSeriesURL(){
         return PIXIV_URL + "/user/" + artistID + "/series/" + seriesID;
     }
+    public String getLatestChapterURL(){
+        return  PIXIV_URL + "/artworks/" + latestChapterID;
+    }
 
     public String getDirectoryGroup() {
         return directoryGroup;
