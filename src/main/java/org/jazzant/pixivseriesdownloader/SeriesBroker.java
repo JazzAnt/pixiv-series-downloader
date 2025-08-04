@@ -19,6 +19,18 @@ public class SeriesBroker {
         return seriesList;
     }
 
+    public ArrayList<Series> selectAllOngoing(){
+        ArrayList<Series> seriesList = new ArrayList<>();
+        for(SeriesDTO seriesDTO : dao.selectAllWhere(SeriesStatus.ONGOING.getCode(), Column.STATUS)){
+            seriesList.add(createSeriesFromDTO(seriesDTO));
+        }
+        return seriesList;
+    }
+
+    public boolean updateRecordLatestChapterId(int seriesId, int latestChapterId){
+        return dao.updateRecord(seriesId, Column.LATEST_CHAPTER_ID, latestChapterId);
+    }
+
     public boolean deleteRecord(int seriesId){return dao.deleteRecord(seriesId);}
 
     public boolean updateRecordStatus(int seriesId, SeriesStatus status){
