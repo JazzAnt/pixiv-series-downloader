@@ -6,7 +6,10 @@ public class SeriesDAO {
     private static final SeriesDatabase database = new SeriesDatabase();
 
     public boolean createRecord(SeriesDTO seriesDTO){
-        if(valueExists(seriesDTO.getSeriesID(), Column.SERIES_ID)) throw new DAOException("This series already exists in the database");
+        if(valueExists(seriesDTO.getSeriesID(), Column.SERIES_ID))
+            throw new DAOException("This series already exists in the database");
+        if(valueCombinationExists(seriesDTO.getDirectoryGroup(), Column.GROUP_DIRECTORY, seriesDTO.getDirectoryTitle(), Column.TITLE_DIRECTORY))
+            throw new DAOException("This directory is already used by another series");
         int result = database.createRecord(
                 seriesDTO.getDirectoryGroup(),
                 seriesDTO.getDirectoryTitle(),
