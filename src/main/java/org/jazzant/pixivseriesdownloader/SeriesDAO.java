@@ -27,6 +27,6 @@ public class SeriesDAO {
     public ArrayList<SeriesDTO> selectAll(){return database.selectAll();}
 
     public ArrayList<String> selectAllGroups(){
-        return database.selectAllGroups();
+        return database.selectAllValuesOfAColumn(Column.GROUP_DIRECTORY);
     }
 }

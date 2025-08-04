@@ -135,10 +135,10 @@ public class SeriesDatabase {
         return seriesList;
     }
 
-    public ArrayList<String> selectAllGroups(){
+    public ArrayList<String> selectAllValuesOfAColumn(Column column){
         ArrayList<String> groups = new ArrayList<>();
-        String sql = "SELECT DISTINCT " + Column.GROUP_DIRECTORY + " FROM " + TABLE_NAME
-                + " WHERE TRIM(" + Column.GROUP_DIRECTORY + ") != ''";
+        String sql = "SELECT DISTINCT " + column + " FROM " + TABLE_NAME
+                + " WHERE TRIM(" + column + ") != ''";
         try(Connection connection = DriverManager.getConnection(databaseUrl);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql)){
