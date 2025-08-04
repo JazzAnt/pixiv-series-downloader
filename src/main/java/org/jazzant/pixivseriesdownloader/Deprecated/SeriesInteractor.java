@@ -1,11 +1,7 @@
 package org.jazzant.pixivseriesdownloader.Deprecated;
 
 import javafx.beans.binding.Bindings;
-import org.jazzant.pixivseriesdownloader.SeriesAlreadyInDatabaseException;
-import org.jazzant.pixivseriesdownloader.Series;
-import org.jazzant.pixivseriesdownloader.SeriesBroker;
-import org.jazzant.pixivseriesdownloader.SeriesModel;
-import org.jazzant.pixivseriesdownloader.SeriesStatus;
+import org.jazzant.pixivseriesdownloader.*;
 
 public class SeriesInteractor {
     private final SeriesModel model;
@@ -41,7 +37,7 @@ public class SeriesInteractor {
             broker.createRecord(createSeriesFromModel());
             return true;
         }
-        catch (SeriesAlreadyInDatabaseException e){
+        catch (DAOException e){
             return false;
         }
     }

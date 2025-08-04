@@ -27,6 +27,8 @@ public class MainController {
     protected Button loginButton;
     @FXML
     protected Text loginDisplay;
+    @FXML
+    protected Button configButton;
 
     public void setBroker(SeriesBroker broker){
         this.broker = broker;
@@ -162,32 +164,44 @@ public class MainController {
     }
 
     @FXML
-    protected void openConfigWindow() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("config-view.fxml"));
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        ConfigController controller = loader.getController();
-        controller.setConfigManager(configManager);
-        controller.setLibrary(downloader.getLibraryDir());
-        controller.setComboBoxSelection(downloader.getFileFormat());
-        controller.checkForLoginCredentials();
-        controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
-                "If you want to change the library directory or file format, you'll need to either manually move the files " +
-                "or redownload everything.");
+    protected void openConfigWindow(){
+        configButton.setDisable(true);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("config-view.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            ConfigController controller = loader.getController();
+            controller.setConfigManager(configManager);
+            controller.setLibrary(downloader.getLibraryDir());
+            controller.setComboBoxSelection(downloader.getFileFormat());
+            controller.checkForLoginCredentials();
+            controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
+                    "If you want to change the library directory or file format, you'll need to either manually move the files " +
+                    "or redownload everything.");
 
-        controller.setOnSaveMessage("Reminder: you'll need to either manually move the existing files or redownload everything");
+            controller.setOnSaveMessage("Reminder: you'll need to either manually move the existing files or redownload everything");
 
-        Stage stage = new Stage();
+            Stage stage = new Stage();
 
-        stage.setTitle("First Time User Configuration");
-        stage.setScene(scene);
-        stage.showAndWait();
+            stage.setTitle("First Time User Configuration");
+            stage.setOnCloseRequest(windowEvent -> {
+                configButton.setDisable(false);
+            });
+            stage.setScene(scene);
+            stage.showAndWait();
 
-        String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
-        SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
-        String filenameFormat = configManager.getProperty(configManager.KEY_FILENAME_FORMAT);
-        downloader.setLibraryDir(libraryDir);
-        downloader.setFileFormat(saveAs);
-        downloader.setFilenameFormat(filenameFormat);
+            String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
+            SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
+            String filenameFormat = configManager.getProperty(configManager.KEY_FILENAME_FORMAT);
+            downloader.setLibraryDir(libraryDir);
+            downloader.setFileFormat(saveAs);
+            downloader.setFilenameFormat(filenameFormat);
+        }
+        catch (IOException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong: " + e.getMessage());
+            alert.show();
+            configButton.setDisable(false);
+        }
     }
 }

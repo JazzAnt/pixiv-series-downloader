@@ -22,5 +22,5 @@
     <Button fx:id="databaseButton" onAction="#openDatabaseViewerWindow" text="View the Database"/>
     <Button fx:id="loginButton" onAction="#openLoginWindow" text="Login"/>
     <Text fx:id="loginDisplay" text="You're Logged In" visible="false"/>
-    <Button onAction="#openConfigWindow" text="Edit the Config"/>
+    <Button fx:id="configButton" onAction="#openConfigWindow" text="Edit the Config"/>
 </VBox>
