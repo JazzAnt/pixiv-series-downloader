@@ -18,6 +18,8 @@ public class MainController {
     private Downloader downloader;
     private ConfigManager configManager;
     @FXML
+    protected Button downloadButton;
+    @FXML
     protected Button databaseButton;
     @FXML
     protected Button addSeriesButton;
@@ -36,6 +38,34 @@ public class MainController {
         this.downloader = downloader;
     }
     public void setConfigManager(ConfigManager configManager) {this.configManager = configManager;}
+
+    @FXML
+    private void openDownloadWindow(){
+        downloadButton.setDisable(true);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("download-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+
+            DownloadController controller = fxmlLoader.getController();
+            controller.setParser(parser);
+            controller.setDownloader(downloader);
+            controller.setBroker(broker);
+
+            stage.setTitle("Download View");
+            stage.setOnCloseRequest(windowEvent -> {
+                downloadButton.setDisable(false);
+            });
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Something went wrong: " + e.getMessage());
+            alert.show();
+            downloadButton.setDisable(false);
+        }
+    }
 
     @FXML
     private void openAddSeriesWindow(){

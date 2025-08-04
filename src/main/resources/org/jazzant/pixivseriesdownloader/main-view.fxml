@@ -17,6 +17,7 @@
         <Insets top="20" right="20" bottom="10" left="20"/>
     </padding>
 
+    <Button fx:id="downloadButton" onAction="#openDownloadWindow" text="Download"/>
     <Button fx:id="addSeriesButton" onAction="#openAddSeriesWindow" text="Add New Series"/>
     <Button fx:id="databaseButton" onAction="#openDatabaseViewerWindow" text="View the Database"/>
     <Button fx:id="loginButton" onAction="#openLoginWindow" text="Login"/>
