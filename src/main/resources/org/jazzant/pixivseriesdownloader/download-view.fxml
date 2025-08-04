@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.jazzant.pixivseriesdownloader.DownloadController"
+      prefHeight="400.0" prefWidth="600.0" spacing="5">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <HBox alignment="CENTER" minHeight="20">
+        <Text fx:id="progressInfo" wrappingWidth="500"/>
+    </HBox>
+    <HBox minHeight="20">
+        <ProgressBar fx:id="progressBar" progress="0" prefWidth="Infinity"/>
+    </HBox>
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Download All From Latest Chapter" fx:id="downloadButton" onAction="#handleDownloadButton"/>
+        <Button text="Redownload All from the First Chapter " fx:id="redownloadButton" onAction="#handleRedownloadButton"/>
+        <Button text="Cancel" fx:id="cancelButton" onAction="#handleCancelButton" visible="false" managed="false"/>
+    </HBox>
+    <HBox>
+        <ListView fx:id="logListView" prefWidth="Infinity" disable="true"/>
+    </HBox>
+
+</VBox>
