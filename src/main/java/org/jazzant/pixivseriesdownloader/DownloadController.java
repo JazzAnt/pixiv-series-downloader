@@ -150,6 +150,7 @@ public class DownloadController {
         alert.getButtonTypes().add(skipChapterButton);
         alert.getButtonTypes().add(skipSeriesButton);
         alert.getButtonTypes().add(stopButton);
+        alert.setContentText(message);
         alert.showAndWait();
         if(alert.getResult().equals(skipChapterButton)) return 0;
         if(alert.getResult().equals(skipSeriesButton)) return 1;
