@@ -225,7 +225,7 @@ public class Parser {
     public Chapter parseChapter(String chapterURL)
             throws ParserSensitiveArtworkException, ParserMutedArtworkException{
         goToChapter(chapterURL);
-        checkIfChapterIsSensitive();
+//        checkIfChapterIsSensitive();
         checkIfChapterIsMuted();
 
         Chapter chapter = new Chapter();
@@ -333,18 +333,19 @@ public class Parser {
         if(!Chapter.checkChapterURLFormat(Objects.requireNonNull(driver.getCurrentUrl()))) throw new ParserException("This method can only be called while the driver is in an artwork page");
     }
 
-    /**
-     * Checks if the current chapter is blocked due to having sensitive content that the user isn't permitted to view,
-     * throwing an exception if it does.
-     * @throws ParserSensitiveArtworkException
-     */
-    private void checkIfChapterIsSensitive() throws ParserSensitiveArtworkException{
-        checkIfInArtworkPage();
-        List<WebElement> tempList = driver.findElements(By.tagName("pixiv-icon"));
-        if(Objects.equals(tempList.getLast().getDomAttribute("name"), "24/SensitiveHide")
-        ) throw new ParserSensitiveArtworkException("The current chapter contains sensitive content. " +
-                "It cannot be parsed unless the user is logged in.");
-    }
+    //THIS DOESN'T WORK FOR SOME REASON, but keeping it around just in case
+//    /**
+//     * Checks if the current chapter is blocked due to having sensitive content that the user isn't permitted to view,
+//     * throwing an exception if it does.
+//     * @throws ParserSensitiveArtworkException
+//     */
+//    private void checkIfChapterIsSensitive() throws ParserSensitiveArtworkException{
+//        checkIfInArtworkPage();
+//        List<WebElement> tempList = driver.findElements(By.tagName("pixiv-icon"));
+//        if(Objects.equals(tempList.getLast().getDomAttribute("name"), "24/SensitiveHide")
+//        ) throw new ParserSensitiveArtworkException("The current chapter contains sensitive content. " +
+//                "It cannot be parsed unless the user is logged in.");
+//    }
 
     /**
      * Check if the current chapter is blocked due to containing a tag that is muted (blacklisted) by the current user,
@@ -364,9 +365,15 @@ public class Parser {
     /**
      * Parses the chapter title.
      * @return the chapter title.
+     * @throws ParserSensitiveArtworkException if the parser cannot find the title, which indicates the artwork is blocked.
      */
-    private String parseChapterTitle(){
-        return driver.findElement(By.tagName("h1")).getText();
+    private String parseChapterTitle() throws ParserSensitiveArtworkException {
+        try {
+            return driver.findElement(By.tagName("h1")).getText();
+        } catch (NoSuchElementException _){
+            throw new ParserSensitiveArtworkException("The current chapter contains sensitive content. " +
+                    "It cannot be parsed unless the user is logged in on an account which enables sensitive content.");
+        }
     }
 
     /**
