@@ -357,7 +357,7 @@ public class Parser {
         driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         List<WebElement> tempList = driver.findElements(By.className("dEfTUV"));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
-        if(tempList.isEmpty()) throw new ParserMutedArtworkException("The current chapter contains a tag " +
+        if(!tempList.isEmpty()) throw new ParserMutedArtworkException("The current chapter contains a tag " +
                 "that is muted (blacklisted) by the current user.");
     }
 
