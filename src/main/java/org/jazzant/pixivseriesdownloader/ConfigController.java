@@ -137,6 +137,8 @@ public class ConfigController implements Initializable {
         libraryField.setText(libraryDirectory);
     }
 
+    public void setFilenameFormat(String filenameFormat){filenameFormatField.setText(filenameFormat);}
+
     public void setComboBoxSelection(SaveAs saveAs){
         List<SaveAs> saveAsArrayList = Arrays.asList(SaveAs.values());
         int index = saveAsArrayList.indexOf(saveAs);

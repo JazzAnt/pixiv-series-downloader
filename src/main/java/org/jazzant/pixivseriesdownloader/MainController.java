@@ -173,6 +173,7 @@ public class MainController {
             ConfigController controller = loader.getController();
             controller.setConfigManager(configManager);
             controller.setLibrary(downloader.getLibraryDir());
+            controller.setFilenameFormat(downloader.getFilenameFormatter());
             controller.setComboBoxSelection(downloader.getFileFormat());
             controller.checkForLoginCredentials();
             controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
