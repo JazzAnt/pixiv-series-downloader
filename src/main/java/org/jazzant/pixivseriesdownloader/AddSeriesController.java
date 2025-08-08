@@ -194,10 +194,12 @@ public class AddSeriesController implements Initializable {
         saveSeries(series, ()->{
             saveButton.setText(saveButtonText);
             saveButton.disableProperty().bind(seriesModel.getOkToSaveProperty().not());
+        }, ()->{
+            appendGroupNames(series.getDirectoryGroup());
         });
     }
 
-    private void saveSeries(Series series, Runnable onSaveFinished){
+    private void saveSeries(Series series, Runnable onSaveFinished, Runnable onSaveSuccess){
         Task<Boolean> task = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
@@ -209,6 +211,7 @@ public class AddSeriesController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setContentText("Success: Series Saved into the Database");
                 alert.show();
+                onSaveSuccess.run();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Fail: Something went wrong with saving the series to the database");
@@ -352,5 +355,10 @@ public class AddSeriesController implements Initializable {
                 seriesModel.getSeriesId() < 0
         ) return false;
         return true;
+    }
+
+    private void appendGroupNames(String groupName){
+        if(dirGroupComboBox.getItems().contains(groupName)) return;
+        dirGroupComboBox.getItems().add(groupName);
     }
 }
