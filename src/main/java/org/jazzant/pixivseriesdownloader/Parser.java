@@ -297,9 +297,7 @@ public class Parser {
      */
     private void checkIfSeriesExists(){
         if(!inSeriesPage()) throw new ParserException("This method can only be called while the driver is in the series page.");
-        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
         List<WebElement> tempList = driver.findElements(By.className("gtm-manga-series-first-story"));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
         if(tempList.isEmpty()) throw new ParserSeriesDoesNotExistException("The parser cannot find the series in the given url. " +
                 "Either the url is incorrect or the series had been deleted.");
     }
