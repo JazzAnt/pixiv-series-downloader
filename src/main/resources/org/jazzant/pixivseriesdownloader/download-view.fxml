@@ -24,7 +24,7 @@
     <HBox spacing="20" alignment="CENTER">
         <Button text="Download All From Latest Chapter" fx:id="downloadButton" onAction="#handleDownloadButton"/>
         <Button text="Redownload All from the First Chapter " fx:id="redownloadButton" onAction="#handleRedownloadButton"/>
-        <Button text="Cancel" fx:id="cancelButton" onAction="#handleCancelButton" visible="false" managed="false"/>
+        <Button text="Cancel" fx:id="cancelButton" visible="false" managed="false"/>
     </HBox>
     <HBox>
         <ListView fx:id="logListView" prefWidth="Infinity" disable="true"/>
