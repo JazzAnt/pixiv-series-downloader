@@ -224,13 +224,24 @@ public class Parser {
         goToChapter(chapterURL);
 
         Chapter chapter = new Chapter();
-        chapter.setTitle(parseChapterTitleAndCheckIfBlocked());
-        chapter.setPixivID(parseChapterID());
-        chapter.setUploadDate(parseChapterUploadDate());
-        chapter.setChapterNumber(parseChapterNumber());
-        chapter.setPageAmount(parseChapterPageCount());
-        chapter.setImageLinks(parseChapterImageURLs(chapter.getPageAmount()));
-        return chapter;
+        try {
+            chapter.setTitle(parseChapterTitle());
+            chapter.setPixivID(parseChapterID());
+            chapter.setUploadDate(parseChapterUploadDate());
+            chapter.setChapterNumber(parseChapterNumber());
+            chapter.setPageAmount(parseChapterPageCount());
+            chapter.setImageLinks(parseChapterImageURLs(chapter.getPageAmount()));
+            return chapter;
+        }
+        catch (NoSuchElementException _){
+            if(isLoggedIn){
+                throw new ParserBlockedArtworkException("The current chapter is blocked. Either it has a tag that is muted (blacklisted) " +
+                    "by this account or this account doesn't have sensitive content enabled");
+            }
+            else {
+                throw new ParserBlockedArtworkException("The current chapter is blocked because it contains sensitive content and the user isn't logged in.");
+            }
+    }
     }
 
     /**
@@ -288,7 +299,7 @@ public class Parser {
 
     /**
      * Checks if the series exists, throwing an exception if it doesn't. Must be called while the Parser is in the series page.
-     * @throws ParserSeriesDoesNotExistException
+     * @throws ParserSeriesDoesNotExistException if the parser cannot find an existing series in the current page.
      */
     private void checkIfSeriesExists(){
         if(!inSeriesPage()) throw new ParserException("This method can only be called while the driver is in the series page.");
@@ -331,21 +342,10 @@ public class Parser {
     /**
      * Parses the chapter title.
      * @return the chapter title.
-     * @throws ParserBlockedArtworkException if the parser cannot find the title, which indicates the artwork is blocked.
      *
      */
-    private String parseChapterTitleAndCheckIfBlocked() throws ParserBlockedArtworkException{
-        try {
-            return driver.findElement(By.tagName("h1")).getText();
-        } catch (NoSuchElementException _){
-            if(isLoggedIn){
-                throw new ParserBlockedArtworkException("The current chapter is blocked. Either it has a tag that is muted (blacklisted) " +
-                        "by this account or this account doesn't have sensitive content enabled");
-            }
-            else {
-                throw new ParserBlockedArtworkException("The current chapter is blocked because it contains sensitive content and the user isn't logged in.");
-            }
-        }
+    private String parseChapterTitle(){
+        return driver.findElement(By.tagName("h1")).getText();
     }
 
     /**
