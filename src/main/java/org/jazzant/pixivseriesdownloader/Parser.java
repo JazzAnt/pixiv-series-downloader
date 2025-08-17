@@ -25,6 +25,7 @@ public class Parser {
     private WebDriverWait driverWait;
     private WebDriverWait driverLongWait;
     private boolean isLoggedIn;
+    private boolean isHeadless;
     private int waitTime = 10;
 
     /**
@@ -53,7 +54,17 @@ public class Parser {
      * @return true if it's logged in. False if not.
      */
     public boolean isLoggedIn(){
+        validateInitialization();
         return isLoggedIn;
+    }
+
+    /**
+     * Checks if the Parser's WebDriver is running in headless mode.
+     * @return true if it's running in headless mode and false if not.
+     */
+    public boolean isHeadless(){
+        validateInitialization();
+        return isHeadless;
     }
 
     /**
@@ -68,6 +79,7 @@ public class Parser {
         options.addArguments("--width=400");
         options.addArguments("--height=500");
         if(asHeadless) options.addArguments("--headless");
+        isHeadless = asHeadless;
         driver = new FirefoxDriver(options);
         window = driver.manage().window();
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
