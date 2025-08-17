@@ -62,7 +62,15 @@ public class LoginController implements Initializable {
 
     @FXML
     protected void handleLoginManuallyButton(){
-        login(true);
+        if(parser.isHeadless()){
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("This will bring out the firefox browser that the app uses to the front for you to log-in manually. " +
+                    "Due to technical limitations the browser will need to be kept open for the remainder of this session (it can be minimized but not closed). " +
+                    "Open the browser?");
+            alert.showAndWait();
+            if (alert.getResult() == ButtonType.OK) login(true);
+        }
+        else login(true);
     }
 
     private void login(boolean loginManually){
