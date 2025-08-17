@@ -217,19 +217,14 @@ public class Parser {
      * Parses through an chapter page to find various details regarding the chapter, including the image download links.
      * @param chapterURL the URL of the chapter page. The one formatted something like 'www.pixiv.net/artworks/000000'.
      * @return a Chapter object containing the details of the parsed chapter.
-     * @throws ParserSensitiveArtworkException if the chapter is blocked because it contains sensitive content, which can
-     * only be viewed while logged in to an account that allows sensitive content to proceed.
-     * @throws ParserMutedArtworkException if the chapter is blocked because it contained a muted (blacklisted) tag by the
-     * user's pixiv account.
+     * @throws ParserBlockedArtworkException if the chapter is blocked and thus cannot be parsed.
      */
     public Chapter parseChapter(String chapterURL)
-            throws ParserSensitiveArtworkException, ParserMutedArtworkException{
+            throws ParserBlockedArtworkException{
         goToChapter(chapterURL);
-//        checkIfChapterIsSensitive();
-        checkIfChapterIsMuted();
 
         Chapter chapter = new Chapter();
-        chapter.setTitle(parseChapterTitle());
+        chapter.setTitle(parseChapterTitleAndCheckIfBlocked());
         chapter.setPixivID(parseChapterID());
         chapter.setUploadDate(parseChapterUploadDate());
         chapter.setChapterNumber(parseChapterNumber());
@@ -333,46 +328,23 @@ public class Parser {
         if(!Chapter.checkChapterURLFormat(Objects.requireNonNull(driver.getCurrentUrl()))) throw new ParserException("This method can only be called while the driver is in an artwork page");
     }
 
-    //THIS DOESN'T WORK FOR SOME REASON, but keeping it around just in case
-//    /**
-//     * Checks if the current chapter is blocked due to having sensitive content that the user isn't permitted to view,
-//     * throwing an exception if it does.
-//     * @throws ParserSensitiveArtworkException
-//     */
-//    private void checkIfChapterIsSensitive() throws ParserSensitiveArtworkException{
-//        checkIfInArtworkPage();
-//        List<WebElement> tempList = driver.findElements(By.tagName("pixiv-icon"));
-//        if(Objects.equals(tempList.getLast().getDomAttribute("name"), "24/SensitiveHide")
-//        ) throw new ParserSensitiveArtworkException("The current chapter contains sensitive content. " +
-//                "It cannot be parsed unless the user is logged in.");
-//    }
-
-    /**
-     * Check if the current chapter is blocked due to containing a tag that is muted (blacklisted) by the current user,
-     * throwing an exception if it does.
-     * @throws ParserMutedArtworkException
-     */
-    private void checkIfChapterIsMuted() throws ParserMutedArtworkException{
-        if(!isLoggedIn) return;
-        checkIfInArtworkPage();
-        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
-        List<WebElement> tempList = driver.findElements(By.className("dEfTUV"));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
-        if(!tempList.isEmpty()) throw new ParserMutedArtworkException("The current chapter contains a tag " +
-                "that is muted (blacklisted) by the current user.");
-    }
-
     /**
      * Parses the chapter title.
      * @return the chapter title.
-     * @throws ParserSensitiveArtworkException if the parser cannot find the title, which indicates the artwork is blocked.
+     * @throws ParserBlockedArtworkException if the parser cannot find the title, which indicates the artwork is blocked.
+     *
      */
-    private String parseChapterTitle() throws ParserSensitiveArtworkException {
+    private String parseChapterTitleAndCheckIfBlocked() throws ParserBlockedArtworkException{
         try {
             return driver.findElement(By.tagName("h1")).getText();
         } catch (NoSuchElementException _){
-            throw new ParserSensitiveArtworkException("The current chapter contains sensitive content. " +
-                    "It cannot be parsed unless the user is logged in on an account which enables sensitive content.");
+            if(isLoggedIn){
+                throw new ParserBlockedArtworkException("The current chapter is blocked. Either it has a tag that is muted (blacklisted) " +
+                        "by this account or this account doesn't have sensitive content enabled");
+            }
+            else {
+                throw new ParserBlockedArtworkException("The current chapter is blocked because it contains sensitive content and the user isn't logged in.");
+            }
         }
     }
 

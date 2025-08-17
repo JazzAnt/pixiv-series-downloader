@@ -78,18 +78,8 @@ public class DownloadController {
                                         updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
                                                 "for unknown reasons");
                                     });
-                        } catch (ParserSensitiveArtworkException e) {
-                            FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert("The current chapter is blocked due to containing sensitive artwork and you're " +
-                                    "either not logged in or your Pixiv account has disabled displaying sensitive artworks. What would you " +
-                                    "like to do?"));
-                            Platform.runLater(futureTask);
-                            int choice = futureTask.get();
-                            if(choice == 0) continue;
-                            if(choice == 1) break;
-                            else this.cancel();
-                        } catch (ParserMutedArtworkException e) {
-                            FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert("The current chapter is blocked due to containing tags that are blocked " +
-                                    "by your Pixiv account. What would you like to do?"));
+                        } catch (ParserBlockedArtworkException e) {
+                            FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?"));
                             Platform.runLater(futureTask);
                             int choice = futureTask.get();
                             if(choice == 0) continue;
