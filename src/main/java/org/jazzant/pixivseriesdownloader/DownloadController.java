@@ -105,6 +105,12 @@ public class DownloadController {
         toggleButtons(false);
         logListView.getItems().clear();
         ArrayList<Series> seriesList = broker.selectAllOngoing();
+        if(seriesList.isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("There is no series with the ONGOING status in your database.");
+            alert.show();
+            return;
+        }
         Task<Void> task = createDownloadTask(seriesList, redownloadAll, ()->toggleButtons(true));
         cancelButton.setOnAction(actionEvent ->{
             if(confirmationAlert("Are you sure you want to cancel the downloads?")) task.cancel();
