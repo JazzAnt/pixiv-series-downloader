@@ -503,7 +503,7 @@ public class Parser {
      */
     private boolean waitForLoginShort(){
         try {
-            driverWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
+            driverWait.until(d -> checkIfLoginSuccessful());
             return true;
         }
         catch (TimeoutException _){
@@ -518,10 +518,25 @@ public class Parser {
      */
     private boolean waitForLoginLong(){
         try {
-            driverLongWait.until(d -> driver.getCurrentUrl().contains("www.pixiv.net"));
+            driverLongWait.until(d -> checkIfLoginSuccessful());
             return true;
         }
         catch (TimeoutException _){
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a login attempt is successful.
+     * @return true if a login is successful and false otherwise.
+     */
+    private boolean checkIfLoginSuccessful(){
+        try {
+            return Objects.requireNonNull(driver.getCurrentUrl()).contains("www.pixiv.net")
+                    && Objects.requireNonNull(driver.findElement(By.tagName("iframe"))
+                            .getDomAttribute("src"))
+                    .contains("challenges.cloudflare.com");
+        } catch (NullPointerException _) {
             return false;
         }
     }
