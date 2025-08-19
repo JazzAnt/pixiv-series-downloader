@@ -116,7 +116,9 @@ public class MainController {
                 if(parser.isLoggedIn()){
                     loginButton.setText("Logged In To Pixiv");
                     loginButton.setVisible(false);
+                    loginButton.setManaged(false);
                     loginDisplay.setVisible(true);
+                    loginDisplay.setManaged(true);
                 } else {
                     loginButton.setDisable(false);
                 }
