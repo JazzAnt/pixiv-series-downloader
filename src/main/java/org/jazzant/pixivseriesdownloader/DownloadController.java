@@ -3,6 +3,7 @@ package org.jazzant.pixivseriesdownloader;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 
@@ -14,7 +15,9 @@ public class DownloadController {
     private Parser parser;
     private Downloader downloader;
     private SeriesBroker broker;
-    private double progress;
+    private final double ALERT_WRAP_WIDTH = 340;
+    private final double ALERT_WIDTH = 360;
+    private final double ALERT_PADDING = 10;
 
     @FXML protected Text progressInfo;
     @FXML protected ProgressBar progressBar;
@@ -78,6 +81,7 @@ public class DownloadController {
                                         updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
                                                 "for unknown reasons");
                                     });
+                            broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
                         } catch (ParserBlockedArtworkException e) {
                             FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?"));
                             Platform.runLater(futureTask);
@@ -87,7 +91,6 @@ public class DownloadController {
                             else this.cancel();
                         }
                     }
-                    broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
                     updateLog("Downloaded all available chapters from " + series.getTitle());
                 }
                 return null;
@@ -102,15 +105,19 @@ public class DownloadController {
     }
 
     private void downloadAll(boolean redownloadAll){
-        toggleButtons(false);
         logListView.getItems().clear();
         ArrayList<Series> seriesList = broker.selectAllOngoing();
         if(seriesList.isEmpty()){
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("There is no series with the ONGOING status in your database.");
+            Text text = new Text("There is no series with the ONGOING status in your database.");
+            text.setWrappingWidth(ALERT_WRAP_WIDTH);
+            alert.getDialogPane().setContent(text);
+            alert.setWidth(ALERT_WIDTH);
+            alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
             alert.show();
             return;
         }
+        toggleButtons(false);
         Task<Void> task = createDownloadTask(seriesList, redownloadAll, ()->toggleButtons(true));
         cancelButton.setOnAction(actionEvent ->{
             if(confirmationAlert("Are you sure you want to cancel the downloads?")) task.cancel();
@@ -136,7 +143,11 @@ public class DownloadController {
 
     private boolean confirmationAlert(String message){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setContentText(message);
+        Text text = new Text(message);
+        text.setWrappingWidth(ALERT_WRAP_WIDTH);
+        alert.getDialogPane().setContent(text);
+        alert.setWidth(ALERT_WIDTH);
+        alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
         alert.showAndWait();
         return alert.getResult() == ButtonType.OK;
     }
@@ -149,13 +160,17 @@ public class DownloadController {
         public Integer call() throws Exception {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.getButtonTypes().clear();
-            ButtonType skipChapterButton = new ButtonType("Skip Current Chapter");
-            ButtonType skipSeriesButton = new ButtonType("Skip Current Series");
-            ButtonType stopButton = new ButtonType("Stop Current Download");
+            ButtonType skipChapterButton = new ButtonType("Skip This Chapter");
+            ButtonType skipSeriesButton = new ButtonType("Skip This Series");
+            ButtonType stopButton = new ButtonType("Stop Download");
             alert.getButtonTypes().add(skipChapterButton);
             alert.getButtonTypes().add(skipSeriesButton);
             alert.getButtonTypes().add(stopButton);
-            alert.setContentText(message);
+            Text text = new Text(message);
+            text.setWrappingWidth(580);
+            alert.getDialogPane().setContent(text);
+            alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
+            alert.setWidth(600);
             alert.showAndWait();
             if(alert.getResult().equals(skipChapterButton)) return 0;
             if(alert.getResult().equals(skipSeriesButton)) return 1;
@@ -169,6 +184,7 @@ public class DownloadController {
     }
     private void updateLog(String message){
         logListView.getItems().add(message);
+        logListView.refresh();
     }
     private void toggleButtons(boolean downloadButtonEnabled){
         downloadButton.setVisible(downloadButtonEnabled);

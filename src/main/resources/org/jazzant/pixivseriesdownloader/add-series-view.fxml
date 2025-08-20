@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 
 <?import javafx.scene.image.ImageView?>
-<VBox minHeight="600" minWidth="500"
+<VBox minHeight="650" minWidth="500"
           alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.AddSeriesController">
     <padding>
         <Insets bottom="10" left="15" right="15" top="15" />
