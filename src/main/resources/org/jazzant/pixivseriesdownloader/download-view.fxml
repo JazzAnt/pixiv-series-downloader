@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Text?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.jazzant.pixivseriesdownloader.DownloadController"
-      prefHeight="400.0" prefWidth="600.0" spacing="5">
+<VBox prefHeight="400.0" prefWidth="600.0" spacing="5" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DownloadController">
     <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
+        <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
     <HBox alignment="CENTER" minHeight="20">
-        <Text fx:id="progressInfo" wrappingWidth="500"/>
+        <Text fx:id="progressInfo" wrappingWidth="500" />
     </HBox>
     <HBox minHeight="20">
-        <ProgressBar fx:id="progressBar" progress="0" prefWidth="Infinity"/>
+        <ProgressBar fx:id="progressBar" prefWidth="1000" progress="0.0" />
     </HBox>
-    <HBox spacing="20" alignment="CENTER">
-        <Button text="Download All From Latest Chapter" fx:id="downloadButton" onAction="#handleDownloadButton"/>
-        <Button text="Redownload All from the First Chapter " fx:id="redownloadButton" onAction="#handleRedownloadButton"/>
-        <Button text="Cancel" fx:id="cancelButton" visible="false" managed="false"/>
+    <HBox alignment="CENTER" spacing="20">
+        <Button fx:id="downloadButton" onAction="#handleDownloadButton" text="Download All From Latest Chapter" />
+        <Button fx:id="redownloadButton" onAction="#handleRedownloadButton" text="Redownload All from the First Chapter " />
+        <Button fx:id="cancelButton" managed="false" text="Cancel" visible="false" />
     </HBox>
     <HBox>
-        <ListView fx:id="logListView" prefWidth="Infinity" disable="true"/>
+        <ListView fx:id="logListView" disable="true" prefWidth="1000" />
     </HBox>
 
 </VBox>
