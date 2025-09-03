@@ -250,6 +250,7 @@ public class AddSeriesController implements Initializable {
         parseButton.setDisable(true);
         parseButton.setText("Parsing...");
         seriesUrlField.setDisable(true);
+        removeUrlQueryString();
         final String seriesURL = seriesUrlField.getText();
         parseSeries(seriesURL, seriesModel,
                 ()->{
@@ -273,6 +274,14 @@ public class AddSeriesController implements Initializable {
             parseButton.setText("Parse");
             parseButton.setDisable(false);
                 });
+    }
+
+    private void removeUrlQueryString(){
+        String url = seriesUrlField.getText();
+        if(url.contains("?")){
+            url = url.split("\\?")[0];
+            seriesUrlField.setText(url);
+        }
     }
 
     private void parseSeries(String seriesURL, SeriesModel seriesModel, Runnable onSucceed, Runnable onFailure) {
