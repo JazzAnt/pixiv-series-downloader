@@ -90,7 +90,7 @@ public class DownloadController {
                                 else {
                                     updateLog("(!) Failed to download " + describeChapter(series,chapter) + " for unknown reasons");
                                     FutureTask<Integer> futureTask = new FutureTask<>(
-                                            new RetryAlert("Failed to download " + describeChapter(series,chapter) + " for unknown reasons. What would you like to do?")
+                                            new SkipAlert("Failed to download " + describeChapter(series,chapter) + " for unknown reasons. What would you like to do?", true)
                                     );
                                     Platform.runLater(futureTask);
                                     int choice = futureTask.get();
@@ -102,10 +102,14 @@ public class DownloadController {
                                         updateLog("Skipping " + describeChapter(series,chapter));
                                         break;
                                     }
-                                    else {
+                                    else if(choice == 2) {
                                         updateLog("Skipping " + describeSeries(series) + " series");
                                         skipSeries=true;
                                         break;
+                                    }
+                                    else {
+                                        updateLog("Cancelling download");
+                                        this.cancel();
                                     }
                                 }
                             }
@@ -113,14 +117,14 @@ public class DownloadController {
 
                         } catch (ParserBlockedArtworkException e) {
                             updateLog("Chapter is blocked :" + e.getMessage());
-                            FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?"));
+                            FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?", false));
                             Platform.runLater(futureTask);
                             int choice = futureTask.get();
-                            if(choice == 0) {
+                            if(choice == 1) {
                                 updateLog("Skipping this chapter");
                                 continue;
                             }
-                            else if(choice == 1) {
+                            else if(choice == 2) {
                                 updateLog("Skipping " + describeSeries(series) + " series");
                                 break;
                             }
@@ -176,16 +180,20 @@ public class DownloadController {
     }
     private class SkipAlert implements Callable<Integer> {
         private final String message;
-        public SkipAlert(String message){
+        private final boolean retryable;
+        public SkipAlert(String message, boolean retryable){
             this.message = message;
+            this.retryable = retryable;
         }
         @Override
         public Integer call() throws Exception {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.getButtonTypes().clear();
-            ButtonType skipChapterButton = new ButtonType("Skip This Chapter");
-            ButtonType skipSeriesButton = new ButtonType("Skip This Series");
+            ButtonType retryButton = new ButtonType("Retry Download");
+            ButtonType skipChapterButton = new ButtonType("Skip Chapter");
+            ButtonType skipSeriesButton = new ButtonType("Skip Series");
             ButtonType stopButton = new ButtonType("Stop Download");
+            if(retryable) alert.getButtonTypes().add(retryButton);
             alert.getButtonTypes().add(skipChapterButton);
             alert.getButtonTypes().add(skipSeriesButton);
             alert.getButtonTypes().add(stopButton);
@@ -195,36 +203,10 @@ public class DownloadController {
             alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
             alert.setWidth(600);
             alert.showAndWait();
-            if(alert.getResult().equals(skipChapterButton)) return 0;
-            if(alert.getResult().equals(skipSeriesButton)) return 1;
-            if(alert.getResult().equals(stopButton)) return 2;
-            return -1;
-        }
-    }
-    private class RetryAlert implements Callable<Integer>{
-        private final String message;
-        public RetryAlert(String message){
-            this.message = message;
-        }
-        @Override
-        public Integer call() throws Exception {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.getButtonTypes().clear();
-            ButtonType retryButton = new ButtonType("Retry Download");
-            ButtonType skipChapterButton = new ButtonType("Skip This Chapter");
-            ButtonType skipSeriesButton = new ButtonType("Skip This Series");
-            alert.getButtonTypes().add(retryButton);
-            alert.getButtonTypes().add(skipChapterButton);
-            alert.getButtonTypes().add(skipSeriesButton);
-            Text text = new Text(message);
-            text.setWrappingWidth(580);
-            alert.getDialogPane().setContent(text);
-            alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
-            alert.setWidth(600);
-            alert.showAndWait();
             if(alert.getResult().equals(retryButton)) return 0;
             if(alert.getResult().equals(skipChapterButton)) return 1;
             if(alert.getResult().equals(skipSeriesButton)) return 2;
+            if(alert.getResult().equals(stopButton)) return 3;
             return -1;
         }
     }
