@@ -86,6 +86,7 @@ public class Parser {
         window = driver.manage().window();
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
         initialized = true;
         if(!asHeadless) windowMinimize();
     }
