@@ -21,7 +21,6 @@ import java.util.Objects;
  */
 public class Parser {
     private boolean initialized = false;
-    private final Point screenPosition;
     private WebDriver driver;
     private WebDriver.Window window;
     private WebDriverWait driverWait;
@@ -29,16 +28,13 @@ public class Parser {
     private boolean isLoggedIn;
     private boolean isHeadless;
     private int waitTime = 10;
+    private Dimension screensize;
 
     /**
      * Upon being instantiated, automatically calls initialize() to set-up the web driver.
      */
     public Parser(){
         initialize();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width / 3;
-        int y = screenSize.height / 3;
-        screenPosition = new Point(x, y);
     }
 
     /**
@@ -78,9 +74,16 @@ public class Parser {
         if(initialized) throw new ParserException("Parser is already initialized.");
         isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
-        options.addArguments("--width=400");
-        options.addArguments("--height=500");
-        if(asHeadless) options.addArguments("--headless");
+        screensize = Toolkit.getDefaultToolkit().getScreenSize();
+        if(asHeadless) {
+            options.addArguments("--headless");
+            options.addArguments("--width=1500");
+            options.addArguments("--height=2000");
+        }
+        else {
+            options.addArguments("--width=" + screensize.getWidth()*0.4);
+            options.addArguments("--height=" + screensize.getHeight()*0.7);
+        }
         isHeadless = asHeadless;
         driver = new FirefoxDriver(options);
         window = driver.manage().window();
@@ -149,8 +152,9 @@ public class Parser {
         quit();
         initialize(false);
         goToLoginPage();
-        windowToFront();
+        setScreenSizeSmall();
         isLoggedIn = waitForLoginLong();
+        setScreenSizeHuge();
         windowMinimize();
         return isLoggedIn;
     }
@@ -554,8 +558,8 @@ public class Parser {
      */
     private boolean waitForLoginShort(){
         try {
-            driverWait.until(d -> checkIfLoginSuccessful());
-            return true;
+            driverWait.until(d -> checkIfNotInLoginPage());
+            return checkIfLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -569,8 +573,8 @@ public class Parser {
      */
     private boolean waitForLoginLong(){
         try {
-            driverLongWait.until(d -> checkIfLoginSuccessful());
-            return true;
+            driverLongWait.until(d -> checkIfNotInLoginPage());
+            return checkIfLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -578,16 +582,26 @@ public class Parser {
     }
 
     /**
-     * Checks if a login attempt is successful.
-     * @return true if a login is successful and false otherwise.
+     * Checks if the driver is currently NOT in the login page. Used to evaluate either a successful login attempt or an
+     * interrupted login attempt.
+     * @return true if the driver is NOT in the login page.
      */
-    private boolean checkIfLoginSuccessful(){
+    private boolean checkIfNotInLoginPage(){
+        return !Objects.requireNonNull(driver.getCurrentUrl()).contains("accounts.pixiv.net/login");
+    }
+
+    /**
+     * Checks if the parser is logged in to Pixiv. This is done by going to the login page and waiting. If the parser is
+     * logged in, it should automatically redirect to the main pixiv page. But if it's not logged in, then the parser
+     * would stay in the login page.
+     * @return true if the parser is logged in to Pixiv
+     */
+    private boolean checkIfLoggedIn(){
         try {
-            return Objects.requireNonNull(driver.getCurrentUrl()).contains("www.pixiv.net")
-                    && Objects.requireNonNull(driver.findElement(By.tagName("iframe"))
-                            .getDomAttribute("src"))
-                    .contains("challenges.cloudflare.com");
-        } catch (NullPointerException _) {
+            goToLoginPage();
+            driverWait.until(d -> checkIfNotInLoginPage());
+            return true;
+        } catch (TimeoutException _){
             return false;
         }
     }
@@ -619,11 +633,28 @@ public class Parser {
     }
 
     /**
+     * Resizes the window to a huge size, to prevent selenium from failing to find elements. Also brings it to the front
+     * so it should be paired with windowMinimize()
+     */
+    private void setScreenSizeHuge(){
+        window.setSize(new org.openqa.selenium.Dimension(1500, 2000));
+    }
+
+    /**
+     * Resizes the window to a small size and bring it to front.
+     */
+    private void setScreenSizeSmall(){
+        int width = (int) (screensize.getWidth() * 0.4);
+        int height = (int) (screensize.getHeight() * 0.7);
+        window.setSize(new org.openqa.selenium.Dimension(width, height));
+    }
+
+    /**
      * Brings the driver window to the front of the tabs in order to bring attention to it to the user.
      */
     private void windowToFront(){
         window.minimize();
-        window.setPosition(screenPosition);
+        window.setPosition(new Point(0,0));
     }
 
     /**
