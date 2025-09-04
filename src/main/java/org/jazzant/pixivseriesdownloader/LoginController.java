@@ -141,6 +141,8 @@ public class LoginController implements Initializable {
     private void toggleElementsDisability(boolean isDisabled){
         usernameField.setDisable(isDisabled);
         passwordField.setDisable(isDisabled);
+        saveCredentialCheckBox.setDisable(isDisabled);
+        removeCredentialButton.setDisable(isDisabled);
         loginButton.setDisable(isDisabled);
         loginManuallyButton.setDisable(isDisabled);
     }
