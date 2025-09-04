@@ -9,6 +9,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -434,35 +436,71 @@ public class Parser {
     private ArrayList<String> parseChapterImageURLs(int chapterPageAmount){
         if(chapterPageAmount < 1) throw new InvalidArgumentException("The page amount can't be lower than 1.");
         ArrayList<String> imageLinks = new ArrayList<>();
-        String temp;
-        if(chapterPageAmount == 1 && isLoggedIn){
-            temp = driver
-                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/a/img"))
-                    .getDomAttribute("src");
+        String imageURL;
+
+        if(isLoggedIn){
+            if(chapterPageAmount == 1){
+                imageURL = driver
+                        .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/a"))
+                        .getAttribute("href");
+            }
+            else{
+                imageURL = driver
+                        .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/a"))
+                        .getAttribute("href");
+            }
         }
-        else if(chapterPageAmount > 1 && isLoggedIn){
-            temp = driver
-                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[5]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/a/img"))
-                    .getDomAttribute("src");
+        else {
+            if(chapterPageAmount == 1){
+                imageURL = driver
+                        .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/div/img"))
+                        .getDomAttribute("src");
+            }
+            else{
+                imageURL = driver
+                        .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/div/img"))
+                        .getDomAttribute("src");
+            }
+            imageURL = correctImageFormat(imageURL);
         }
-        else if(chapterPageAmount == 1){// && !isLoggedIn)
-            temp = driver
-                    .findElement(By.xpath("/html/body/div[1]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div[1]/div[1]/div/div/img"))
-                    .getDomAttribute("src");
-        }
-        else{ //if(chapterPageAmount > 1 && !isLoggedIn)
-            temp = driver
-                    .findElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[6]/div[1]/div/div[1]/main/section/div[1]/div/figure/div/div[2]/div/div/img"))
-                    .getDomAttribute("src");
-        }
+
         for(int page = 0; page< chapterPageAmount; page++){
-            assert temp != null;
-            imageLinks.add(temp
-                    .replace("0_master1200", page+"")
-                    .replace("master", "original")
-                    .replace(".jpg", ".png"));
+            assert imageURL != null;
+            if(!isLoggedIn){
+                imageURL = imageURL
+                        .replace("0_master1200", page+"")
+                        .replace("master", "original");
+            }
+            imageLinks.add(imageURL);
         }
         return imageLinks;
+    }
+
+    /**
+     * Corrects the image format of the URL. This is used when the parser is not logged in, as in that case pixiv refuses to
+     * show the link to the original image, only the compressed image. The parser can still decipher most of the original
+     * image link through pattern, but it cannot figure out the original image link's image format. But since there's only 4
+     * possible formats (.jpg, .jpeg, .png, .gif) this method simply brute force checks every option and returns an image link
+     * with the appropriate image format.
+     * @param imageURL the image URL whose format you need to correct.
+     * @return the image URL with a proper image format.
+     * @throws ParserException if the image URL fails to connect using any of the image extensions.
+     */
+    private String correctImageFormat(String imageURL) {
+        String[] imageFormats = {".jpg", ".png", ".jpeg", ".gif"};
+        String correctedImageUrl;
+        for (String imageFormat : imageFormats) {
+            try {
+                correctedImageUrl = imageURL.replace(".jpg", imageFormat);
+                ImageURLUtils.getInputStreamFromImageURL(correctedImageUrl);
+                return correctedImageUrl;
+            } catch (IOException e) {
+                continue;
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new ParserException("URL " + imageURL.replace(".png", "(.jpg/.jpeg/.png/.gif)") + " is not valid with any image file extension!");
     }
 
     /*
