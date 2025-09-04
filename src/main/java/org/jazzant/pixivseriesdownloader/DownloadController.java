@@ -10,7 +10,6 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DownloadController {
     private Parser parser;
@@ -60,7 +59,7 @@ public class DownloadController {
                     if(this.isCancelled()) break;
                     if(!parser.seriesExists(series.getSeriesURL())){
                         broker.updateRecordStatus(series.getSeriesID(), SeriesStatus.DELETED);
-                        updateLog("(!) Detected that the series 「" + series.getTitle() + "」 is no longer available on Pixiv");
+                        updateLog("(!) Detected that the series " + describeSeries(series) + " is no longer available on Pixiv");
                         continue;
                     }
                     int latestChapterId = series.getLatestChapterID();
@@ -74,34 +73,37 @@ public class DownloadController {
                         Chapter chapter;
                         try {
                             String chapterURL = parser.getNextChapterURL();
-                            updateProgressInfo("Parsing " + chapterURL);
+                            updateLog("Parsing " + chapterURL);
                             chapter = parser.parseChapter(chapterURL);
                             latestChapterId = chapter.getPixivID();
-                            updateProgressInfo("Downloading 「" + series.getTitle() + "」 Chapter No." + chapter.getChapterNumber());
+                            updateLog("Downloading " + describeChapter(series,chapter));
 
                             boolean skipSeries = false;
                             while(true){
                                 boolean downloadSuccess = downloader.downloadChapter(series,chapter);
 
                                 if(downloadSuccess){
-                                    updateLog("Downloaded 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle());
+                                    updateLog("Downloaded " + describeChapter(series,chapter));
                                     broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
                                     break;
                                 }
                                 else {
-                                    updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
-                                            "for unknown reasons");
+                                    updateLog("(!) Failed to download " + describeChapter(series,chapter) + " for unknown reasons");
                                     FutureTask<Integer> futureTask = new FutureTask<>(
-                                            new RetryAlert("Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " for unknown reasons." + " " +
-                                                    "What would you like to do?")
+                                            new RetryAlert("Failed to download " + describeChapter(series,chapter) + " for unknown reasons. What would you like to do?")
                                     );
                                     Platform.runLater(futureTask);
                                     int choice = futureTask.get();
                                     if(choice == 0){
-                                        updateLog("Retrying failed download");
+                                        updateLog("Retrying download of " + describeChapter(series,chapter));
+                                        continue;
                                     }
-                                    else if(choice == 1) break;
+                                    else if(choice == 1) {
+                                        updateLog("Skipping " + describeChapter(series,chapter));
+                                        break;
+                                    }
                                     else {
+                                        updateLog("Skipping " + describeSeries(series) + " series");
                                         skipSeries=true;
                                         break;
                                     }
@@ -110,15 +112,25 @@ public class DownloadController {
                             if(skipSeries)break;
 
                         } catch (ParserBlockedArtworkException e) {
+                            updateLog("Chapter is blocked :" + e.getMessage());
                             FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?"));
                             Platform.runLater(futureTask);
                             int choice = futureTask.get();
-                            if(choice == 0) continue;
-                            if(choice == 1) break;
-                            else this.cancel();
+                            if(choice == 0) {
+                                updateLog("Skipping this chapter");
+                                continue;
+                            }
+                            else if(choice == 1) {
+                                updateLog("Skipping " + describeSeries(series) + " series");
+                                break;
+                            }
+                            else {
+                                updateLog("Cancelling download");
+                                this.cancel();
+                            }
                         }
                     }
-                    updateLog("Downloaded all available chapters from " + series.getTitle());
+                    updateLog("Downloaded all available chapters from " + describeSeries(series));
                 }
                 return null;
             }
@@ -217,10 +229,16 @@ public class DownloadController {
         }
     }
 
-    private void updateProgressInfo(String message){
-        progressInfo.setText(message);
+    private String describeSeries(Series series){
+        return "「" + series.getTitle() + "」";
     }
+
+    private String describeChapter(Series series, Chapter chapter){
+        return "「" + series.getTitle() + "」 Chapter " + chapter.getChapterNumber() + " : " + chapter.getTitle();
+    }
+
     private void updateLog(String message){
+        progressInfo.setText(message);
         logListView.getItems().add(message);
         logListView.refresh();
     }
