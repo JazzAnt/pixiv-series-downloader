@@ -53,7 +53,9 @@ public class DownloadController {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                for(Series series : seriesList){
+                for(int i=0; i<seriesList.size(); i++){
+                    updateProgress(i, seriesList.size());
+                    Series series = seriesList.get(i);
                     if(this.isCancelled()) break;
                     if(!parser.seriesExists(series.getSeriesURL())){
                         broker.updateRecordStatus(series.getSeriesID(), SeriesStatus.DELETED);
