@@ -112,23 +112,32 @@ public class MainController {
             controller.getSavedCredentials();
 
             stage.setTitle("Login View");
-            stage.setOnCloseRequest(windowEvent -> {
-                if(parser.isLoggedIn()){
-                    loginButton.setText("Logged In To Pixiv");
-                    loginButton.setVisible(false);
-                    loginButton.setManaged(false);
-                    loginDisplay.setVisible(true);
-                    loginDisplay.setManaged(true);
-                } else {
-                    loginButton.setDisable(false);
-                }
-            });
+//            stage.setOnCloseRequest(windowEvent -> {
+//                if(parser.isLoggedIn()){
+//                    loginButton.setText("Logged In To Pixiv");
+//                    loginButton.setVisible(false);
+//                    loginButton.setManaged(false);
+//                    loginDisplay.setVisible(true);
+//                    loginDisplay.setManaged(true);
+//                } else {
+//                    loginButton.setDisable(false);
+//                }
+//            });
             stage.setScene(scene);
-            stage.show();
+            stage.showAndWait();
         } catch (IOException e){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Something went wrong: " + e.getMessage());
             alert.show();
+            loginButton.setDisable(false);
+        }
+        if(parser.isLoggedIn()){
+            loginButton.setText("Logged In To Pixiv");
+            loginButton.setVisible(false);
+            loginButton.setManaged(false);
+            loginDisplay.setVisible(true);
+            loginDisplay.setManaged(true);
+        } else {
             loginButton.setDisable(false);
         }
     }
