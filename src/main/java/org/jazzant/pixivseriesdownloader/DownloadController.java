@@ -73,7 +73,9 @@ public class DownloadController {
                         if(this.isCancelled()) break;
                         Chapter chapter;
                         try {
-                            chapter = parser.parseChapter(parser.getNextChapterURL());
+                            String chapterURL = parser.getNextChapterURL();
+                            updateProgressInfo("Parsing " + chapterURL);
+                            chapter = parser.parseChapter(chapterURL);
                             latestChapterId = chapter.getPixivID();
                             updateProgressInfo("Downloading 「" + series.getTitle() + "」 Chapter No." + chapter.getChapterNumber());
 
@@ -103,9 +105,8 @@ public class DownloadController {
                                     int choice = futureTask.get();
                                     if(choice == 0){
                                         updateLog("Retrying failed download");
-                                        continue;
                                     }
-                                    if(choice == 1) break;
+                                    else if(choice == 1) break;
                                     else {
                                         skipSeries=true;
                                         break;
