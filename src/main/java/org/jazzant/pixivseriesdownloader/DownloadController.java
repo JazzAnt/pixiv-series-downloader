@@ -81,22 +81,16 @@ public class DownloadController {
 
                             boolean skipSeries = false;
                             while(true){
-                                AtomicBoolean downloadSuccess = new AtomicBoolean(false);
-                                downloadChapter(series, chapter, ()->{
-                                            updateLog("Downloaded 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle());
-                                            downloadSuccess.set(true);
-                                        },
-                                        ()->{
-                                            updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
-                                                    "for unknown reasons");
-                                            downloadSuccess.set(false);
-                                        });
+                                boolean downloadSuccess = downloader.downloadChapter(series,chapter);
 
-                                if(downloadSuccess.get()){
+                                if(downloadSuccess){
+                                    updateLog("Downloaded 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle());
                                     broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
                                     break;
                                 }
                                 else {
+                                    updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
+                                            "for unknown reasons");
                                     FutureTask<Integer> futureTask = new FutureTask<>(
                                             new RetryAlert("Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " for unknown reasons." + " " +
                                                     "What would you like to do?")
@@ -156,22 +150,6 @@ public class DownloadController {
             if(confirmationAlert("Are you sure you want to cancel the downloads?")) task.cancel();
         });
         new Thread(task).start();
-    }
-
-    private void downloadChapter(Series series, Chapter chapter, Runnable onDownloadSuccess, Runnable onDownloadFailed){
-        Task<Boolean> task = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                return downloader.downloadChapter(series, chapter);
-            }
-        };
-        task.setOnSucceeded(event->{
-            if(task.getValue()) onDownloadSuccess.run();
-            else onDownloadFailed.run();
-
-        });
-        Thread thread = new Thread(task);
-        thread.start();
     }
 
     private boolean confirmationAlert(String message){
