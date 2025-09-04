@@ -21,7 +21,7 @@
         <Button fx:id="cancelButton" managed="false" text="Cancel" visible="false" />
     </HBox>
     <HBox>
-        <ListView fx:id="logListView" disable="true" prefWidth="1000" />
+        <ListView fx:id="logListView" prefWidth="1000" />
     </HBox>
 
 </VBox>

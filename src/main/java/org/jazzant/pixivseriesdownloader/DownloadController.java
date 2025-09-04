@@ -221,7 +221,7 @@ public class DownloadController {
 
     private void updateLog(String message){
         progressInfo.setText(message);
-        logListView.getItems().add(message);
+        logListView.getItems().addFirst(message);
         logListView.refresh();
     }
     private void toggleButtons(boolean downloadButtonEnabled){
