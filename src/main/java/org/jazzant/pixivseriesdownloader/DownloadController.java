@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DownloadController {
     private Parser parser;
@@ -76,14 +77,43 @@ public class DownloadController {
                             latestChapterId = chapter.getPixivID();
                             updateProgressInfo("Downloading 「" + series.getTitle() + "」 Chapter No." + chapter.getChapterNumber());
 
-                            downloadChapter(series, chapter, ()->{
-                                        updateLog("Downloaded 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle());
-                                    },
-                                    ()->{
-                                        updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
-                                                "for unknown reasons");
-                                    });
-                            broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
+                            boolean skipSeries = false;
+                            while(true){
+                                AtomicBoolean downloadSuccess = new AtomicBoolean(false);
+                                downloadChapter(series, chapter, ()->{
+                                            updateLog("Downloaded 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle());
+                                            downloadSuccess.set(true);
+                                        },
+                                        ()->{
+                                            updateLog("(!) Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " " +
+                                                    "for unknown reasons");
+                                            downloadSuccess.set(false);
+                                        });
+
+                                if(downloadSuccess.get()){
+                                    broker.updateRecordLatestChapterId(series.getSeriesID(), latestChapterId);
+                                    break;
+                                }
+                                else {
+                                    FutureTask<Integer> futureTask = new FutureTask<>(
+                                            new RetryAlert("Failed to download 「" + series.getTitle() + "」Chapter" +chapter.getChapterNumber()+": "+chapter.getTitle() + " for unknown reasons." + " " +
+                                                    "What would you like to do?")
+                                    );
+                                    Platform.runLater(futureTask);
+                                    int choice = futureTask.get();
+                                    if(choice == 0){
+                                        updateLog("Retrying failed download");
+                                        continue;
+                                    }
+                                    if(choice == 1) break;
+                                    else {
+                                        skipSeries=true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if(skipSeries)break;
+
                         } catch (ParserBlockedArtworkException e) {
                             FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?"));
                             Platform.runLater(futureTask);
@@ -177,6 +207,33 @@ public class DownloadController {
             if(alert.getResult().equals(skipChapterButton)) return 0;
             if(alert.getResult().equals(skipSeriesButton)) return 1;
             if(alert.getResult().equals(stopButton)) return 2;
+            return -1;
+        }
+    }
+    private class RetryAlert implements Callable<Integer>{
+        private final String message;
+        public RetryAlert(String message){
+            this.message = message;
+        }
+        @Override
+        public Integer call() throws Exception {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.getButtonTypes().clear();
+            ButtonType retryButton = new ButtonType("Retry Download");
+            ButtonType skipChapterButton = new ButtonType("Skip This Chapter");
+            ButtonType skipSeriesButton = new ButtonType("Skip This Series");
+            alert.getButtonTypes().add(retryButton);
+            alert.getButtonTypes().add(skipChapterButton);
+            alert.getButtonTypes().add(skipSeriesButton);
+            Text text = new Text(message);
+            text.setWrappingWidth(580);
+            alert.getDialogPane().setContent(text);
+            alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
+            alert.setWidth(600);
+            alert.showAndWait();
+            if(alert.getResult().equals(retryButton)) return 0;
+            if(alert.getResult().equals(skipChapterButton)) return 1;
+            if(alert.getResult().equals(skipSeriesButton)) return 2;
             return -1;
         }
     }
