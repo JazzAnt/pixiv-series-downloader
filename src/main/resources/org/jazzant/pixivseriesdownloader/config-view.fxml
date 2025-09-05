@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.jazzant.pixivseriesdownloader.ConfigController"
+      fx:controller="org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController"
       prefHeight="250.0" prefWidth="500.0" spacing="5"
       fx:id="scenePane">
     <padding>

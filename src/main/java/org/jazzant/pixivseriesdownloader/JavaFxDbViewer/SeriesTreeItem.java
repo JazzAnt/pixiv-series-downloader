@@ -1,4 +1,6 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxDbViewer;
+
+import org.jazzant.pixivseriesdownloader.Parser.Series;
 
 public class SeriesTreeItem {
     private final String directoryGroup;

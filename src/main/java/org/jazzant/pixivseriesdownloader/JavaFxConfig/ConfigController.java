@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxConfig;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
 
 import java.io.File;
 import java.net.URL;

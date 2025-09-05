@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxAddSeries;
 
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -13,6 +13,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
+import org.jazzant.pixivseriesdownloader.Downloader.ImageURLUtils;
+import org.jazzant.pixivseriesdownloader.Parser.Parser;
+import org.jazzant.pixivseriesdownloader.Parser.Series;
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Downloader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

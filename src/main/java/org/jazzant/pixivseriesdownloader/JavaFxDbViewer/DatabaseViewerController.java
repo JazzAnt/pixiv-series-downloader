@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxDbViewer;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -14,6 +14,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
+import org.jazzant.pixivseriesdownloader.Parser.Series;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;

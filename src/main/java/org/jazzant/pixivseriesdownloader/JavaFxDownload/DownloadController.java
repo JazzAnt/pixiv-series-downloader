@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxDownload;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -6,6 +6,13 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
+import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
+import org.jazzant.pixivseriesdownloader.Downloader.Downloader;
+import org.jazzant.pixivseriesdownloader.Parser.Chapter;
+import org.jazzant.pixivseriesdownloader.Parser.Parser;
+import org.jazzant.pixivseriesdownloader.Parser.ParserBlockedArtworkException;
+import org.jazzant.pixivseriesdownloader.Parser.Series;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;

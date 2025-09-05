@@ -1,4 +1,6 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Database;
+
+import org.jazzant.pixivseriesdownloader.Parser.Series;
 
 import java.util.ArrayList;
 

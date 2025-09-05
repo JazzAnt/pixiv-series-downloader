@@ -1,4 +1,6 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Parser;
+
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

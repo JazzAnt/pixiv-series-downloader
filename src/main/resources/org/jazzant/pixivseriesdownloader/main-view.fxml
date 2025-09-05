@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.jazzant.pixivseriesdownloader.MainController"
+      fx:controller="org.jazzant.pixivseriesdownloader.JavaFxMain.MainController"
       prefHeight="300.0" prefWidth="300.0"
       spacing="5"
       alignment="TOP_CENTER">

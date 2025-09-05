@@ -5,7 +5,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Text?>
-<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.DatabaseViewerController">
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.JavaFxDbViewer.DatabaseViewerController">
    <top>
       <HBox alignment="CENTER_LEFT" spacing="10">
          <padding>

@@ -1,5 +1,7 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Parser;
 
+import org.jazzant.pixivseriesdownloader.Downloader.ImageURLUtils;
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.firefox.FirefoxDriver;

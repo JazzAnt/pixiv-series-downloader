@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Parser;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;

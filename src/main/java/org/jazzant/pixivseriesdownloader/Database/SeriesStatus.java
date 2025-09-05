@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Database;
 
 import org.openqa.selenium.InvalidArgumentException;
 

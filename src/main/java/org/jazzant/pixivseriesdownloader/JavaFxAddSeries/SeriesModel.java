@@ -1,6 +1,8 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxAddSeries;
 
 import javafx.beans.property.*;
+import org.jazzant.pixivseriesdownloader.Parser.Series;
+import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
 
 public class SeriesModel {
     private final BooleanProperty okToSave = new SimpleBooleanProperty();

@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.Database;
 
 public class SeriesDTO {
     private String directoryGroup;

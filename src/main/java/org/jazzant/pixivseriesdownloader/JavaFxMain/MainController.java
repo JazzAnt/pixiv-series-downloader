@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxMain;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +9,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
+import org.jazzant.pixivseriesdownloader.Downloader.Downloader;
+import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
+import org.jazzant.pixivseriesdownloader.JavaFxAddSeries.AddSeriesController;
+import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController;
+import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
+import org.jazzant.pixivseriesdownloader.JavaFxDbViewer.DatabaseViewerController;
+import org.jazzant.pixivseriesdownloader.JavaFxDownload.DownloadController;
+import org.jazzant.pixivseriesdownloader.JavaFxLogin.LoginController;
+import org.jazzant.pixivseriesdownloader.Parser.Parser;
 
 import java.io.IOException;
 

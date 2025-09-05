@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Text?>
 <VBox fx:id="scenePane" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.jazzant.pixivseriesdownloader.LoginController"
+      fx:controller="org.jazzant.pixivseriesdownloader.JavaFxLogin.LoginController"
       alignment="TOP_CENTER"
       prefHeight="250.0" prefWidth="300.0">
     <padding>

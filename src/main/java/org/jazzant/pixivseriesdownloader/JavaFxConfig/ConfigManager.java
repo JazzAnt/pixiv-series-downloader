@@ -1,4 +1,6 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxConfig;
+
+import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -79,7 +81,8 @@ public class ConfigManager {
         String saveAs = getProperty(KEY_SAVEAS);
         if(saveAs == null) return false;
 
-        try {SaveAs.valueOf(saveAs);}
+        try {
+            SaveAs.valueOf(saveAs);}
         catch (IllegalArgumentException _) {
             return false;
         }

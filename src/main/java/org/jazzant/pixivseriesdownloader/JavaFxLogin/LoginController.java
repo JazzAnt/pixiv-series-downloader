@@ -1,4 +1,4 @@
-package org.jazzant.pixivseriesdownloader;
+package org.jazzant.pixivseriesdownloader.JavaFxLogin;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -10,6 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
+import org.jazzant.pixivseriesdownloader.Parser.Parser;
+import org.jazzant.pixivseriesdownloader.Parser.ParserReCaptchaException;
 
 import java.net.URL;
 import java.util.ResourceBundle;
