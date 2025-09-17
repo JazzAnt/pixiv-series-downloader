@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
 import org.jazzant.pixivseriesdownloader.Downloader.Downloader;
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
+import org.jazzant.pixivseriesdownloader.FilePath;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
@@ -39,7 +40,7 @@ public class Main extends Application {
             Platform.exit();
         });
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "main-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
 
@@ -56,7 +57,7 @@ public class Main extends Application {
 
     private void createConfig() throws IOException {
         configManager.createConfigFile();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("config-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "config-view.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         ConfigController controller = loader.getController();

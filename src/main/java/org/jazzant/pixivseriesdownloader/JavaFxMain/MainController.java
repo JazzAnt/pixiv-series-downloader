@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
 import org.jazzant.pixivseriesdownloader.Downloader.Downloader;
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
+import org.jazzant.pixivseriesdownloader.FilePath;
 import org.jazzant.pixivseriesdownloader.JavaFxAddSeries.AddSeriesController;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
@@ -55,7 +56,7 @@ public class MainController {
     private void openDownloadWindow(){
         downloadButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("download-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "download-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -83,7 +84,7 @@ public class MainController {
     private void openAddSeriesWindow(){
         addSeriesButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-series-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "add-series-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -111,7 +112,7 @@ public class MainController {
     private void openLoginWindow(){
         loginButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "login-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -122,17 +123,6 @@ public class MainController {
             controller.getSavedCredentials();
 
             stage.setTitle("Login View");
-//            stage.setOnCloseRequest(windowEvent -> {
-//                if(parser.isLoggedIn()){
-//                    loginButton.setText("Logged In To Pixiv");
-//                    loginButton.setVisible(false);
-//                    loginButton.setManaged(false);
-//                    loginDisplay.setVisible(true);
-//                    loginDisplay.setManaged(true);
-//                } else {
-//                    loginButton.setDisable(false);
-//                }
-//            });
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e){
@@ -156,7 +146,7 @@ public class MainController {
     public void openDatabaseViewerWindow(ActionEvent actionEvent) {
         databaseButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("database-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "database-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -188,7 +178,7 @@ public class MainController {
     protected void openConfigWindow(){
         configButton.setDisable(true);
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("config-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "config-view.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             ConfigController controller = loader.getController();

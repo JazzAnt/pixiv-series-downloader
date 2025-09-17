@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
 import org.jazzant.pixivseriesdownloader.Downloader.ImageURLUtils;
+import org.jazzant.pixivseriesdownloader.FilePath;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
 import org.jazzant.pixivseriesdownloader.Parser.Series;
 import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
@@ -121,7 +122,7 @@ public class AddSeriesController implements Initializable {
 
         try{
             missingThumbnailImage = new Image(Objects.requireNonNull(
-                    getClass().getResource("thumbnail_not_found.jpg")).openStream());
+                    getClass().getResource(FilePath.RESOURCE + "thumbnail_not_found.jpg")).openStream());
         } catch (IOException e) {
             missingThumbnailImage = null;
         }
