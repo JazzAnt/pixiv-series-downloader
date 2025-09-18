@@ -599,7 +599,7 @@ public class Parser {
      * would stay in the login page.
      * @return true if the parser is logged in to Pixiv
      */
-    private boolean checkIfLoggedIn(){
+    public boolean checkIfLoggedIn(){
         try {
             goToLoginPage();
             driverWait.until(d -> checkIfNotInLoginPage());
@@ -635,9 +635,8 @@ public class Parser {
         }
     }
 
-    public void setLoginCookie(String value){
+    public void setLoginCookie(Cookie cookie){
         driver.get(PIXIV_URL);
-        Cookie cookie = new Cookie.Builder("PHPSESSID", value).sameSite("Lax").build();
         driver.manage().addCookie(cookie);
     }
 

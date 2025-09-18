@@ -1,5 +1,6 @@
 PixivSeriesDownloader.db
 app.config
+loginCookie.ser
 src/main/java/org/jazzant/pixivseriesdownloader/test.java
 
 ##############################
