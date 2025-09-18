@@ -17,11 +17,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Class that uses a Selenium WebDriver to parse through pixiv URLs.
  */
 public class Parser {
+    private final String PIXIV_URL = "https://www.pixiv.net";
     private boolean initialized = false;
     private WebDriver driver;
     private WebDriver.Window window;
@@ -285,7 +287,6 @@ public class Parser {
     public String getNextChapterURL(){
         validateInitialization();
         String nextChapterLink;
-        String PIXIV_URL = "https://www.pixiv.net";
         if(inSeriesPage()){
             nextChapterLink = PIXIV_URL + driver
                     .findElement(By.className("gtm-manga-series-first-story")).findElement(By.tagName("a"))
@@ -624,8 +625,26 @@ public class Parser {
     }
 
     /*
+     * LOGIN COOKIE METHODS
+     */
+    public Cookie getLoginCookie(){
+        if(checkIfLoggedIn()) {
+            return driver.manage().getCookieNamed("PHPSESSID");
+        } else {
+            throw new ParserException("Can't fetch login cookie since the user is not logged in");
+        }
+    }
+
+    public void setLoginCookie(String value){
+        driver.get(PIXIV_URL);
+        Cookie cookie = new Cookie.Builder("PHPSESSID", value).sameSite("Lax").build();
+        driver.manage().addCookie(cookie);
+    }
+
+    /*
      * MISC PRIVATE METHODS
      */
+
 
     /**
      * Minimizes the driver window.
