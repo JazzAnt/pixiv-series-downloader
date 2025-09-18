@@ -7,7 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import org.jazzant.pixivseriesdownloader.Parser.LoginCookieHandler;
 import org.jazzant.pixivseriesdownloader.Database.SeriesBroker;
 import org.jazzant.pixivseriesdownloader.Downloader.Downloader;
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
@@ -15,7 +14,6 @@ import org.jazzant.pixivseriesdownloader.FilePath;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
-import org.openqa.selenium.Cookie;
 
 import java.io.IOException;
 
@@ -45,14 +43,6 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "main-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
-
-        Cookie loginCookie = LoginCookieHandler.getCookie();
-        if(loginCookie != null){
-            if(LoginCookieHandler.isCookieNotExpired(loginCookie)){
-                parser.setLoginCookie(loginCookie);
-                System.out.println(parser.checkIfLoggedIn());
-            }
-        }
 
         MainController controller = fxmlLoader.getController();
         controller.setBroker(broker);

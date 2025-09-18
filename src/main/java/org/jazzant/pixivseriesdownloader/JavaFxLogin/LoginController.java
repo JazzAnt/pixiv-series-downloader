@@ -10,11 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.jazzant.pixivseriesdownloader.Parser.LoginCookieHandler;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
 import org.jazzant.pixivseriesdownloader.Parser.ParserReCaptchaException;
-import org.openqa.selenium.Cookie;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -94,8 +92,6 @@ public class LoginController implements Initializable {
         if(parser.isLoggedIn()){
             if(saveCredentialCheckBox.isSelected()) {
                 saveCredentials();
-                Cookie cookie = parser.getLoginCookie();
-                LoginCookieHandler.saveCookie(cookie);
             }
             closeWindow();
         } else {

@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import java.util.Set;
  */
 public class Parser {
     private final String PIXIV_URL = "https://www.pixiv.net";
+    private final String LOGIN_COOKIE_NAME = "PHPSESSID";
     private boolean initialized = false;
     private WebDriver driver;
     private WebDriver.Window window;
@@ -33,6 +34,7 @@ public class Parser {
     private boolean isHeadless;
     private int waitTime = 10;
     private Dimension screensize;
+    private Cookie loginCookie;
 
     /**
      * Upon being instantiated, automatically calls initialize() to set-up the web driver.
@@ -627,17 +629,64 @@ public class Parser {
     /*
      * LOGIN COOKIE METHODS
      */
-    public Cookie getLoginCookie(){
+    public boolean getLoginCookieFromBrowser(){
+        validateInitialization();
         if(checkIfLoggedIn()) {
-            return driver.manage().getCookieNamed("PHPSESSID");
+            loginCookie = driver.manage().getCookieNamed(LOGIN_COOKIE_NAME);
+            return true;
         } else {
-            throw new ParserException("Can't fetch login cookie since the user is not logged in");
+            return false;
         }
     }
 
-    public void setLoginCookie(Cookie cookie){
+    public boolean getLoginCookieFromFile(){
+        validateInitialization();
+        try {
+            FileInputStream fis = new FileInputStream("loginCookie.ser");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            loginCookie = (Cookie) ois.readObject();
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new ParserException("Error when getting cookie from file: " + e.getMessage());
+        }
+    }
+
+    public void loginWithCookie(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
         driver.get(PIXIV_URL);
-        driver.manage().addCookie(cookie);
+        driver.manage().addCookie(loginCookie);
+    }
+
+    public void saveLoginCookieToFile(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        try {
+            FileOutputStream fos = new FileOutputStream("loginCookie.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(loginCookie);
+        } catch (IOException e) {
+            throw new ParserException("Error when saving cookie to file: " + e.getMessage());
+        }
+    }
+
+    public boolean deleteLoginCookieFile(){
+        File loginCookieFile = new File("loginCookie.ser");
+        return loginCookieFile.delete();
+    }
+
+    public boolean validateLoginCookieExpiry(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        long expiryDate = loginCookie.getExpiry().getTime();
+        long currentTime = System.currentTimeMillis();
+        return currentTime < expiryDate;
+    }
+
+    public void assertLoginCookieIsNotNull(){
+        if(loginCookie == null) throw new ParserException("Parser doesn't have the login cookie. Please use getLoginCookieFromBrowser or getLoginCookieFromFile before this method!");
     }
 
     /*
