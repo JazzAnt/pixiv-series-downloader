@@ -629,6 +629,11 @@ public class Parser {
     /*
      * LOGIN COOKIE METHODS
      */
+
+    /**
+     * Attempts to fetch the login cookie from the browser.
+     * @return true if successful, false if not (failure is caused by the user not currently being logged in).
+     */
     public boolean getLoginCookieFromBrowser(){
         validateInitialization();
         if(checkIfLoggedIn()) {
@@ -639,6 +644,11 @@ public class Parser {
         }
     }
 
+    /**
+     * Attempts to fetch the login cookie that is saved as a file.
+     * @return true if successful, false if the login cookie file cannot be found.
+     * @throws ParserException if the fetching attempt fails for any reason besides the file not being found.
+     */
     public boolean getLoginCookieFromFile(){
         validateInitialization();
         try {
@@ -653,6 +663,10 @@ public class Parser {
         }
     }
 
+    /**
+     * Adds the login cookie to the browser which should cause the browser to be logged in to pixiv
+     * @throws ParserException if the parser doesn't have a login cookie to use.
+     */
     public void loginWithCookie(){
         validateInitialization();
         assertLoginCookieIsNotNull();
@@ -660,6 +674,10 @@ public class Parser {
         driver.manage().addCookie(loginCookie);
     }
 
+    /**
+     * Writes and saves the cookie to a loginCookie.ser file.
+     * @throws ParserException if the parser doesn't have a login cookie to save.
+     */
     public void saveLoginCookieToFile(){
         validateInitialization();
         assertLoginCookieIsNotNull();
@@ -672,11 +690,20 @@ public class Parser {
         }
     }
 
+    /**
+     * Deletes the loginCookie.ser file.
+     * @return true if successful, false if fails for any reason.
+     */
     public boolean deleteLoginCookieFile(){
         File loginCookieFile = new File("loginCookie.ser");
         return loginCookieFile.delete();
     }
 
+    /**
+     * Checks if the login cookie is expired by checking it's expiry date and comparing it to the current time.
+     * @return true if it's NOT expired, false if it IS expired.
+     * @throws ParserException if the parser doesn't have a login cookie to validate.
+     */
     public boolean validateLoginCookieExpiry(){
         validateInitialization();
         assertLoginCookieIsNotNull();
@@ -685,7 +712,10 @@ public class Parser {
         return currentTime < expiryDate;
     }
 
-    public void assertLoginCookieIsNotNull(){
+    /**
+     * Throws an exception if the Parser doesn't have a login cookie.
+     */
+    private void assertLoginCookieIsNotNull(){
         if(loginCookie == null) throw new ParserException("Parser doesn't have the login cookie. Please use getLoginCookieFromBrowser or getLoginCookieFromFile before this method!");
     }
 
