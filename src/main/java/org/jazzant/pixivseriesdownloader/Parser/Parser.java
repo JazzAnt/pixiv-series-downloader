@@ -95,7 +95,6 @@ public class Parser {
      */
     private void initialize(boolean asHeadless) throws ParserException {
         if(initialized) throw new ParserException("Parser is already initialized.");
-        isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
         screensize = Toolkit.getDefaultToolkit().getScreenSize();
         if(asHeadless) {
@@ -113,6 +112,17 @@ public class Parser {
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
+
+        if(getLoginCookieFromFile()){
+            if(validateLoginCookieExpiry()){
+                loginWithCookie();
+            }
+            else {
+                deleteLoginCookieFile();
+            }
+        }
+        else isLoggedIn = false;
+
         initialized = true;
         if(!asHeadless) windowMinimize();
     }
