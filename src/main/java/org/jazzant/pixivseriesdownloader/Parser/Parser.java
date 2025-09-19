@@ -17,7 +17,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Class that uses a Selenium WebDriver to parse through pixiv URLs.
@@ -54,12 +53,30 @@ public class Parser {
     }
 
     /**
-     * Checks if the Parser is logged in to Pixiv.
+     * Checks if the Parser is logged in to Pixiv. This method checks the Parser's isLoggedIn variable, it does NOT check the actual website.
+     * Use validateLoginStatus to check the status of the actual website, and use this method to retrieve its result.
      * @return true if it's logged in. False if not.
      */
     public boolean isLoggedIn(){
         validateInitialization();
         return isLoggedIn;
+    }
+
+    /**
+     * Checks if the parser is logged in to Pixiv by going to the login page and seeing if the user is redirected to the home page.
+     * This method does not return a value but rather saves the value inside the Parser object. The value can be retrieved using
+     * the isLoggedIn() method. (Note that as mentioned, this checks the login status by going to the login page and waiting for a
+     * redirect, thus if the parser is currently on another page doing something else calling this method may mess things up. Instead,
+     * call this method before trying to parse other pages and use isLoggedIn to retrieve the value later).
+     */
+    private void validateLoginStatus(){
+        try {
+            goToLoginPage();
+            driverWait.until(d -> checkIfNotInLoginPage());
+            isLoggedIn = true;
+        } catch (TimeoutException _){
+            isLoggedIn = false;
+        }
     }
 
     /**
@@ -564,7 +581,8 @@ public class Parser {
     private boolean waitForLoginShort(){
         try {
             driverWait.until(d -> checkIfNotInLoginPage());
-            return checkIfLoggedIn();
+            validateLoginStatus();
+            return isLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -579,7 +597,8 @@ public class Parser {
     private boolean waitForLoginLong(){
         try {
             driverLongWait.until(d -> checkIfNotInLoginPage());
-            return checkIfLoggedIn();
+            validateLoginStatus();
+            return isLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -595,21 +614,6 @@ public class Parser {
         return !Objects.requireNonNull(driver.getCurrentUrl()).contains("accounts.pixiv.net/login");
     }
 
-    /**
-     * Checks if the parser is logged in to Pixiv. This is done by going to the login page and waiting. If the parser is
-     * logged in, it should automatically redirect to the main pixiv page. But if it's not logged in, then the parser
-     * would stay in the login page.
-     * @return true if the parser is logged in to Pixiv
-     */
-    public boolean checkIfLoggedIn(){
-        try {
-            goToLoginPage();
-            driverWait.until(d -> checkIfNotInLoginPage());
-            return true;
-        } catch (TimeoutException _){
-            return false;
-        }
-    }
 
     /**
      * Detects if a reCAPTCHA is present on the screen.
@@ -636,7 +640,7 @@ public class Parser {
      */
     public boolean getLoginCookieFromBrowser(){
         validateInitialization();
-        if(checkIfLoggedIn()) {
+        if(isLoggedIn()) {
             loginCookie = driver.manage().getCookieNamed(LOGIN_COOKIE_NAME);
             return true;
         } else {
@@ -672,6 +676,7 @@ public class Parser {
         assertLoginCookieIsNotNull();
         driver.get(PIXIV_URL);
         driver.manage().addCookie(loginCookie);
+        validateLoginStatus();
     }
 
     /**
