@@ -95,7 +95,7 @@ public class Parser {
      */
     public boolean isLoginCookieExpired(){
         validateInitialization();
-        return isLoginCookieExpired();
+        return loginCookieExpired;
     }
 
     /**
