@@ -31,6 +31,7 @@ public class Parser {
     private WebDriverWait driverLongWait;
     private boolean isLoggedIn;
     private boolean isHeadless;
+    private boolean loginCookieExpired;
     private int waitTime = 10;
     private Dimension screensize;
     private Cookie loginCookie;
@@ -89,6 +90,15 @@ public class Parser {
     }
 
     /**
+     * Checks if the parser has deleted the login cookie due to it expiring during the latest initialization.
+     * @return true if the parser has just deleted the login cookie because it has passed its expiry date.
+     */
+    public boolean isLoginCookieExpired(){
+        validateInitialization();
+        return isLoginCookieExpired();
+    }
+
+    /**
      * Initializes the parser, creating the WebDriver and settings.
      * @param asHeadless if true then the browser is created in headless mode
      * @throws ParserException if the Parser is already initialized.
@@ -112,6 +122,7 @@ public class Parser {
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
+        loginCookieExpired = false;
         initialized = true;
         if(getLoginCookieFromFile()){
             if(validateLoginCookieExpiry()){
@@ -119,6 +130,7 @@ public class Parser {
             }
             else {
                 deleteLoginCookieFile();
+                loginCookieExpired = true;
             }
         }
         else isLoggedIn = false;
