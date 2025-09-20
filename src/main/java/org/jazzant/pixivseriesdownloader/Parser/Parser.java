@@ -112,7 +112,7 @@ public class Parser {
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
-
+        initialized = true;
         if(getLoginCookieFromFile()){
             if(validateLoginCookieExpiry()){
                 loginWithCookie();
@@ -123,7 +123,6 @@ public class Parser {
         }
         else isLoggedIn = false;
 
-        initialized = true;
         if(!asHeadless) windowMinimize();
     }
 
