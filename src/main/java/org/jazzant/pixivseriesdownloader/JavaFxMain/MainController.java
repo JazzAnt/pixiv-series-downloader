@@ -188,7 +188,8 @@ public class MainController {
             controller.setLibrary(downloader.getLibraryDir());
             controller.setFilenameFormat(downloader.getFilenameFormatter());
             controller.setComboBoxSelection(downloader.getFileFormat());
-            controller.checkForLoginCredentials();
+            controller.setParser(parser);
+            controller.updateLoginCookieButton();
             controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
                     "If you want to change the library directory or file format, you'll need to either manually move the files " +
                     "or redownload everything.");
@@ -198,9 +199,6 @@ public class MainController {
             Stage stage = new Stage();
 
             stage.setTitle("First Time User Configuration");
-            stage.setOnCloseRequest(windowEvent -> {
-                configButton.setDisable(false);
-            });
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -217,5 +215,7 @@ public class MainController {
             alert.show();
             configButton.setDisable(false);
         }
+        configButton.setDisable(false);
+        updateLoginButton();
     }
 }

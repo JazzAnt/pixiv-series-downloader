@@ -1,48 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Text?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController"
-      prefHeight="250.0" prefWidth="500.0" spacing="5"
-      fx:id="scenePane">
+<VBox fx:id="scenePane" prefHeight="250.0" prefWidth="500.0" spacing="5" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController">
     <padding>
-        <Insets top="15" right="5" bottom="10" left="5"/>
+        <Insets bottom="10" left="5" right="5" top="15" />
     </padding>
     <HBox alignment="CENTER" spacing="5">
-        <Text fx:id="infoText" wrappingWidth="350"/>
+        <Text fx:id="infoText" wrappingWidth="350" />
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Library Location" prefWidth="150" alignment="CENTER_RIGHT"/>
-        <TextField fx:id="libraryField" prefWidth="250"/>
-        <Button text="Select" onAction="#directoryPicker"/>
+        <Label alignment="CENTER_RIGHT" prefWidth="150" text="Library Location" />
+        <TextField fx:id="libraryField" prefWidth="250" />
+        <Button onAction="#directoryPicker" text="Select" />
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Save Series As" prefWidth="150" alignment="CENTER_RIGHT"/>
-        <ComboBox fx:id="saveComboBox" prefWidth="250"/>
+        <Label alignment="CENTER_RIGHT" prefWidth="150" text="Save Series As" />
+        <ComboBox fx:id="saveComboBox" prefWidth="250" />
     </HBox>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Chapter File Format(*)" prefWidth="150" alignment="CENTER_RIGHT"/>
-        <TextField fx:id="filenameFormatField" prefWidth="250"/>
-        <Button text="Default" onAction="#setFilenameFormatToDefault"/>
+        <Label alignment="CENTER_RIGHT" prefWidth="150" text="Chapter File Format(*)" />
+        <TextField fx:id="filenameFormatField" prefWidth="250" />
+        <Button onAction="#setFilenameFormatToDefault" text="Default" />
     </HBox>
     <HBox alignment="CENTER_RIGHT" spacing="5">
-        <Text wrappingWidth="350" text="(*) Filename Format MUST contain either {chapter_id} or {chapter_number}"/>
+        <Text text="(*) Filename Format MUST contain either {chapter_id} or {chapter_number}" wrappingWidth="350" />
     </HBox>
     <HBox alignment="CENTER_RIGHT" spacing="5">
-        <Text wrappingWidth="350" text="Available keywords are: {series_title}, {artist}, {series_id}, {artist_id}, {chapter_number}, {chapter_title}, {chapter_id}, {upload_date}, {page_amount}"/>
+        <Text text="Available keywords are: {series_title}, {artist}, {series_id}, {artist_id}, {chapter_number}, {chapter_title}, {chapter_id}, {upload_date}, {page_amount}" wrappingWidth="350" />
     </HBox>
-    <HBox alignment="CENTER_LEFT" spacing="5">
-        <Button fx:id="removeCredentialsButton" text="Remove Saved Pixiv Login Credentials" onAction="#handleRemoveCredentialsButton" visible="false" managed="false"/>
+    <HBox alignment="CENTER_RIGHT" spacing="5">
+        <padding>
+            <Insets bottom="5" left="5" right="25" top="5" />
+        </padding>
+        <Button fx:id="removeLoginCookieButton" onAction="#handleRemoveLoginCookieButton" text="Remove Login Cookie"/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
-            <Insets top="15" right="5" bottom="5" left="5"/>
+            <Insets bottom="5" left="5" right="5" top="15" />
         </padding>
-        <Button text="Save" onAction="#saveConfig"/>
+        <Button onAction="#saveConfig" text="Save" />
     </HBox>
 </VBox>

@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
+import org.jazzant.pixivseriesdownloader.Parser.Parser;
 
 import java.io.File;
 import java.net.URL;
@@ -27,6 +28,7 @@ public class ConfigController implements Initializable {
     private ConfigManager configManager;
     private String onSaveMessage;
     private boolean onSaveAlert = false;
+    private Parser parser;
 
     @FXML
     protected VBox scenePane;
@@ -39,7 +41,7 @@ public class ConfigController implements Initializable {
     @FXML
     protected TextField filenameFormatField;
     @FXML
-    protected Button removeCredentialsButton;
+    protected Button removeLoginCookieButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -48,6 +50,10 @@ public class ConfigController implements Initializable {
         );
         saveComboBox.setItems(saveAsList);
         saveComboBox.getSelectionModel().selectFirst();
+    }
+
+    public void setParser(Parser parser) {
+        this.parser = parser;
     }
 
     @FXML
@@ -64,14 +70,17 @@ public class ConfigController implements Initializable {
     }
 
     @FXML
-    protected void handleRemoveCredentialsButton(){
-        configManager.removeProperty(configManager.KEY_PIXIV_USERNAME);
-        configManager.removeProperty(configManager.KEY_PIXIV_PASSWORD);
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("Login Credentials Removed");
-        alert.show();
-        removeCredentialsButton.setManaged(false);
-        removeCredentialsButton.setVisible(false);
+    protected void handleRemoveLoginCookieButton(){
+        if(parser.deleteLoginCookieFile()){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Login Cookie Removed (you're still logged in until you leave this session).");
+            alert.show();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Fail to delete cookie for unknown reasons.");
+            alert.show();
+        }
+        updateLoginCookieButton();
     }
 
     @FXML
@@ -79,11 +88,10 @@ public class ConfigController implements Initializable {
         filenameFormatField.setText("Chapter{chapter_number}_{chapter_title}");
     }
 
-    public void checkForLoginCredentials(){
-        if(configManager.getProperty(configManager.KEY_PIXIV_USERNAME) == null &&
-           configManager.getProperty(configManager.KEY_PIXIV_PASSWORD) == null) return;
-        removeCredentialsButton.setVisible(true);
-        removeCredentialsButton.setManaged(true);
+    public void updateLoginCookieButton(){
+        boolean loginCookieExists = parser.loginCookieExists();
+        removeLoginCookieButton.setVisible(loginCookieExists);
+        removeLoginCookieButton.setManaged(loginCookieExists);
     }
 
     @FXML

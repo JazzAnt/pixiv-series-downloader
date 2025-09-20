@@ -75,6 +75,8 @@ public class Main extends Application {
                 "(these settings can be changed later but they won't change " +
                 "any existing files you've already downloaded)");
         controller.setFilenameFormatToDefault();
+        controller.setParser(parser);
+        controller.updateLoginCookieButton();
 
         Stage stage = new Stage();
         stage.setOnCloseRequest(windowEvent -> {
