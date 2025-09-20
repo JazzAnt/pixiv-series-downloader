@@ -131,15 +131,17 @@ public class MainController {
             alert.show();
             loginButton.setDisable(false);
         }
-        if(parser.isLoggedIn()){
-            loginButton.setText("Logged In To Pixiv");
-            loginButton.setVisible(false);
-            loginButton.setManaged(false);
-            loginDisplay.setVisible(true);
-            loginDisplay.setManaged(true);
-        } else {
-            loginButton.setDisable(false);
-        }
+        updateLoginButton();
+    }
+
+    public void updateLoginButton(){
+        boolean isLoggedIn = parser.isLoggedIn();
+        loginButton.setDisable(isLoggedIn);
+        loginButton.setVisible(!isLoggedIn);
+        loginButton.setManaged(!isLoggedIn);
+
+        loginDisplay.setVisible(isLoggedIn);
+        loginDisplay.setManaged(isLoggedIn);
     }
 
     @FXML

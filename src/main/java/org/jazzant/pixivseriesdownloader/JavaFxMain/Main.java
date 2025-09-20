@@ -49,6 +49,7 @@ public class Main extends Application {
         controller.setParser(parser);
         controller.setDownloader(downloader);
         controller.setConfigManager(configManager);
+        controller.updateLoginButton();
 
         stage.setTitle("Pixiv Series Downloader");
         stage.setScene(scene);
