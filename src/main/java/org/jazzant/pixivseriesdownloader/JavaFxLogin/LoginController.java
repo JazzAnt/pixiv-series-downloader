@@ -34,14 +34,13 @@ public class LoginController implements Initializable {
     protected Button loginButton;
     @FXML
     protected Button loginManuallyButton;
-    @FXML
-    protected Label loginManuallyLabel;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Tooltip tooltip = new Tooltip("Opens the Browser and Attempts to Login Manually. \n" +
-                "Note that due to limitations, the browser must be kept open for the rest of the session");
-        Tooltip.install(loginManuallyLabel, tooltip);
+        Tooltip tooltip = new Tooltip("Saves the login cookie as a file called 'loginCookie.ser'. \n" +
+                "Don't share the file with anyone!");
+        Tooltip.install(stayLoggedInCheckBox, tooltip);
+        Tooltip.install(stayLoggedInLabel, tooltip);
 
         credentialsFilledProperty = Bindings.createBooleanBinding(this::isCredentialsInputted,
                 usernameField.textProperty(),
@@ -61,15 +60,7 @@ public class LoginController implements Initializable {
 
     @FXML
     protected void handleLoginManuallyButton(){
-        if(parser.isHeadless()){
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setContentText("This will bring out the firefox browser that the app uses to the front for you to log-in manually. " +
-                    "Due to technical limitations the browser will need to be kept open for the remainder of this session (it can be minimized but not closed). " +
-                    "Open the browser?");
-            alert.showAndWait();
-            if (alert.getResult() == ButtonType.OK) login(true);
-        }
-        else login(true);
+        login(true);
     }
 
     private void login(boolean loginManually){
@@ -87,7 +78,6 @@ public class LoginController implements Initializable {
     private void handleLoginAttempt(){
         if(parser.isLoggedIn()){
             if(stayLoggedInCheckBox.isSelected()) {
-                parser.getLoginCookieFromBrowser();
                 parser.saveLoginCookieToFile();
             }
             closeWindow();
@@ -114,7 +104,7 @@ public class LoginController implements Initializable {
         task.setOnFailed(event->{
             Alert alert = new Alert(Alert.AlertType.ERROR);
             if(task.getException() instanceof ParserReCaptchaException){
-                alert.setContentText("Login failed due to reCAPTCHA. \nTry again after a while or use manual login.");
+                alert.setContentText("Login failed due to reCAPTCHA. \nTry logging in using the browser.");
             } else {
                 alert.setContentText(task.getException().getMessage());
             }

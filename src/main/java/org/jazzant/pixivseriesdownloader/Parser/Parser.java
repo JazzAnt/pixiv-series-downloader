@@ -124,7 +124,11 @@ public class Parser {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
         loginCookieExpired = false;
         initialized = true;
-        if(getLoginCookieFromFile()){
+
+        if(loginCookie != null){
+            loginWithCookie();
+        }
+        else if(getLoginCookieFromFile()){
             if(validateLoginCookieExpiry()){
                 loginWithCookie();
             }
@@ -134,8 +138,6 @@ public class Parser {
             }
         }
         else isLoggedIn = false;
-
-        if(!asHeadless) windowMinimize();
     }
 
     /**
@@ -171,17 +173,20 @@ public class Parser {
      */
     public boolean loginPixiv(String pixivUsername, String pixivPassword) {
         validateInitialization();
-        if(isLoggedIn) throw new ParserException("The user is already logged in.");
+        if(isLoggedIn()) throw new ParserException("The user is already logged in.");
         goToLoginPage();
         if(enterUsernameField(pixivUsername) && enterPasswordField(pixivPassword)) {
             clickLoginButton();
-            isLoggedIn = waitForLoginShort();
-            if(isLoggedIn) return true;
+            waitForLoginShort();
+            if(isLoggedIn()) {
+                getLoginCookieFromBrowser();
+                return true;
+            }
             if(detectReCAPTCHA()){
                 throw new ParserReCaptchaException("Login Failed due to ReCaptcha.");
             }
         }
-        return isLoggedIn;
+        return isLoggedIn();
     }
 
     /**
@@ -196,11 +201,11 @@ public class Parser {
         quit();
         initialize(false);
         goToLoginPage();
-        setScreenSizeSmall();
-        isLoggedIn = waitForLoginLong();
-        setScreenSizeHuge();
-        windowMinimize();
-        return isLoggedIn;
+        waitForLoginLong();
+        if(isLoggedIn()) getLoginCookieFromBrowser();
+        quit();
+        initialize(true);
+        return isLoggedIn();
     }
 
     /**
