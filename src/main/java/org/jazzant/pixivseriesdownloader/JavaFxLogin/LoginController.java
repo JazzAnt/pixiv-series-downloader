@@ -20,7 +20,6 @@ import java.util.ResourceBundle;
 public class LoginController implements Initializable {
     private Parser parser;
     private BooleanBinding credentialsFilledProperty;
-    private ConfigManager configManager;
     @FXML
     protected VBox scenePane;
     @FXML
@@ -28,11 +27,9 @@ public class LoginController implements Initializable {
     @FXML
     protected PasswordField passwordField;
     @FXML
-    protected Label saveCredentialLabel;
+    protected Label stayLoggedInLabel;
     @FXML
-    protected CheckBox saveCredentialCheckBox;
-    @FXML
-    protected Button removeCredentialButton;
+    protected CheckBox stayLoggedInCheckBox;
     @FXML
     protected Button loginButton;
     @FXML
@@ -56,7 +53,6 @@ public class LoginController implements Initializable {
     public void setParser(Parser parser){
         this.parser = parser;
     }
-    public void setConfigManager(ConfigManager configManager) {this.configManager = configManager;}
 
     @FXML
     protected void handleLoginButton(){
@@ -90,8 +86,9 @@ public class LoginController implements Initializable {
 
     private void handleLoginAttempt(){
         if(parser.isLoggedIn()){
-            if(saveCredentialCheckBox.isSelected()) {
-                saveCredentials();
+            if(stayLoggedInCheckBox.isSelected()) {
+                parser.getLoginCookieFromBrowser();
+                parser.saveLoginCookieToFile();
             }
             closeWindow();
         } else {
@@ -146,43 +143,9 @@ public class LoginController implements Initializable {
     private void toggleElementsDisability(boolean isDisabled){
         usernameField.setDisable(isDisabled);
         passwordField.setDisable(isDisabled);
-        saveCredentialCheckBox.setDisable(isDisabled);
-        removeCredentialButton.setDisable(isDisabled);
+        stayLoggedInCheckBox.setDisable(isDisabled);
         loginButton.setDisable(isDisabled);
         loginManuallyButton.setDisable(isDisabled);
-    }
-
-    private void saveCredentials(){
-        if(isCredentialsInputted()){
-            configManager.setProperty(configManager.KEY_PIXIV_USERNAME, usernameField.getText().trim());
-            configManager.setProperty(configManager.KEY_PIXIV_PASSWORD, passwordField.getText().trim());
-        }
-    }
-
-    public void getSavedCredentials(){
-        String username = configManager.getProperty(configManager.KEY_PIXIV_USERNAME);
-        String password = configManager.getProperty(configManager.KEY_PIXIV_PASSWORD);
-        if(username == null || password == null) return;
-        usernameField.setText(username);
-        passwordField.setText(password);
-        toggleSaveCredentialsVisibility(false);
-    }
-
-    @FXML
-    protected void handleRemoveCredentialsButton(){
-        configManager.removeProperty(configManager.KEY_PIXIV_USERNAME);
-        configManager.removeProperty(configManager.KEY_PIXIV_PASSWORD);
-        toggleSaveCredentialsVisibility(true);
-    }
-
-    private void toggleSaveCredentialsVisibility(boolean isVisible){
-        saveCredentialCheckBox.setVisible(isVisible);
-        saveCredentialCheckBox.setManaged(isVisible);
-        saveCredentialLabel.setVisible(isVisible);
-        saveCredentialLabel.setManaged(isVisible);
-
-        removeCredentialButton.setVisible(!isVisible);
-        removeCredentialButton.setManaged(!isVisible);
     }
 
     private void closeWindow(){
@@ -191,7 +154,6 @@ public class LoginController implements Initializable {
     }
 
     private boolean isCredentialsInputted(){
-        if(usernameField.getText().isBlank() || passwordField.getText().isBlank()) return false;
-        return true;
+        return !usernameField.getText().isBlank() && !passwordField.getText().isBlank();
     }
 }
