@@ -730,7 +730,7 @@ public class Parser {
      * Checks if the login cookie file exists.
      * @return true if the file exists and false if not.
      */
-    public boolean loginCookieExists(){
+    public boolean loginCookieFileExists(){
         File loginCookieFile = new File("loginCookie.ser");
         return loginCookieFile.exists() && !loginCookieFile.isDirectory();
     }

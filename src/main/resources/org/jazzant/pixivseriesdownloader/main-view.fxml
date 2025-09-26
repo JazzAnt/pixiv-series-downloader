@@ -18,12 +18,13 @@
         <Insets top="20" right="20" bottom="10" left="20"/>
     </padding>
 
-    <VBox alignment="CENTER_RIGHT">
+    <VBox alignment="CENTER_RIGHT" spacing="5">
         <padding>
             <Insets bottom="20" />
         </padding>
         <Button alignment="CENTER_RIGHT" fx:id="loginButton" onAction="#openLoginWindow" text="Login"/>
-        <Text fx:id="loginDisplay" text="You're Logged In" managed="false" visible="false"/>
+        <Text fx:id="loggedInDisplay" text="You're Logged In to Pixiv"/>
+        <Button alignment="CENTER_RIGHT" fx:id="logoutButton" onAction="#handleLogoutButton" text="Logout"/>
     </VBox>
     <Text text="PIXIV SERIES DOWNLOADER"/>
     <Button minWidth="175" fx:id="downloadButton" onAction="#openDownloadWindow" text="Download"/>

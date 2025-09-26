@@ -32,12 +32,6 @@
     <HBox alignment="CENTER_RIGHT" spacing="5">
         <Text text="Available keywords are: {series_title}, {artist}, {series_id}, {artist_id}, {chapter_number}, {chapter_title}, {chapter_id}, {upload_date}, {page_amount}" wrappingWidth="350" />
     </HBox>
-    <HBox alignment="CENTER_RIGHT" spacing="5">
-        <padding>
-            <Insets bottom="5" left="5" right="25" top="5" />
-        </padding>
-        <Button fx:id="logoutButton" onAction="#handleLogoutButton" text="Logout"/>
-    </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
             <Insets bottom="5" left="5" right="5" top="15" />

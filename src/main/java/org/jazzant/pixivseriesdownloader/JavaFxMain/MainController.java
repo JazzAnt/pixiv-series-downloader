@@ -37,7 +37,9 @@ public class MainController {
     @FXML
     protected Button loginButton;
     @FXML
-    protected Text loginDisplay;
+    protected Text loggedInDisplay;
+    @FXML
+    protected Button logoutButton;
     @FXML
     protected Button configButton;
 
@@ -138,8 +140,13 @@ public class MainController {
         loginButton.setVisible(!isLoggedIn);
         loginButton.setManaged(!isLoggedIn);
 
-        loginDisplay.setVisible(isLoggedIn);
-        loginDisplay.setManaged(isLoggedIn);
+        loggedInDisplay.setVisible(isLoggedIn);
+        loggedInDisplay.setManaged(isLoggedIn);
+
+        logoutButton.setDisable(!isLoggedIn);
+        logoutButton.setVisible(isLoggedIn);
+        logoutButton.setVisible(isLoggedIn);
+
     }
 
     @FXML
@@ -186,8 +193,6 @@ public class MainController {
             controller.setLibrary(downloader.getLibraryDir());
             controller.setFilenameFormat(downloader.getFilenameFormatter());
             controller.setComboBoxSelection(downloader.getFileFormat());
-            controller.setParser(parser);
-            controller.updateLoginCookieButton();
             controller.setInfoText("Note: Changing the config files won't modify existing files that have been downloaded. " +
                     "If you want to change the library directory or file format, you'll need to either manually move the files " +
                     "or redownload everything.");
@@ -214,6 +219,23 @@ public class MainController {
             configButton.setDisable(false);
         }
         configButton.setDisable(false);
+    }
+
+    @FXML
+    protected void handleLogoutButton(){
+        if(parser.loginCookieFileExists()) parser.deleteLoginCookieFile();
+        parser.deleteLoginCookie();
+        parser.restartBrowser();
+        if(parser.isLoggedIn()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Failed to logout for unknown reasons");
+            alert.show();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Successfully logged out");
+            alert.show();
+        }
         updateLoginButton();
     }
 }

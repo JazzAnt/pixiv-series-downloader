@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -13,7 +12,6 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
-import org.jazzant.pixivseriesdownloader.Parser.Parser;
 
 import java.io.File;
 import java.net.URL;
@@ -28,7 +26,6 @@ public class ConfigController implements Initializable {
     private ConfigManager configManager;
     private String onSaveMessage;
     private boolean onSaveAlert = false;
-    private Parser parser;
 
     @FXML
     protected VBox scenePane;
@@ -40,8 +37,6 @@ public class ConfigController implements Initializable {
     protected ComboBox<SaveAs> saveComboBox;
     @FXML
     protected TextField filenameFormatField;
-    @FXML
-    protected Button logoutButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -50,10 +45,6 @@ public class ConfigController implements Initializable {
         );
         saveComboBox.setItems(saveAsList);
         saveComboBox.getSelectionModel().selectFirst();
-    }
-
-    public void setParser(Parser parser) {
-        this.parser = parser;
     }
 
     @FXML
@@ -70,30 +61,8 @@ public class ConfigController implements Initializable {
     }
 
     @FXML
-    protected void handleLogoutButton(){
-        if(parser.deleteLoginCookieFile()){
-            parser.deleteLoginCookie();
-            parser.restartBrowser();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Successfully Logged Out");
-            alert.show();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Fail to delete login cookie for unknown reasons.");
-            alert.show();
-        }
-        updateLoginCookieButton();
-    }
-
-    @FXML
     public void setFilenameFormatToDefault(){
         filenameFormatField.setText("Chapter{chapter_number}_{chapter_title}");
-    }
-
-    public void updateLoginCookieButton(){
-        boolean loginCookieExists = parser.loginCookieExists();
-        logoutButton.setVisible(loginCookieExists);
-        logoutButton.setManaged(loginCookieExists);
     }
 
     @FXML
