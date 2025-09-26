@@ -149,6 +149,11 @@ public class Parser {
         initialized = false;
     }
 
+    public void restartBrowser(){
+        quit();
+        initialize(true);
+    }
+
     /**
      * Sets the amount of wait time the driver will wait for various operation attempts (such as waiting for
      * a webpage or web element to load) before giving up.
@@ -737,6 +742,13 @@ public class Parser {
     public boolean deleteLoginCookieFile(){
         File loginCookieFile = new File("loginCookie.ser");
         return loginCookieFile.delete();
+    }
+
+    /**
+     * Removes the login cookie from the parser (not the one saved as a file).
+     */
+    public void deleteLoginCookie(){
+        loginCookie = null;
     }
 
     /**

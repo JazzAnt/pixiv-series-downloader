@@ -41,7 +41,7 @@ public class ConfigController implements Initializable {
     @FXML
     protected TextField filenameFormatField;
     @FXML
-    protected Button removeLoginCookieButton;
+    protected Button logoutButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -70,14 +70,16 @@ public class ConfigController implements Initializable {
     }
 
     @FXML
-    protected void handleRemoveLoginCookieButton(){
+    protected void handleLogoutButton(){
         if(parser.deleteLoginCookieFile()){
+            parser.deleteLoginCookie();
+            parser.restartBrowser();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Login Cookie Removed (you're still logged in until you leave this session).");
+            alert.setContentText("Successfully Logged Out");
             alert.show();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Fail to delete cookie for unknown reasons.");
+            alert.setContentText("Fail to delete login cookie for unknown reasons.");
             alert.show();
         }
         updateLoginCookieButton();
@@ -90,8 +92,8 @@ public class ConfigController implements Initializable {
 
     public void updateLoginCookieButton(){
         boolean loginCookieExists = parser.loginCookieExists();
-        removeLoginCookieButton.setVisible(loginCookieExists);
-        removeLoginCookieButton.setManaged(loginCookieExists);
+        logoutButton.setVisible(loginCookieExists);
+        logoutButton.setManaged(loginCookieExists);
     }
 
     @FXML

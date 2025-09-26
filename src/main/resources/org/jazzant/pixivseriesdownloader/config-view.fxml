@@ -36,7 +36,7 @@
         <padding>
             <Insets bottom="5" left="5" right="25" top="5" />
         </padding>
-        <Button fx:id="removeLoginCookieButton" onAction="#handleRemoveLoginCookieButton" text="Remove Login Cookie"/>
+        <Button fx:id="logoutButton" onAction="#handleLogoutButton" text="Logout"/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
