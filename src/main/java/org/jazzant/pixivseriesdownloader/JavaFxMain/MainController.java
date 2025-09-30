@@ -147,6 +147,11 @@ public class MainController {
         logoutButton.setVisible(isLoggedIn);
         logoutButton.setVisible(isLoggedIn);
 
+        if(parser.getUsername().isEmpty()){
+            loggedInDisplay.setText("You're Logged In to Pixiv");
+        }else{
+            loggedInDisplay.setText("You're Logged In as " +parser.getUsername());
+        }
     }
 
     @FXML

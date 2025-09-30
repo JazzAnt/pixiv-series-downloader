@@ -36,6 +36,7 @@ public class Parser {
     private int waitTime = 10;
     private Dimension screensize;
     private Cookie loginCookie;
+    private String username = "";
 
     /**
      * Upon being instantiated, automatically calls initialize() to set-up the web driver.
@@ -62,6 +63,15 @@ public class Parser {
     public boolean isLoggedIn(){
         validateInitialization();
         return isLoggedIn;
+    }
+
+    /**
+     * Returns the username value. Does not parse the username value, simply returns the username value if it had been
+     * parsed before. Use parseUsername() to fill in the value before calling this method.
+     * @return the username value.
+     */
+    public String getUsername(){
+        return username;
     }
 
     /**
@@ -125,6 +135,7 @@ public class Parser {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
         loginCookieExpired = false;
         initialized = true;
+        username = "";
 
         if(loginCookie != null){
             loginWithCookie();
@@ -186,6 +197,7 @@ public class Parser {
             waitForLoginShort();
             if(isLoggedIn()) {
                 getLoginCookieFromBrowser();
+                parseUsername();
                 return true;
             }
             if(detectReCAPTCHA()){
@@ -212,6 +224,30 @@ public class Parser {
         quit();
         initialize(true);
         return isLoggedIn();
+    }
+
+    /**
+     * Adds the login cookie to the browser which should cause the browser to be logged in to pixiv
+     * @throws ParserException if the parser doesn't have a login cookie to use.
+     */
+    public void loginWithCookie(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        driver.get(PIXIV_URL);
+        driver.manage().addCookie(loginCookie);
+        validateLoginStatus();
+        if(isLoggedIn) parseUsername();
+    }
+
+    /**
+     * Parses the user's username and stores it to the username variable, which can be retrieved with getUsername.
+     * @throws ParserException if the method is called while the user isn't logged in
+     */
+    private void parseUsername(){
+        if(!isLoggedIn()) throw new ParserException("parseUsername method cannot be called if the user isn't logged in");
+        driver.get("https://www.pixiv.net/dashboard");
+        WebElement element = driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div[3]/div/div[1]/div/div[3]/div[1]/div[3]/div/div/button/div/div"));
+        username = element.getDomAttribute("title");
     }
 
     /**
@@ -697,18 +733,6 @@ public class Parser {
         } catch (IOException | ClassNotFoundException e) {
             throw new ParserException("Error when getting cookie from file: " + e.getMessage());
         }
-    }
-
-    /**
-     * Adds the login cookie to the browser which should cause the browser to be logged in to pixiv
-     * @throws ParserException if the parser doesn't have a login cookie to use.
-     */
-    public void loginWithCookie(){
-        validateInitialization();
-        assertLoginCookieIsNotNull();
-        driver.get(PIXIV_URL);
-        driver.manage().addCookie(loginCookie);
-        validateLoginStatus();
     }
 
     /**
