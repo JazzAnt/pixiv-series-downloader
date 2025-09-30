@@ -37,22 +37,19 @@
         <padding>
             <Insets top="10" right="5"/>
         </padding>
-        <Label fx:id="saveCredentialLabel" text="Save Login Credentials  "/>
-        <CheckBox fx:id="saveCredentialCheckBox"/>
-        <Button fx:id="removeCredentialButton" text="Remove Saved Credentials" onAction="#handleRemoveCredentialsButton" visible="false" managed="false"/>
+        <Label fx:id="stayLoggedInLabel" text="Stay Logged In  "/>
+        <CheckBox fx:id="stayLoggedInCheckBox"/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
-            <Insets top="15"/>
+            <Insets top="15" right="15"/>
         </padding>
         <Button fx:id="loginButton" onAction="#handleLoginButton" text="Login"/>
-        <Label text="     "/>
     </HBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
-            <Insets top="15"/>
+            <Insets top="15" right="15"/>
         </padding>
-        <Button fx:id="loginManuallyButton" onAction="#handleLoginManuallyButton" text="Login Manually"/>
-        <Label fx:id="loginManuallyLabel" text=" (?)"/>
+        <Button fx:id="loginManuallyButton" onAction="#handleLoginManuallyButton" text="Open Browser and Login"/>
     </HBox>
 </VBox>

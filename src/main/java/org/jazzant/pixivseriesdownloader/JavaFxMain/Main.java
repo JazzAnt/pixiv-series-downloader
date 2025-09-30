@@ -49,6 +49,13 @@ public class Main extends Application {
         controller.setParser(parser);
         controller.setDownloader(downloader);
         controller.setConfigManager(configManager);
+        controller.updateLoginButton();
+
+        if(parser.isLoginCookieExpired()){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Your login session has expired, please login again.");
+            alert.showAndWait();
+        }
 
         stage.setTitle("Pixiv Series Downloader");
         stage.setScene(scene);

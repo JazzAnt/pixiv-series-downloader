@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,6 +22,8 @@ import java.util.Objects;
  * Class that uses a Selenium WebDriver to parse through pixiv URLs.
  */
 public class Parser {
+    private final String PIXIV_URL = "https://www.pixiv.net";
+    private final String LOGIN_COOKIE_NAME = "PHPSESSID";
     private boolean initialized = false;
     private WebDriver driver;
     private WebDriver.Window window;
@@ -29,8 +31,10 @@ public class Parser {
     private WebDriverWait driverLongWait;
     private boolean isLoggedIn;
     private boolean isHeadless;
+    private boolean loginCookieExpired;
     private int waitTime = 10;
     private Dimension screensize;
+    private Cookie loginCookie;
 
     /**
      * Upon being instantiated, automatically calls initialize() to set-up the web driver.
@@ -50,12 +54,30 @@ public class Parser {
     }
 
     /**
-     * Checks if the Parser is logged in to Pixiv.
+     * Checks if the Parser is logged in to Pixiv. This method checks the Parser's isLoggedIn variable, it does NOT check the actual website.
+     * Use validateLoginStatus to check the status of the actual website, and use this method to retrieve its result.
      * @return true if it's logged in. False if not.
      */
     public boolean isLoggedIn(){
         validateInitialization();
         return isLoggedIn;
+    }
+
+    /**
+     * Checks if the parser is logged in to Pixiv by going to the login page and seeing if the user is redirected to the home page.
+     * This method does not return a value but rather saves the value inside the Parser object. The value can be retrieved using
+     * the isLoggedIn() method. (Note that as mentioned, this checks the login status by going to the login page and waiting for a
+     * redirect, thus if the parser is currently on another page doing something else calling this method may mess things up. Instead,
+     * call this method before trying to parse other pages and use isLoggedIn to retrieve the value later).
+     */
+    private void validateLoginStatus(){
+        try {
+            goToLoginPage();
+            driverWait.until(d -> checkIfNotInLoginPage());
+            isLoggedIn = true;
+        } catch (TimeoutException _){
+            isLoggedIn = false;
+        }
     }
 
     /**
@@ -68,13 +90,21 @@ public class Parser {
     }
 
     /**
+     * Checks if the parser has deleted the login cookie due to it expiring during the latest initialization.
+     * @return true if the parser has just deleted the login cookie because it has passed its expiry date.
+     */
+    public boolean isLoginCookieExpired(){
+        validateInitialization();
+        return loginCookieExpired;
+    }
+
+    /**
      * Initializes the parser, creating the WebDriver and settings.
      * @param asHeadless if true then the browser is created in headless mode
      * @throws ParserException if the Parser is already initialized.
      */
     private void initialize(boolean asHeadless) throws ParserException {
         if(initialized) throw new ParserException("Parser is already initialized.");
-        isLoggedIn = false;
         FirefoxOptions options = new FirefoxOptions();
         screensize = Toolkit.getDefaultToolkit().getScreenSize();
         if(asHeadless) {
@@ -92,8 +122,22 @@ public class Parser {
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTime));
         driverLongWait = new WebDriverWait(driver, Duration.ofSeconds(90));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(waitTime));
+        loginCookieExpired = false;
         initialized = true;
-        if(!asHeadless) windowMinimize();
+
+        if(loginCookie != null){
+            loginWithCookie();
+        }
+        else if(getLoginCookieFromFile()){
+            if(validateLoginCookieExpiry()){
+                loginWithCookie();
+            }
+            else {
+                deleteLoginCookieFile();
+                loginCookieExpired = true;
+            }
+        }
+        else isLoggedIn = false;
     }
 
     /**
@@ -103,6 +147,11 @@ public class Parser {
         validateInitialization();
         driver.quit();
         initialized = false;
+    }
+
+    public void restartBrowser(){
+        quit();
+        initialize(true);
     }
 
     /**
@@ -129,17 +178,20 @@ public class Parser {
      */
     public boolean loginPixiv(String pixivUsername, String pixivPassword) {
         validateInitialization();
-        if(isLoggedIn) throw new ParserException("The user is already logged in.");
+        if(isLoggedIn()) throw new ParserException("The user is already logged in.");
         goToLoginPage();
         if(enterUsernameField(pixivUsername) && enterPasswordField(pixivPassword)) {
             clickLoginButton();
-            isLoggedIn = waitForLoginShort();
-            if(isLoggedIn) return true;
+            waitForLoginShort();
+            if(isLoggedIn()) {
+                getLoginCookieFromBrowser();
+                return true;
+            }
             if(detectReCAPTCHA()){
                 throw new ParserReCaptchaException("Login Failed due to ReCaptcha.");
             }
         }
-        return isLoggedIn;
+        return isLoggedIn();
     }
 
     /**
@@ -154,11 +206,11 @@ public class Parser {
         quit();
         initialize(false);
         goToLoginPage();
-        setScreenSizeSmall();
-        isLoggedIn = waitForLoginLong();
-        setScreenSizeHuge();
-        windowMinimize();
-        return isLoggedIn;
+        waitForLoginLong();
+        if(isLoggedIn()) getLoginCookieFromBrowser();
+        quit();
+        initialize(true);
+        return isLoggedIn();
     }
 
     /**
@@ -285,7 +337,6 @@ public class Parser {
     public String getNextChapterURL(){
         validateInitialization();
         String nextChapterLink;
-        String PIXIV_URL = "https://www.pixiv.net";
         if(inSeriesPage()){
             nextChapterLink = PIXIV_URL + driver
                     .findElement(By.className("gtm-manga-series-first-story")).findElement(By.tagName("a"))
@@ -561,7 +612,8 @@ public class Parser {
     private boolean waitForLoginShort(){
         try {
             driverWait.until(d -> checkIfNotInLoginPage());
-            return checkIfLoggedIn();
+            validateLoginStatus();
+            return isLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -576,7 +628,8 @@ public class Parser {
     private boolean waitForLoginLong(){
         try {
             driverLongWait.until(d -> checkIfNotInLoginPage());
-            return checkIfLoggedIn();
+            validateLoginStatus();
+            return isLoggedIn();
         }
         catch (TimeoutException _){
             return false;
@@ -592,21 +645,6 @@ public class Parser {
         return !Objects.requireNonNull(driver.getCurrentUrl()).contains("accounts.pixiv.net/login");
     }
 
-    /**
-     * Checks if the parser is logged in to Pixiv. This is done by going to the login page and waiting. If the parser is
-     * logged in, it should automatically redirect to the main pixiv page. But if it's not logged in, then the parser
-     * would stay in the login page.
-     * @return true if the parser is logged in to Pixiv
-     */
-    private boolean checkIfLoggedIn(){
-        try {
-            goToLoginPage();
-            driverWait.until(d -> checkIfNotInLoginPage());
-            return true;
-        } catch (TimeoutException _){
-            return false;
-        }
-    }
 
     /**
      * Detects if a reCAPTCHA is present on the screen.
@@ -624,8 +662,119 @@ public class Parser {
     }
 
     /*
+     * LOGIN COOKIE METHODS
+     */
+
+    /**
+     * Attempts to fetch the login cookie from the browser.
+     * @return true if successful, false if not (failure is caused by the user not currently being logged in).
+     */
+    public boolean getLoginCookieFromBrowser(){
+        validateInitialization();
+        if(isLoggedIn()) {
+            loginCookie = driver.manage().getCookieNamed(LOGIN_COOKIE_NAME);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to fetch the login cookie that is saved as a file.
+     * @return true if successful, false if the login cookie file cannot be found.
+     * @throws ParserException if the fetching attempt fails for any reason besides the file not being found.
+     */
+    public boolean getLoginCookieFromFile(){
+        validateInitialization();
+        try {
+            FileInputStream fis = new FileInputStream("loginCookie.ser");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            loginCookie = (Cookie) ois.readObject();
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new ParserException("Error when getting cookie from file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds the login cookie to the browser which should cause the browser to be logged in to pixiv
+     * @throws ParserException if the parser doesn't have a login cookie to use.
+     */
+    public void loginWithCookie(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        driver.get(PIXIV_URL);
+        driver.manage().addCookie(loginCookie);
+        validateLoginStatus();
+    }
+
+    /**
+     * Writes and saves the cookie to a loginCookie.ser file.
+     * @throws ParserException if the parser doesn't have a login cookie to save.
+     */
+    public void saveLoginCookieToFile(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        try {
+            FileOutputStream fos = new FileOutputStream("loginCookie.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(loginCookie);
+        } catch (IOException e) {
+            throw new ParserException("Error when saving cookie to file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Checks if the login cookie file exists.
+     * @return true if the file exists and false if not.
+     */
+    public boolean loginCookieFileExists(){
+        File loginCookieFile = new File("loginCookie.ser");
+        return loginCookieFile.exists() && !loginCookieFile.isDirectory();
+    }
+
+    /**
+     * Deletes the loginCookie.ser file.
+     * @return true if successful, false if fails for any reason.
+     */
+    public boolean deleteLoginCookieFile(){
+        File loginCookieFile = new File("loginCookie.ser");
+        return loginCookieFile.delete();
+    }
+
+    /**
+     * Removes the login cookie from the parser (not the one saved as a file).
+     */
+    public void deleteLoginCookie(){
+        loginCookie = null;
+    }
+
+    /**
+     * Checks if the login cookie is expired by checking it's expiry date and comparing it to the current time.
+     * @return true if it's NOT expired, false if it IS expired.
+     * @throws ParserException if the parser doesn't have a login cookie to validate.
+     */
+    public boolean validateLoginCookieExpiry(){
+        validateInitialization();
+        assertLoginCookieIsNotNull();
+        long expiryDate = loginCookie.getExpiry().getTime();
+        long currentTime = System.currentTimeMillis();
+        return currentTime < expiryDate;
+    }
+
+    /**
+     * Throws an exception if the Parser doesn't have a login cookie.
+     */
+    private void assertLoginCookieIsNotNull(){
+        if(loginCookie == null) throw new ParserException("Parser doesn't have the login cookie. Please use getLoginCookieFromBrowser or getLoginCookieFromFile before this method!");
+    }
+
+    /*
      * MISC PRIVATE METHODS
      */
+
 
     /**
      * Minimizes the driver window.
