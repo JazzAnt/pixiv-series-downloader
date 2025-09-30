@@ -16,6 +16,7 @@ import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Main extends Application {
@@ -28,6 +29,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         createDataFolder();
+        createReadme();
         if(!configManager.configIsValid()) createConfig();
         broker = new SeriesBroker();
 
@@ -68,6 +70,31 @@ public class Main extends Application {
     private void createDataFolder() throws IOException {
         File folder = new File(FilePath.DATA_FOLDER.getPath());
         folder.mkdir();
+    }
+
+    private void createReadme() throws IOException {
+        File readme = new File(FilePath.README_FILE.getPath());
+        if(readme.createNewFile()){
+            writeReadme(readme);
+        }
+    }
+
+    private void writeReadme(File file) throws IOException {
+        try(FileWriter writer = new FileWriter(file)){
+            String message = "This folder is used to contain all the data needed by the Pixiv Series Downloader application.\n" +
+                    "This folder should be located at the same location as the PixivSeriesDownloader.jar file.\n" +
+                    "You may rename the .jar file but this folder and all it's contents cannot have any of it's names changed\n" +
+                    "Changing the name of this folder or any of its contents will cause the application to not be able to detect your user data.\n" +
+                    "\n" +
+                    "If you're updating the app from version 1.0 where all the files are not contained in this folder,\n" +
+                    "please move any existing PixivSeriesDownloader.db file and app.config file to this folder to retain your old data\n" +
+                    "\n" +
+                    "Also, if you checked 'Stay Logged In' you should see a loginCookie.ser file here.\n" +
+                    "That is your pixiv login cookie. It's what the app uses to stay logged in to your account.\n" +
+                    "DO NOT SHARE THAT FILE TO ANYONE. Sharing that file may lead to unauthorized access to your pixiv account.\n" +
+                    "PixivSeriesDownloader isn't responsible for any unauthorized access to your account if you fail to keep that file safe.";
+            writer.write(message);
+        }
     }
 
     private void createConfig() throws IOException {

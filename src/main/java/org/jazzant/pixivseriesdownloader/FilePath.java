@@ -2,6 +2,7 @@ package org.jazzant.pixivseriesdownloader;
 
 public enum FilePath {
     DATA_FOLDER("PixivSeriesDownloader_Data"),
+    README_FILE(DATA_FOLDER + "/README.txt"),
     DATABASE_FILE(DATA_FOLDER + "/PixivSeriesDownloader.db"),
     CONFIG_FILE(DATA_FOLDER + "/app.config"),
     COOKIE_FILE(DATA_FOLDER + "/loginCookie.ser"),
