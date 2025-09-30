@@ -1,6 +1,7 @@
 package org.jazzant.pixivseriesdownloader.JavaFxConfig;
 
 import org.jazzant.pixivseriesdownloader.Downloader.SaveAs;
+import org.jazzant.pixivseriesdownloader.FilePath;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -9,14 +10,13 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 public class ConfigManager {
-    private final String CONFIG_FILENAME = "app.config";
     public final String KEY_LIBRARY = "LIBRARY";
     public final String KEY_SAVEAS = "SAVEAS";
     public final String KEY_FILENAME_FORMAT = "FILENAMEFORMAT";
 
     public String getProperty(String key) {
         Properties properties = new Properties();
-        try(FileInputStream inputStream = new FileInputStream(CONFIG_FILENAME)){
+        try(FileInputStream inputStream = new FileInputStream(FilePath.CONFIG_FILE.getPath())){
             properties.load(inputStream);
             return properties.getProperty(key);
         } catch (IOException e){
@@ -26,10 +26,10 @@ public class ConfigManager {
 
     public void setProperty(String key, String value){
         Properties properties = new Properties();
-        try(FileInputStream inputStream = new FileInputStream(CONFIG_FILENAME)){
+        try(FileInputStream inputStream = new FileInputStream(FilePath.CONFIG_FILE.getPath())){
             properties.load(inputStream);
             properties.setProperty(key,value);
-            properties.store(new FileOutputStream(CONFIG_FILENAME), null);
+            properties.store(new FileOutputStream(FilePath.CONFIG_FILE.getPath()), null);
         } catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -37,17 +37,17 @@ public class ConfigManager {
 
     public void removeProperty(String key){
         Properties properties = new Properties();
-        try(FileInputStream inputStream = new FileInputStream(CONFIG_FILENAME)){
+        try(FileInputStream inputStream = new FileInputStream(FilePath.CONFIG_FILE.getPath())){
             properties.load(inputStream);
             properties.remove(key);
-            properties.store(new FileOutputStream(CONFIG_FILENAME), null);
+            properties.store(new FileOutputStream(FilePath.CONFIG_FILE.getPath()), null);
         } catch (IOException e){
             throw new RuntimeException(e);
         }
     }
 
     public void createConfigFile() throws IOException {
-        File file = new File(CONFIG_FILENAME);
+        File file = new File(FilePath.CONFIG_FILE.getPath());
         file.createNewFile();
     }
 
@@ -61,7 +61,7 @@ public class ConfigManager {
     }
 
     private boolean configExists(){
-        File file = new File(CONFIG_FILENAME);
+        File file = new File(FilePath.CONFIG_FILE.getPath());
         return file.exists();
     }
 

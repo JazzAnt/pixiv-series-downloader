@@ -15,10 +15,11 @@ import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigController;
 import org.jazzant.pixivseriesdownloader.JavaFxConfig.ConfigManager;
 import org.jazzant.pixivseriesdownloader.Parser.Parser;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Main extends Application {
-    private final SeriesBroker broker = new SeriesBroker();
+    private SeriesBroker broker;
     private final Parser parser = new Parser();
     private final Downloader downloader = new Downloader();
     private final ConfigManager configManager = new ConfigManager();
@@ -26,7 +27,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        createDataFolder();
         if(!configManager.configIsValid()) createConfig();
+        broker = new SeriesBroker();
 
         String libraryDir = configManager.getProperty(configManager.KEY_LIBRARY);
         SaveAs saveAs = SaveAs.valueOf(configManager.getProperty(configManager.KEY_SAVEAS));
@@ -40,7 +43,7 @@ public class Main extends Application {
             Platform.exit();
         });
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "main-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "main-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
 
@@ -62,9 +65,14 @@ public class Main extends Application {
         stage.show();
     }
 
+    private void createDataFolder() throws IOException {
+        File folder = new File(FilePath.DATA_FOLDER.getPath());
+        folder.mkdir();
+    }
+
     private void createConfig() throws IOException {
         configManager.createConfigFile();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "config-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "config-view.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         ConfigController controller = loader.getController();

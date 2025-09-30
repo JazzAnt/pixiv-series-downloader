@@ -2,6 +2,7 @@ package org.jazzant.pixivseriesdownloader.Parser;
 
 import org.jazzant.pixivseriesdownloader.Downloader.ImageURLUtils;
 import org.jazzant.pixivseriesdownloader.Database.SeriesStatus;
+import org.jazzant.pixivseriesdownloader.FilePath;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -687,7 +688,7 @@ public class Parser {
     public boolean getLoginCookieFromFile(){
         validateInitialization();
         try {
-            FileInputStream fis = new FileInputStream("loginCookie.ser");
+            FileInputStream fis = new FileInputStream(FilePath.COOKIE_FILE.getPath());
             ObjectInputStream ois = new ObjectInputStream(fis);
             loginCookie = (Cookie) ois.readObject();
             return true;
@@ -718,7 +719,7 @@ public class Parser {
         validateInitialization();
         assertLoginCookieIsNotNull();
         try {
-            FileOutputStream fos = new FileOutputStream("loginCookie.ser");
+            FileOutputStream fos = new FileOutputStream(FilePath.COOKIE_FILE.getPath());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(loginCookie);
         } catch (IOException e) {
@@ -731,7 +732,7 @@ public class Parser {
      * @return true if the file exists and false if not.
      */
     public boolean loginCookieFileExists(){
-        File loginCookieFile = new File("loginCookie.ser");
+        File loginCookieFile = new File(FilePath.COOKIE_FILE.getPath());
         return loginCookieFile.exists() && !loginCookieFile.isDirectory();
     }
 
@@ -740,7 +741,7 @@ public class Parser {
      * @return true if successful, false if fails for any reason.
      */
     public boolean deleteLoginCookieFile(){
-        File loginCookieFile = new File("loginCookie.ser");
+        File loginCookieFile = new File(FilePath.COOKIE_FILE.getPath());
         return loginCookieFile.delete();
     }
 

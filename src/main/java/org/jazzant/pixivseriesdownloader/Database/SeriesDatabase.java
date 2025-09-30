@@ -1,5 +1,7 @@
 package org.jazzant.pixivseriesdownloader.Database;
 
+import org.jazzant.pixivseriesdownloader.FilePath;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,22 +10,10 @@ import java.util.ArrayList;
 
 public class SeriesDatabase {
     private final String TABLE_NAME = "Series";
-    private String databaseUrl = "jdbc:sqlite:PixivSeriesDownloader.db";
+    private String databaseUrl = "jdbc:sqlite:" + FilePath.DATABASE_FILE;
 
     public SeriesDatabase(){
         this.createTable();
-    }
-
-    public SeriesDatabase(String databaseDirectory){
-        if(directoryExists(databaseDirectory)){
-            this.databaseUrl = "jdbc:sqlite:" + databaseDirectory + "series.db";
-        }
-        this.createTable();
-    }
-
-    private boolean directoryExists(String directory){
-        Path path = Paths.get(directory);
-        return Files.exists(path) && Files.isDirectory(path);
     }
 
     public void createTable(){

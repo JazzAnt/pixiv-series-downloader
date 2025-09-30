@@ -122,7 +122,7 @@ public class AddSeriesController implements Initializable {
 
         try{
             missingThumbnailImage = new Image(Objects.requireNonNull(
-                    getClass().getResource(FilePath.RESOURCE + "thumbnail_not_found.jpg")).openStream());
+                    getClass().getResource(FilePath.RESOURCE_FOLDER + "thumbnail_not_found.jpg")).openStream());
         } catch (IOException e) {
             missingThumbnailImage = null;
         }

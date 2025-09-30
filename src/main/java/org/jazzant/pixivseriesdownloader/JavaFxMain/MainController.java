@@ -58,7 +58,7 @@ public class MainController {
     private void openDownloadWindow(){
         downloadButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "download-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "download-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -86,7 +86,7 @@ public class MainController {
     private void openAddSeriesWindow(){
         addSeriesButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "add-series-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "add-series-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -114,7 +114,7 @@ public class MainController {
     private void openLoginWindow(){
         loginButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "login-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "login-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -153,7 +153,7 @@ public class MainController {
     public void openDatabaseViewerWindow(ActionEvent actionEvent) {
         databaseButton.setDisable(true);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "database-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "database-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root);
@@ -185,7 +185,7 @@ public class MainController {
     protected void openConfigWindow(){
         configButton.setDisable(true);
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE + "config-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FilePath.RESOURCE_FOLDER + "config-view.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             ConfigController controller = loader.getController();
