@@ -22,20 +22,20 @@
         </padding>
         <Text text="Login to Pixiv"/>
     </HBox>
-    <HBox alignment="CENTER" prefWidth="270">
-        <Label text="Username " prefWidth="70" alignment="CENTER_RIGHT"/>
-        <TextField fx:id="usernameField" promptText="Email Address or Pixiv ID" prefWidth="200"/>
-    </HBox>
-    <HBox alignment="CENTER" prefWidth="270">
+    <VBox alignment="CENTER_LEFT" prefWidth="250">
+        <Label text="E-mail Address or Pixiv ID" alignment="CENTER_LEFT"/>
+        <TextField fx:id="usernameField" promptText="Email Address or Pixiv ID" prefWidth="180"/>
+    </VBox>
+    <VBox alignment="CENTER_LEFT" prefWidth="250">
         <padding>
             <Insets top="5"/>
         </padding>
-        <Label text="Password " prefWidth="70" alignment="CENTER_RIGHT"/>
-        <PasswordField fx:id="passwordField" prefWidth="200"/>
-    </HBox>
+        <Label text="Password" alignment="CENTER_LEFT"/>
+        <PasswordField fx:id="passwordField" prefWidth="180"/>
+    </VBox>
     <HBox alignment="BOTTOM_RIGHT">
         <padding>
-            <Insets top="10" right="5"/>
+            <Insets top="10" right="15"/>
         </padding>
         <Label fx:id="stayLoggedInLabel" text="Stay Logged In  "/>
         <CheckBox fx:id="stayLoggedInCheckBox"/>
