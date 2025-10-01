@@ -35,6 +35,7 @@ The download menu is where you can make the app download the chapters. Note that
 
 ## Login Menu
 <img width="293" height="276" alt="{D7CAE32F-05D9-45C1-8B0C-8D415A4E9BB1}" src="https://github.com/user-attachments/assets/089dab47-4f7a-4827-8dbe-e2d117ee5fc4" />
+
 1. The login menu allows the user to login to Pixiv, which is needed when trying to download a chapter containing sensitive content (your account needs to have sensitive 18+ content enabled). 
 2. Login manually will open the browser and show it to the user for them to login manually. This is mainly used if the login button fails due to reCaptcha (which the user will be alerted to).
 3. The login can be retained between sessions by ticking the 'stay logged in' checkbox.
