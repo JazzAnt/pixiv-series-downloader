@@ -34,13 +34,12 @@ The download menu is where you can make the app download the chapters. Note that
 3. If the downloader encounters an error, it will prompt the user for what action to take.
 
 ## Login Menu
-<img width="291" height="278" alt="{126C1069-86A8-4C07-95BE-0B50EC3ED12B}" src="https://github.com/user-attachments/assets/38e7437e-4b1d-4f15-8ab9-50179452fc0d" />
+<img width="293" height="276" alt="{D7CAE32F-05D9-45C1-8B0C-8D415A4E9BB1}" src="https://github.com/user-attachments/assets/089dab47-4f7a-4827-8dbe-e2d117ee5fc4" />
 
-The login menu allows the user to login to Pixiv, which is needed when trying to download a chapter containing sensitive (18+) content.
-1. The login session cannot be remembered and the user must login every time they open the app
-2. Save credentials can save the username and password for easier login next time
-3. The login button will attempt to login with the given credentials.
-4. Login manually will open the browser and show it to the user for them to login manually. This is mainly used if the login button fails due to reCaptcha (which the user will be alerted to). Note that due to technical limitations, the browser must be kept open for the remainder of the session (but it can be minimized).
+1. The login menu allows the user to login to Pixiv, which is needed when trying to download a chapter containing sensitive content (your account needs to have sensitive 18+ content enabled). 
+2. Login manually will open the browser and show it to the user for them to login manually. This is mainly used if the login button fails due to reCaptcha (which the user will be alerted to).
+3. The login can be retained between sessions by ticking the 'stay logged in' checkbox.
+WARNING: When ticking stay logged in, the login retention is done by saving your login cookie as a 'loginCookie.ser' file inside the data folder. DO NOT SHARE THIS FILE WITH ANYONE, or else there is risk that someone will gain unauthorized access to your pixiv account. This app does not share the user's login cookie with anyone and is not responsible for any unauthorize access to the user's pixiv account if the user fails to not share their login cookie.
 
 ## Add Series Menu
 <img width="487" height="122" alt="{27BF36FE-4B5D-4EB9-8B1D-BC36B1206858}" src="https://github.com/user-attachments/assets/2825f10a-56ea-4c9d-b07f-653fef08da97" />
