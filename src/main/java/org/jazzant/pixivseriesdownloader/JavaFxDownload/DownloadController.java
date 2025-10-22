@@ -60,6 +60,10 @@ public class DownloadController {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
+                boolean skipAllBlocked = false;
+                boolean neverAskBlocked= false;
+                boolean skipAllFailed= false;
+                boolean neverAskFailed= false;
                 for(int i=0; i<seriesList.size(); i++){
                     updateProgress(i, seriesList.size());
                     Series series = seriesList.get(i);
@@ -96,17 +100,41 @@ public class DownloadController {
                                 }
                                 else {
                                     updateLog("(!) Failed to download " + describeChapter(series,chapter) + " for unknown reasons");
+
+                                    if(skipAllFailed){
+                                        updateLog("Automatically Skipping Failed Download");
+                                        break;
+                                    }
+
                                     FutureTask<Integer> futureTask = new FutureTask<>(
                                             new SkipAlert("Failed to download " + describeChapter(series,chapter) + " for unknown reasons. What would you like to do?", true)
                                     );
                                     Platform.runLater(futureTask);
                                     int choice = futureTask.get();
                                     if(choice == 0){
-                                        updateLog("Retrying download of " + describeChapter(series,chapter));
                                         continue;
                                     }
                                     else if(choice == 1) {
                                         updateLog("Skipping " + describeChapter(series,chapter));
+
+                                        if(!neverAskFailed) {
+                                            FutureTask<Integer> futureTask2 = new FutureTask<>(new SkipAllAlert("Do you want to skip all future chapters that fails to download (if any) in this session?"));
+                                            Platform.runLater(futureTask2);
+                                            int result = futureTask2.get();
+                                            switch (result) {
+                                                case 0 -> {
+                                                    updateLog("This session will automatically skip all failed downloads");
+                                                    skipAllFailed = true;break;
+                                                }
+                                                case 2 -> {
+                                                    neverAskFailed = true;break;
+                                                }
+                                                default -> {
+                                                    break;
+                                                }
+                                            }
+                                        }
+
                                         break;
                                     }
                                     else if(choice == 2) {
@@ -124,12 +152,36 @@ public class DownloadController {
 
                         } catch (ParserBlockedArtworkException e) {
                             updateLog("Chapter is blocked :" + e.getMessage());
+
+                            if(skipAllBlocked){
+                                updateLog("Automatically Skipping Blocked Chapter");
+                                continue;
+                            }
+
                             FutureTask<Integer> futureTask = new FutureTask<>(new SkipAlert(e.getMessage() + " What would you like to do?", false));
                             Platform.runLater(futureTask);
                             int choice = futureTask.get();
                             if(choice == 1) {
                                 updateLog("Skipping this chapter");
-                                continue;
+
+                                if(!neverAskBlocked) {
+                                    FutureTask<Integer> futureTask2 = new FutureTask<>(new SkipAllAlert("Do you want to skip all future blocked chapters (if any) in this session?"));
+                                    Platform.runLater(futureTask2);
+                                    int result = futureTask2.get();
+                                    switch (result) {
+                                        case 0 -> {
+                                            updateLog("This session will automatically skip all blocked chapters");
+                                            skipAllBlocked = true;break;
+                                        }
+                                        case 2 -> {
+                                            neverAskBlocked = true;break;
+                                        }
+                                        default -> {
+                                            break;
+                                        }
+                                    }
+                                }
+
                             }
                             else if(choice == 2) {
                                 updateLog("Skipping " + describeSeries(series) + " series");
@@ -196,10 +248,10 @@ public class DownloadController {
         public Integer call() throws Exception {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.getButtonTypes().clear();
-            ButtonType retryButton = new ButtonType("Retry Download");
+            ButtonType retryButton = new ButtonType("Retry");
             ButtonType skipChapterButton = new ButtonType("Skip Chapter");
             ButtonType skipSeriesButton = new ButtonType("Skip Series");
-            ButtonType stopButton = new ButtonType("Stop Download");
+            ButtonType stopButton = new ButtonType("Cancel Download");
             if(retryable) alert.getButtonTypes().add(retryButton);
             alert.getButtonTypes().add(skipChapterButton);
             alert.getButtonTypes().add(skipSeriesButton);
@@ -218,6 +270,31 @@ public class DownloadController {
         }
     }
 
+    private class SkipAllAlert implements Callable<Integer> {
+        private final String message;
+        public SkipAllAlert(String message){
+            this.message = message;
+        }
+        @Override
+        public Integer call() throws Exception {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.getButtonTypes().clear();
+            ButtonType neverButton = new ButtonType("Don't Ask Again");
+            alert.getButtonTypes().add(ButtonType.YES);
+            alert.getButtonTypes().add(ButtonType.NO);
+            alert.getButtonTypes().add(neverButton);
+            Text text = new Text(message);
+            text.setWrappingWidth(580);
+            alert.getDialogPane().setContent(text);
+            alert.getDialogPane().setPadding(new Insets(ALERT_PADDING));
+            alert.setWidth(600);
+            alert.showAndWait();
+            if(alert.getResult().equals(ButtonType.YES)) return 0;
+            if(alert.getResult().equals(ButtonType.NO)) return 1;
+            if(alert.getResult().equals(neverButton)) return 2;
+            return -1;
+        }
+    }
     private String describeSeries(Series series){
         return "「" + series.getTitle() + "」";
     }
